@@ -5,6 +5,11 @@
 /generated/
 /run/
 
+gradle/
+.idea/
+gradlew
+gradlew.bat
+
 # Class files
 **/*.class
 !libs-jmm/**/*.class
