@@ -5,13 +5,40 @@ SMART_NODE_CREATION=false;
 SKIP : " " | "\t" | "\r" | "\n";
 
 TOKEN :
-	< PLUS : "+" > |
-	< MINUS : "-" > |
-	< TIMES : "*" > |
-	< DIVIDE : "/" > |
-	< OPEN_PAREN : "(" > |
-	< CLOSE_PAREN : ")" > |
-	< INTEGER : (["0" - "9"])+ >
+	    < PLUS  : "+" >
+	|   < MINUS : "-" >
+	|   < TIMES : "*" >
+	|   < DIVIDE : "/" >
+
+	|   < OPEN_PAREN    : "(" >
+	|   < CLOSE_PAREN   : ")" >
+	|   < OPEN_SQR_BRACKET    : "[" >
+	|   < CLOSE_SQR_BRACKET   : "]" >
+	|   < OPEN_CRV_BRACKET    : "{" >
+	|   < CLOSE_CRV_BRACKET   : "}" >
+
+	|   < INTEGER : (< DIGIT >)+ >
+	|   < DIGIT : ["0" - "9"] >
+	|   < LETTER : ["a" - "z" , "A" - "Z"] >
+    |   < IDENTIFIER : (< LETTER >) (< LETTER > | < DIGIT > | "_")* >
+
+    |   < AND   : "&&" >
+    |   < LT    : "<" >
+    |   < TRUE  : "true" >
+    |   < FALSE : "false" >
+    |   < NOT   : "!" >
+    |   < EQ    : "=" >
+
+    |   < DOT   : "." >
+    |   < COMMA : "," >
+    |   < LENGTH    : "length" >
+    |   < THIS  : "this" >
+    |   < NEW   : "new" >
+
+    |   < INT   : "int" >
+    |   < BOOLEAN   : "boolean" >
+
+
 ;
 
 Start : AdditiveExpression <EOF> ;
