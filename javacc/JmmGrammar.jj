@@ -5,18 +5,32 @@ SMART_NODE_CREATION=false;
 SKIP : " " | "\t" | "\r" | "\n";
 
 TOKEN :
-	    < PLUS  : "+" >
+        < IMPORT    : "import" >
+    |   < CLASS     : "class" >
+    |   < EXTENDS   : "extends" >
+    |   < PUBLIC    : "public" >
+    |   < THIS      : "this" >
+    |   < NEW       : "new" >
+    |   < LENGTH    : "length" >
+
+    |   < INT       : "int" >
+    |   < BOOLEAN   : "boolean" >
+
+    |   < DOT       : "." >
+    |   < COMMA     : "," >
+    |   < SEMICOLON : ";" >
+
+    |   < OPEN_PAREN    : "(" >
+    |   < CLOSE_PAREN   : ")" >
+    |   < OPEN_SQR_BRACKET    : "[" >
+    |   < CLOSE_SQR_BRACKET   : "]" >
+    |   < OPEN_CRV_BRACKET    : "{" >
+    |   < CLOSE_CRV_BRACKET   : "}" >
+
+	|   < PLUS  : "+" >
 	|   < MINUS : "-" >
 	|   < TIMES : "*" >
 	|   < DIVIDE : "/" >
-
-	|   < OPEN_PAREN    : "(" >
-	|   < CLOSE_PAREN   : ")" >
-	|   < OPEN_SQR_BRACKET    : "[" >
-	|   < CLOSE_SQR_BRACKET   : "]" >
-	|   < OPEN_CRV_BRACKET    : "{" >
-	|   < CLOSE_CRV_BRACKET   : "}" >
-
 
 	|   < AND   : "&&" >
 	|   < LT    : "<" >
@@ -25,65 +39,38 @@ TOKEN :
 	|   < NOT   : "!" >
 	|   < EQ    : "=" >
 
-	|   < DOT   : "." >
-	|   < COMMA : "," >
-	|   < SEMICOLON  : ";" >
-	|   < LENGTH    : "length" >
-	|   < THIS  : "this" >
-	|   < NEW   : "new" >
-
-
-  	|   < IMPORT : "import" >
-	|   < INT   : "int" >
-	|   < BOOLEAN   : "boolean" >
-
 	|   < IDENTIFIER : (< LETTER >) (< LETTER > | < DIGIT > | "_")* >
-	|   < INTEGER : (< DIGIT >)+ >
-	|   < DIGIT : ["0" - "9"] >
-	|   < LETTER : ["a" - "z" , "A" - "Z"] >
+	|   < INTEGER   : (< DIGIT >)+ >
+	|   < DIGIT     : ["0" - "9"] >
+	|   < LETTER    : ["a" - "z" , "A" - "Z"] >
 
 
 ;
 
-Start : ImportDeclaration VarDeclaration <EOF> ;
+Start : ImportDeclaration ClassDeclaration <EOF> ;
 
 ImportDeclaration : 
-	(
-		< IMPORT > < IDENTIFIER > 
-			(
-				< DOT > < IDENTIFIER >
-			)* 
-		< SEMICOLON >
-	)* 
+	( < IMPORT > < IDENTIFIER > ( < DOT > < IDENTIFIER > )* < SEMICOLON > )*
 ;
 
-VarDeclaration : Type < IDENTIFIER > < SEMICOLON > ;
+ClassDeclaration :
+    < CLASS > < IDENTIFIER > (< EXTENDS > < IDENTIFIER >)?
+    < OPEN_CRV_BRACKET >
+        ( VarDeclaration )*
+        ( MethodDeclaration )*
+    < CLOSE_CRV_BRACKET >
+;
+
+VarDeclaration :
+    Type < IDENTIFIER > < SEMICOLON >
+;
+
+MethodDeclaration:
+    < PUBLIC > < SEMICOLON >
+;
+
 Type : 
-		(SCAN 2 < INT > < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > | < INT >) | 
-		< BOOLEAN > |
-		< IDENTIFIER >
-;
-
-
-
-AdditiveExpression :
-	MultiplicativeExpression
-	(
-		(< PLUS > | < MINUS >)
-		MultiplicativeExpression
-	)?
-;
-
-MultiplicativeExpression :
-	Factor
-	(
-		(< TIMES > | < DIVIDE >)
-		Factor
-	)?
-;
-
-Factor :
-	< INTEGER > |
-	< MINUS> Factor |
-	< OPEN_PAREN > AdditiveExpression < CLOSE_PAREN >
+    (SCAN 2 < INT > < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > | < INT >) |
+    < BOOLEAN > |
+    < IDENTIFIER >
 ;

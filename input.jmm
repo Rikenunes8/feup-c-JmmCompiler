@@ -1,2 +1,7 @@
 import jkl;
-int abc;
+class abc {
+    int[] aaa8;
+    boolean xxx;
+    public;
+    public;
+}
