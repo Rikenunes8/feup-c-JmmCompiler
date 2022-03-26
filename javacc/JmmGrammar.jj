@@ -66,14 +66,14 @@ ClassDeclaration :
 ;
 
 MethodDeclaration :
-    (SCAN 2
-    < PUBLIC > Type < IDENTIFIER >
+    < PUBLIC > (
+    Type < IDENTIFIER >
     < OPEN_PAREN > (Type < IDENTIFIER > (< COMMA > Type < IDENTIFIER >)* )? < CLOSE_PAREN >
     < OPEN_CRV_BRACKET > ( VarDeclaration )* ( Statement )* < RETURN > Expression < SEMICOLON > < CLOSE_CRV_BRACKET >
     |
-    < PUBLIC > < STATIC > < VOID > < MAIN >
+    < STATIC > < VOID > < MAIN >
     < OPEN_PAREN > <STRING> < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > < IDENTIFIER > < CLOSE_PAREN >
-    < OPEN_CRV_BRACKET > ( VarDeclaration )* ( Statement )* < CLOSE_CRV_BRACKET >)
+    < OPEN_CRV_BRACKET > ( VarDeclaration )* ( Statement )* < CLOSE_CRV_BRACKET > )
 ;
 
 VarDeclaration :
