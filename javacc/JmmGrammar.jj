@@ -33,10 +33,10 @@ TOKEN :
     |   < OPEN_CRV_BRACKET    : "{" >
     |   < CLOSE_CRV_BRACKET   : "}" >
 
-	|   < PLUS  : "+" >
-	|   < MINUS : "-" >
-	|   < TIMES : "*" >
-	|   < DIVIDE : "/" >
+	|   < ADD   : "+" >
+	|   < SUB   : "-" >
+	|   < MUL   : "*" >
+	|   < DIV   : "/" >
 
 	|   < AND   : "&&" >
 	|   < LT    : "<" >
@@ -49,8 +49,6 @@ TOKEN :
 	|   < INTEGER   : (< DIGIT >)+ >
 	|   < DIGIT     : ["0" - "9"] >
 	|   < LETTER    : ["a" - "z" , "A" - "Z"] >
-
-
 ;
 
 Start : ImportDeclaration ClassDeclaration <EOF> ;
@@ -86,13 +84,46 @@ Statement:
     < IF > < SEMICOLON >
 ;
 
-Expression:
-    < IDENTIFIER >
+Type : 
+		< INT > (< OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET >)?
+    |   < BOOLEAN >
+    |   < IDENTIFIER >
 ;
 
+Expression: AndExpression ;
 
-Type : 
-    (SCAN 2 < INT > < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > | < INT >) |
-    < BOOLEAN > |
-    < IDENTIFIER >
+AndExpression: LessThanExpression (< AND > LessThanExpression)* ;
+
+LessThanExpression: AddSubExpression (< LT > AddSubExpression)* ;
+
+AddSubExpression: MulDivExpression (< ADD > MulDivExpression | < SUB > MulDivExpression)* ;
+
+MulDivExpression: UnaryExpression (< MUL > UnaryExpression | < DIV > UnaryExpression)* ;
+
+UnaryExpression: (< NOT > Expression | LastLevelExpression) ;
+
+LastLevelExpression:
+    FinalExpression (< DOT > DotExpression | ArrExpression)*
+;
+
+DotExpression:
+        < LENGTH >
+    |   < IDENTIFIER > < OPEN_PAREN > ( Expression (< COMMA > Expression)* )? < CLOSE_PAREN >
+;
+
+ArrExpression: < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET > ;
+
+FinalExpression :
+        < INTEGER >
+    |   < TRUE >
+    |   < FALSE >
+    |   < THIS >
+    |   < NEW > NewExpression
+    |   < OPEN_PAREN > Expression < CLOSE_PAREN >
+    |   < IDENTIFIER >
+;
+
+NewExpression :
+        < INT > < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET >
+    |   < IDENTIFIER > < OPEN_PAREN > < CLOSE_PAREN >
 ;
