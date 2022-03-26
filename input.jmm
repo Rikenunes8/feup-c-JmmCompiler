@@ -2,6 +2,17 @@ import jkl;
 class abc {
     int[] aaa8;
     boolean xxx;
-    public;
-    public;
+
+    public int func( int a, int b) {
+        int c;
+
+        return c;
+    }
+
+    public static void main(String[] Identifier) {
+        int a;
+        int b;
+
+        if;
+    }
 }

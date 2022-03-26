@@ -12,6 +12,12 @@ TOKEN :
     |   < THIS      : "this" >
     |   < NEW       : "new" >
     |   < LENGTH    : "length" >
+    |   < RETURN    : "return" >
+    |   < STATIC    : "static" >
+    |   < VOID      : "void" >
+    |   < MAIN      : "main" >
+    |   < STRING    : "String" >
+    |   < IF        : "if" >
 
     |   < INT       : "int" >
     |   < BOOLEAN   : "boolean" >
@@ -61,13 +67,29 @@ ClassDeclaration :
     < CLOSE_CRV_BRACKET >
 ;
 
+MethodDeclaration :
+    (SCAN 2
+    < PUBLIC > Type < IDENTIFIER >
+    < OPEN_PAREN > (Type < IDENTIFIER > (< COMMA > Type < IDENTIFIER >)* )? < CLOSE_PAREN >
+    < OPEN_CRV_BRACKET > ( VarDeclaration )* ( Statement )* < RETURN > Expression < SEMICOLON > < CLOSE_CRV_BRACKET >
+    |
+    < PUBLIC > < STATIC > < VOID > < MAIN >
+    < OPEN_PAREN > <STRING> < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > < IDENTIFIER > < CLOSE_PAREN >
+    < OPEN_CRV_BRACKET > ( VarDeclaration )* ( Statement )* < CLOSE_CRV_BRACKET >)
+;
+
 VarDeclaration :
     Type < IDENTIFIER > < SEMICOLON >
 ;
 
-MethodDeclaration:
-    < PUBLIC > < SEMICOLON >
+Statement:
+    < IF > < SEMICOLON >
 ;
+
+Expression:
+    < IDENTIFIER >
+;
+
 
 Type : 
     (SCAN 2 < INT > < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > | < INT >) |
