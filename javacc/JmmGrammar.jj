@@ -52,10 +52,11 @@ ImportDeclaration :
 ;
 
 VarDeclaration : Type < IDENTIFIER > < SEMICOLON > ;
+
 Type : 
-		(SCAN 2 < INT > < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > | < INT >) | 
-		< BOOLEAN > |
-		< IDENTIFIER >
+		< INT > (< OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET >)?
+    |   < BOOLEAN >
+    |   < IDENTIFIER >
 ;
 
 Expression: AndExpression ;
@@ -86,13 +87,12 @@ FinalExpression :
     |   < TRUE >
     |   < FALSE >
     |   < THIS >
+    |   < NEW > NewExpression
     |   < OPEN_PAREN > Expression < CLOSE_PAREN >
     |   < IDENTIFIER >
-    |   NewExpression
 ;
 
 NewExpression :
-    < NEW > ( < INT > < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET >
-            | < IDENTIFIER > < OPEN_PAREN > < CLOSE_PAREN >
-            )
+        < INT > < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET >
+    |   < IDENTIFIER > < OPEN_PAREN > < CLOSE_PAREN >
 ;
