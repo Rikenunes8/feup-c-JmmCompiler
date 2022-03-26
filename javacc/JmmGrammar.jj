@@ -90,28 +90,20 @@ Type :
     |   < IDENTIFIER >
 ;
 
-Expression: AndExpression ;
-
-AndExpression: LessThanExpression (< AND > LessThanExpression)* ;
-
+Expression:         AndExpression ;
+AndExpression:      LessThanExpression (< AND > LessThanExpression)* ;
 LessThanExpression: AddSubExpression (< LT > AddSubExpression)* ;
-
-AddSubExpression: MulDivExpression (< ADD > MulDivExpression | < SUB > MulDivExpression)* ;
-
-MulDivExpression: UnaryExpression (< MUL > UnaryExpression | < DIV > UnaryExpression)* ;
-
-UnaryExpression: (< NOT > Expression | LastLevelExpression) ;
-
-LastLevelExpression:
-    FinalExpression (< DOT > DotExpression | ArrExpression)*
-;
+AddSubExpression:   MulDivExpression (< ADD > MulDivExpression | < SUB > MulDivExpression)* ;
+MulDivExpression:   UnaryExpression (< MUL > UnaryExpression | < DIV > UnaryExpression)* ;
+UnaryExpression:    (< NOT > Expression | LastLevelExpression) ;
+LastLevelExpression:    FinalExpression (< DOT > DotExpression | ArrExpression)* ;
+ArrExpression:      < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET > ;
 
 DotExpression:
         < LENGTH >
     |   < IDENTIFIER > < OPEN_PAREN > ( Expression (< COMMA > Expression)* )? < CLOSE_PAREN >
 ;
 
-ArrExpression: < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET > ;
 
 FinalExpression :
         < INTEGER >
