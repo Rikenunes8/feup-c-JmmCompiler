@@ -51,7 +51,7 @@ TOKEN :
 	|   < LETTER    : ["a" - "z" , "A" - "Z"] >
 ;
 
-Start : ImportDeclaration ClassDeclaration <EOF> ;
+Program : ImportDeclaration ClassDeclaration <EOF> ;
 
 ImportDeclaration : 
 	( < IMPORT > < IDENTIFIER > ( < DOT > < IDENTIFIER > )* < SEMICOLON > )*
