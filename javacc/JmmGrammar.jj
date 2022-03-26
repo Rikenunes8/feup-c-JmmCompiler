@@ -5,18 +5,38 @@ SMART_NODE_CREATION=false;
 SKIP : " " | "\t" | "\r" | "\n";
 
 TOKEN :
-	    < ADD   : "+" >
+        < IMPORT    : "import" >
+    |   < CLASS     : "class" >
+    |   < EXTENDS   : "extends" >
+    |   < PUBLIC    : "public" >
+    |   < THIS      : "this" >
+    |   < NEW       : "new" >
+    |   < LENGTH    : "length" >
+    |   < RETURN    : "return" >
+    |   < STATIC    : "static" >
+    |   < VOID      : "void" >
+    |   < MAIN      : "main" >
+    |   < STRING    : "String" >
+    |   < IF        : "if" >
+
+    |   < INT       : "int" >
+    |   < BOOLEAN   : "boolean" >
+
+    |   < DOT       : "." >
+    |   < COMMA     : "," >
+    |   < SEMICOLON : ";" >
+
+    |   < OPEN_PAREN    : "(" >
+    |   < CLOSE_PAREN   : ")" >
+    |   < OPEN_SQR_BRACKET    : "[" >
+    |   < CLOSE_SQR_BRACKET   : "]" >
+    |   < OPEN_CRV_BRACKET    : "{" >
+    |   < CLOSE_CRV_BRACKET   : "}" >
+
+	|   < ADD   : "+" >
 	|   < SUB   : "-" >
 	|   < MUL   : "*" >
 	|   < DIV   : "/" >
-
-	|   < OPEN_PAREN    : "(" >
-	|   < CLOSE_PAREN   : ")" >
-	|   < OPEN_SQR_BRACKET    : "[" >
-	|   < CLOSE_SQR_BRACKET   : "]" >
-	|   < OPEN_CRV_BRACKET    : "{" >
-	|   < CLOSE_CRV_BRACKET   : "}" >
-
 
 	|   < AND   : "&&" >
 	|   < LT    : "<" >
@@ -25,33 +45,44 @@ TOKEN :
 	|   < NOT   : "!" >
 	|   < EQ    : "=" >
 
-	|   < DOT   : "." >
-	|   < COMMA : "," >
-	|   < SEMICOLON : ";" >
-	|   < LENGTH    : "length" >
-	|   < THIS  : "this" >
-	|   < NEW   : "new" >
-
-
-  	|   < IMPORT    : "import" >
-	|   < INT   : "int" >
-	|   < BOOLEAN   : "boolean" >
-
 	|   < IDENTIFIER : (< LETTER >) (< LETTER > | < DIGIT > | "_")* >
-	|   < INTEGER : (< DIGIT >)+ >
-	|   < DIGIT : ["0" - "9"] >
-	|   < LETTER : ["a" - "z" , "A" - "Z"] >
-
-
+	|   < INTEGER   : (< DIGIT >)+ >
+	|   < DIGIT     : ["0" - "9"] >
+	|   < LETTER    : ["a" - "z" , "A" - "Z"] >
 ;
 
-Start : Expression <EOF> ;
+Start : ImportDeclaration ClassDeclaration <EOF> ;
 
 ImportDeclaration : 
-	( < IMPORT > < IDENTIFIER > (< DOT > < IDENTIFIER >)* < SEMICOLON > )*
+	( < IMPORT > < IDENTIFIER > ( < DOT > < IDENTIFIER > )* < SEMICOLON > )*
 ;
 
-VarDeclaration : Type < IDENTIFIER > < SEMICOLON > ;
+ClassDeclaration :
+    < CLASS > < IDENTIFIER > (< EXTENDS > < IDENTIFIER >)?
+    < OPEN_CRV_BRACKET >
+        ( VarDeclaration )*
+        ( MethodDeclaration )*
+    < CLOSE_CRV_BRACKET >
+;
+
+MethodDeclaration :
+    (SCAN 2
+    < PUBLIC > Type < IDENTIFIER >
+    < OPEN_PAREN > (Type < IDENTIFIER > (< COMMA > Type < IDENTIFIER >)* )? < CLOSE_PAREN >
+    < OPEN_CRV_BRACKET > ( VarDeclaration )* ( Statement )* < RETURN > Expression < SEMICOLON > < CLOSE_CRV_BRACKET >
+    |
+    < PUBLIC > < STATIC > < VOID > < MAIN >
+    < OPEN_PAREN > <STRING> < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > < IDENTIFIER > < CLOSE_PAREN >
+    < OPEN_CRV_BRACKET > ( VarDeclaration )* ( Statement )* < CLOSE_CRV_BRACKET >)
+;
+
+VarDeclaration :
+    Type < IDENTIFIER > < SEMICOLON >
+;
+
+Statement:
+    < IF > < SEMICOLON >
+;
 
 Type : 
 		< INT > (< OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET >)?
