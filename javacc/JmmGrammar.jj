@@ -17,31 +17,54 @@ TOKEN :
 	|   < OPEN_CRV_BRACKET    : "{" >
 	|   < CLOSE_CRV_BRACKET   : "}" >
 
+
+	|   < AND   : "&&" >
+	|   < LT    : "<" >
+	|   < TRUE  : "true" >
+	|   < FALSE : "false" >
+	|   < NOT   : "!" >
+	|   < EQ    : "=" >
+
+	|   < DOT   : "." >
+	|   < COMMA : "," >
+	|   < SEMICOLON  : ";" >
+	|   < LENGTH    : "length" >
+	|   < THIS  : "this" >
+	|   < NEW   : "new" >
+
+
+  	|   < IMPORT : "import" >
+	|   < INT   : "int" >
+	|   < BOOLEAN   : "boolean" >
+
+	|   < IDENTIFIER : (< LETTER >) (< LETTER > | < DIGIT > | "_")* >
 	|   < INTEGER : (< DIGIT >)+ >
 	|   < DIGIT : ["0" - "9"] >
 	|   < LETTER : ["a" - "z" , "A" - "Z"] >
-    |   < IDENTIFIER : (< LETTER >) (< LETTER > | < DIGIT > | "_")* >
-
-    |   < AND   : "&&" >
-    |   < LT    : "<" >
-    |   < TRUE  : "true" >
-    |   < FALSE : "false" >
-    |   < NOT   : "!" >
-    |   < EQ    : "=" >
-
-    |   < DOT   : "." >
-    |   < COMMA : "," >
-    |   < LENGTH    : "length" >
-    |   < THIS  : "this" >
-    |   < NEW   : "new" >
-
-    |   < INT   : "int" >
-    |   < BOOLEAN   : "boolean" >
 
 
 ;
 
-Start : AdditiveExpression <EOF> ;
+Start : ImportDeclaration VarDeclaration <EOF> ;
+
+ImportDeclaration : 
+	(
+		< IMPORT > < IDENTIFIER > 
+			(
+				< DOT > < IDENTIFIER >
+			)* 
+		< SEMICOLON >
+	)* 
+;
+
+VarDeclaration : Type < IDENTIFIER > < SEMICOLON > ;
+Type : 
+		(SCAN 2 < INT > < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > | < INT >) | 
+		< BOOLEAN > |
+		< IDENTIFIER >
+;
+
+
 
 AdditiveExpression :
 	MultiplicativeExpression
