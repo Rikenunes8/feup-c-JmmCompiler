@@ -5,10 +5,10 @@ SMART_NODE_CREATION=false;
 SKIP : " " | "\t" | "\r" | "\n";
 
 TOKEN :
-	    < PLUS  : "+" >
-	|   < MINUS : "-" >
-	|   < TIMES : "*" >
-	|   < DIVIDE : "/" >
+	    < ADD   : "+" >
+	|   < SUB   : "-" >
+	|   < MUL   : "*" >
+	|   < DIV   : "/" >
 
 	|   < OPEN_PAREN    : "(" >
 	|   < CLOSE_PAREN   : ")" >
@@ -27,13 +27,13 @@ TOKEN :
 
 	|   < DOT   : "." >
 	|   < COMMA : "," >
-	|   < SEMICOLON  : ";" >
+	|   < SEMICOLON : ";" >
 	|   < LENGTH    : "length" >
 	|   < THIS  : "this" >
 	|   < NEW   : "new" >
 
 
-  	|   < IMPORT : "import" >
+  	|   < IMPORT    : "import" >
 	|   < INT   : "int" >
 	|   < BOOLEAN   : "boolean" >
 
@@ -45,16 +45,10 @@ TOKEN :
 
 ;
 
-Start : ImportDeclaration VarDeclaration <EOF> ;
+Start : Expression <EOF> ;
 
 ImportDeclaration : 
-	(
-		< IMPORT > < IDENTIFIER > 
-			(
-				< DOT > < IDENTIFIER >
-			)* 
-		< SEMICOLON >
-	)* 
+	( < IMPORT > < IDENTIFIER > (< DOT > < IDENTIFIER >)* < SEMICOLON > )*
 ;
 
 VarDeclaration : Type < IDENTIFIER > < SEMICOLON > ;
@@ -64,26 +58,41 @@ Type :
 		< IDENTIFIER >
 ;
 
+Expression: AndExpression ;
 
+AndExpression: LessThanExpression (< AND > LessThanExpression)* ;
 
-AdditiveExpression :
-	MultiplicativeExpression
-	(
-		(< PLUS > | < MINUS >)
-		MultiplicativeExpression
-	)?
+LessThanExpression: AddSubExpression (< LT > AddSubExpression)* ;
+
+AddSubExpression: MulDivExpression (< ADD > MulDivExpression | < SUB > MulDivExpression)* ;
+
+MulDivExpression: UnaryExpression (< MUL > UnaryExpression | < DIV > UnaryExpression)* ;
+
+UnaryExpression: (< NOT > Expression | LastLevelExpression) ;
+
+LastLevelExpression:
+    FinalExpression (< DOT > DotExpression | ArrExpression)*
 ;
 
-MultiplicativeExpression :
-	Factor
-	(
-		(< TIMES > | < DIVIDE >)
-		Factor
-	)?
+DotExpression:
+        < LENGTH >
+    |   < IDENTIFIER > < OPEN_PAREN > ( Expression (< COMMA > Expression)* )? < CLOSE_PAREN >
 ;
 
-Factor :
-	< INTEGER > |
-	< MINUS> Factor |
-	< OPEN_PAREN > AdditiveExpression < CLOSE_PAREN >
+ArrExpression: < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET > ;
+
+FinalExpression :
+        < INTEGER >
+    |   < TRUE >
+    |   < FALSE >
+    |   < THIS >
+    |   < OPEN_PAREN > Expression < CLOSE_PAREN >
+    |   < IDENTIFIER >
+    |   NewExpression
+;
+
+NewExpression :
+    < NEW > ( < INT > < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET >
+            | < IDENTIFIER > < OPEN_PAREN > < CLOSE_PAREN >
+            )
 ;
