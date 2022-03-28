@@ -15,7 +15,14 @@ class abc {
 
         while(x)
         {
-            variable;
+            if(qualquercoisa)
+            {
+                x = 3;
+            }
+            else
+            {
+                x = 4;
+            }
         }
     }
 }
