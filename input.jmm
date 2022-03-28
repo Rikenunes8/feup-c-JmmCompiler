@@ -13,6 +13,9 @@ class abc {
         int a;
         int b;
 
-        if;
+        while(x)
+        {
+            variable;
+        }
     }
 }
