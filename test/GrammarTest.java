@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import java.util.*;
-
 public class GrammarTest {
+  String passPath = "test/fixtures/public/";
+  String failPath = "test/fixtures/public/fail/syntactical/";
 
   void test(String path, boolean pass) {
     try {
@@ -25,71 +25,87 @@ public class GrammarTest {
     }
   }
 
-
-  List<String> goodPaths() {
-    List<String> paths = new ArrayList<String>();
-
-    String path = "test/fixtures/public/";
-    String filename1  = "FindMaximum.jmm";
-    String filename2  = "HelloWorld.jmm";
-    String filename3  = "Lazysort.jmm";
-    String filename4  = "Life.jmm";
-    String filename5  = "MonteCarloPi.jmm";
-    String filename6  = "QuickSort.jmm";
-    String filename7  = "Simple.jmm";
-    String filename8  = "TicTacToe.jmm";
-    String filename9  = "WhileAndIf.jmm";
-
-    
-    //paths.add(path+filename1);
-   // paths.add(path+filename2);
-//    paths.add(path+filename3);
-//    paths.add(path+filename4);
-//    paths.add(path+filename5);
-//    paths.add(path+filename6);
-//    paths.add(path+filename7);
-//    paths.add(path+filename8);
-//    paths.add(path+filename9);
-
-    return paths;
-  }
-  
-  List<String> badPaths() {
-    List<String> paths = new ArrayList<String>();
-    String path = "test/fixtures/public/fail/syntactical/";
-
-    String filename1  = "BlowUp.jmm";
-    String filename2  = "CompleteWhileTest.jmm";
-    String filename3  = "LengthError.jmm";
-    String filename4  = "MissingRightPar.jmm";
-    String filename5  = "MultipleSequential.jmm";
-    String filename6  = "NestedLoop.jmm";
-    
-    paths.add(path+filename1);
-    paths.add(path+filename2);
-    paths.add(path+filename3);
-    paths.add(path+filename4);
-    paths.add(path+filename5);
-    paths.add(path+filename6);
-
-    return paths;
-  }
-  
   @Test
-  public void goodCode() {
-    List<String> good_paths = goodPaths();
-
-    for (String path : good_paths) { 
-      test(path, true);
-    }
+  public void findMaximum() {
+    String filename  = "FindMaximum.jmm";
+    test(passPath+filename, true);
   }
 
   @Test
-  public void badCode() {
-    List<String> bad_paths = badPaths();
+  public void helloWorld() {
+    String filename  = "HelloWorld.jmm";
+    test(passPath+filename, true);
+  }
 
-    for (String path : bad_paths) {
-      test(path, false);
-    }
+  @Test
+  public void lazysort() {
+    String filename  = "Lazysort.jmm";
+    test(passPath+filename, true);
+  }
+
+  @Test
+  public void life() {
+    String filename  = "Life.jmm";
+    test(passPath+filename, true);
+  }
+
+  @Test
+  public void monteCarloPi() {
+    String filename  = "MonteCarloPi.jmm";
+    test(passPath+filename, true);
+  }
+
+  @Test
+  public void quickSort() {
+    String filename  = "QuickSort.jmm";
+    test(passPath+filename, true);
+  }
+
+  @Test
+  public void ticTacToe() {
+    String filename  = "TicTacToe.jmm";
+    test(passPath+filename, true);
+  }
+
+  @Test
+  public void whileAndIf() {
+    String filename  = "WhileAndIf.jmm";
+    test(passPath+filename, true);
+  }
+
+  @Test
+  public void blowUp() {
+    String filename  = "BlowUp.jmm";
+    test(failPath+filename, false);
+  }
+
+  @Test
+  public void completeWhileTest() {
+    String filename  = "CompleteWhileTest.jmm";
+    test(failPath+filename, false);
+  }
+
+  @Test
+  public void lengthError() {
+    String filename  = "LengthError.jmm";
+    test(failPath+filename, false);
+  }
+
+  @Test
+  public void missingRightPar() {
+    String filename  = "MissingRightPar.jmm";
+    test(failPath+filename, false);
+  }
+
+  @Test
+  public void multipleSequential() {
+    String filename  = "MultipleSequential.jmm";
+    test(failPath+filename, false);
+  }
+
+  @Test
+  public void nestedLoop() {
+    String filename  = "NestedLoop.jmm";
+    test(failPath+filename, false);
   }
 }
