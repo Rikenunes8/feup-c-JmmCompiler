@@ -1,28 +1,6 @@
-import jkl;
-class abc {
-    int[] aaa8;
-    boolean xxx;
-
-    public int func( int a, int b) {
-        int c;
-
-        return c;
-    }
-
-    public static void main(String[] Identifier) {
-        int a;
-        int b;
-
-        while(x)
-        {
-            if(qualquercoisa)
-            {
-                x = 3;
-            }
-            else
-            {
-                x = 4;
-            }
-        }
-    }
+import ioPlus;
+class HelloWorld {
+	public static void main(String[] args) {
+		ioPlus.printHelloWorld();
+	}
 }
