@@ -2,7 +2,10 @@ PARSER_PACKAGE=pt.up.fe.comp;
 PARSER_CLASS=JmmGrammarParser;
 SMART_NODE_CREATION=false;
 
-SKIP : " " | "\t" | "\r" | "\n";
+
+SKIP :  " " | "\t" | "\r" | "\n"
+    |   < "//" (~["\r", "\n"])* >
+;
 
 TOKEN :
         < IMPORT    : "import" >
@@ -48,7 +51,7 @@ TOKEN :
 	|   < NOT   : "!" >
 	|   < EQ    : "=" >
 
-	|   < IDENTIFIER : (< LETTER >) (< LETTER > | < DIGIT > | "_")* >
+	|   < IDENTIFIER : ( < LETTER > | "_" ) (< LETTER > | < DIGIT > | "_")* >
 	|   < INTEGER   : (< DIGIT >)+ >
 	|   < DIGIT     : ["0" - "9"] >
 	|   < LETTER    : ["a" - "z" , "A" - "Z"] >
