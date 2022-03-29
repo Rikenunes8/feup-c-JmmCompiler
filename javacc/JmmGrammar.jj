@@ -18,6 +18,9 @@ TOKEN :
     |   < MAIN      : "main" >
     |   < STRING    : "String" >
     |   < IF        : "if" >
+    |   < ELSE      : "else" >
+    |   < WHILE     : "while" >
+    |   < FOR       : "for" >
 
     |   < INT       : "int" >
     |   < BOOLEAN   : "boolean" >
@@ -80,8 +83,12 @@ VarDeclaration :
     Type < IDENTIFIER > < SEMICOLON >
 ;
 
-Statement:
-    < IF > < SEMICOLON >
+Statement: 
+        < OPEN_CRV_BRACKET > Statement < CLOSE_CRV_BRACKET > 
+    |   < IF > < OPEN_PAREN > Expression < CLOSE_PAREN > Statement < ELSE > Statement
+    |   < WHILE > < OPEN_PAREN > Expression < CLOSE_PAREN > Statement
+    |   (SCAN 2 < IDENTIFIER > (< OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET >)? < EQ > Expression < SEMICOLON >
+    |    Expression < SEMICOLON >)
 ;
 
 Type : 

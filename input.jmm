@@ -13,6 +13,16 @@ class abc {
         int a;
         int b;
 
-        if;
+        while(x)
+        {
+            if(qualquercoisa)
+            {
+                x = 3;
+            }
+            else
+            {
+                x = 4;
+            }
+        }
     }
 }
