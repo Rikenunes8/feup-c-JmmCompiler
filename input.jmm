@@ -1,0 +1,17 @@
+import ioPlus;
+class HelloWorld {
+	public static void main(String[] args) {
+		ioPlus.printHelloWorld();
+        // skip 1
+        // skip 2
+        variable = 3;
+
+        /* skip 3 */
+        /*
+        skip 4
+        and more
+        */
+
+        /**/
+	}
+}
