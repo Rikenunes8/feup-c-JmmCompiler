@@ -1,19 +1,18 @@
 class Life 
 {
+    /**/
     public boolean init() {
         int[] lineLenA;
         int lineLen;
 
         lineLenA = new int[1];
 
-        /* "Static" variables */
         UNDERPOP_LIM = 2;
         OVERPOP_LIM = 3;
         REPRODUCE_NUM = 3;
 
         LOOPS_PER_MS = 225000;
 
-        /* Instance variables */
         field = this.field(lineLenA);
         lineLen = lineLenA[0];
 
@@ -22,6 +21,6 @@ class Life
 
         return true;
     }
-
     /**/
+
 }
