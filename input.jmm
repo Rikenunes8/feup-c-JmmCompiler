@@ -1,17 +1,27 @@
-import ioPlus;
-class HelloWorld {
-	public static void main(String[] args) {
-		ioPlus.printHelloWorld();
-        // skip 1
-        // skip 2
-        variable = 3;
+class Life 
+{
+    public boolean init() {
+        int[] lineLenA;
+        int lineLen;
 
-        /* skip 3 */
-        /*
-        skip 4
-        and more
-        */
+        lineLenA = new int[1];
 
-        /**/
-	}
+        /* "Static" variables */
+        UNDERPOP_LIM = 2;
+        OVERPOP_LIM = 3;
+        REPRODUCE_NUM = 3;
+
+        LOOPS_PER_MS = 225000;
+
+        /* Instance variables */
+        field = this.field(lineLenA);
+        lineLen = lineLenA[0];
+
+        xMax = lineLen - 1;
+        yMax = field.length / lineLen - 1;
+
+        return true;
+    }
+
+    /**/
 }
