@@ -1,28 +1,26 @@
-import jkl;
-class abc {
-    int[] aaa8;
-    boolean xxx;
+class Life 
+{
+    /**/
+    public boolean init() {
+        int[] lineLenA;
+        int lineLen;
 
-    public int func( int a, int b) {
-        int c;
+        lineLenA = new int[1];
 
-        return c;
+        UNDERPOP_LIM = 2;
+        OVERPOP_LIM = 3;
+        REPRODUCE_NUM = 3;
+
+        LOOPS_PER_MS = 225000;
+
+        field = this.field(lineLenA);
+        lineLen = lineLenA[0];
+
+        xMax = lineLen - 1;
+        yMax = field.length / lineLen - 1;
+
+        return true;
     }
+    /**/
 
-    public static void main(String[] Identifier) {
-        int a;
-        int b;
-
-        while(x)
-        {
-            if(qualquercoisa)
-            {
-                x = 3;
-            }
-            else
-            {
-                x = 4;
-            }
-        }
-    }
 }
