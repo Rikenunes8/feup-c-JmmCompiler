@@ -4,16 +4,16 @@ class Life {
     int UNDERPOP_LIM;
     int[] field;
 
-    public static void main(String[] a) {
+    public static void main(String[] a) { 
 		Life l;
 		int unused;
 
 		l = new Life();
 		l.init();
+        x = y;
 
         while (true) {
             l.printField();
-            l.update();
             unused = io.read();
         }
 
@@ -30,14 +30,7 @@ class Life {
         int[] field;
 
         field = new int[100];
-        lineLen[0] = 10;
-
-        field[0] = 0;
-        field[1] = 0;
-        field[2] = 1;
-        field[3] = 0;
-        
-
+        field[0] = 0;    
 
         return true && false;
 
@@ -46,5 +39,4 @@ class Life {
     public boolean ge(int a, int b) {
 		return !this.gt(a, b) && !this.eq(a, b);
 	}
-
 }

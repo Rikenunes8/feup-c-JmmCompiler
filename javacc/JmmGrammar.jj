@@ -88,15 +88,16 @@ MethodDeclaration :
     < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* < CLOSE_CRV_BRACKET > )
 ;
 
-VarDeclaration #void :
-    (Type < IDENTIFIER > < SEMICOLON >) #VarStatement
+VarDeclaration :
+    (Type < IDENTIFIER > < SEMICOLON >)
 ;
 
-Statement : 
-        < OPEN_CRV_BRACKET > ( Statement )* < CLOSE_CRV_BRACKET >
-    |   ( < IF > < OPEN_PAREN > Expression < CLOSE_PAREN > Statement < ELSE > Statement ) 
-    |   ( < WHILE > < OPEN_PAREN > Expression < CLOSE_PAREN > Statement )
-    |   (SCAN 2 < IDENTIFIER > (< OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET >)? < EQ > Expression < SEMICOLON > | Expression < SEMICOLON >)
+Statement #void : 
+        < OPEN_CRV_BRACKET > ( Statement )* < CLOSE_CRV_BRACKET > #NestedStatement
+    |   ( < IF > < OPEN_PAREN > Expression < CLOSE_PAREN > Statement < ELSE > Statement ) #IfStatement
+    |   ( < WHILE > < OPEN_PAREN > Expression < CLOSE_PAREN > Statement ) #WhileStatement
+    |   SCAN 2 (< IDENTIFIER > (< OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET >)? < EQ > Expression < SEMICOLON >) #AssignmentStatement
+    |   Expression < SEMICOLON >
 ;
 
 Type #void : 
@@ -116,7 +117,7 @@ ArrExpression #void:      < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET > 
 
 DotExpression #void:
         < LENGTH > #LengthToken
-    |   < IDENTIFIER > #IdentifierToken < OPEN_PAREN > ( Expression (< COMMA > Expression)* )? < CLOSE_PAREN >
+    |   (< IDENTIFIER > < OPEN_PAREN > (Expression (< COMMA > Expression)* )? < CLOSE_PAREN >) #FunctionCall
 ;
 
 
@@ -131,8 +132,8 @@ FinalExpression #void:
 ;
 
 NewExpression #void:
-        < INT > < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET >
-    |   < IDENTIFIER > #IdentifierToken < OPEN_PAREN > < CLOSE_PAREN >
+        < INT > < OPEN_SQR_BRACKET > #NewArray Expression < CLOSE_SQR_BRACKET >
+    |   < IDENTIFIER > #NewObject < OPEN_PAREN > < CLOSE_PAREN >
 ;
 
 
