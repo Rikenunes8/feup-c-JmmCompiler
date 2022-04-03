@@ -1,26 +1,50 @@
-class Life 
-{
-    /**/
-    public boolean init() {
-        int[] lineLenA;
-        int lineLen;
+import io;
+class Life {
 
-        lineLenA = new int[1];
+    int UNDERPOP_LIM;
+    int[] field;
 
-        UNDERPOP_LIM = 2;
-        OVERPOP_LIM = 3;
-        REPRODUCE_NUM = 3;
+    public static void main(String[] a) {
+		Life l;
+		int unused;
 
-        LOOPS_PER_MS = 225000;
+		l = new Life();
+		l.init();
 
-        field = this.field(lineLenA);
-        lineLen = lineLenA[0];
+        while (true) {
+            l.printField();
+            l.update();
+            unused = io.read();
+        }
 
-        xMax = lineLen - 1;
-        yMax = field.length / lineLen - 1;
-
-        return true;
     }
-    /**/
+
+    /* Change this! 
+     * (might want to write a script 
+     * to autogenerate every assignment...)
+     *
+     * lineLen is "pass by reference",
+     * and we modify it to return (e.g. time_t *time)
+     */
+    public int[] field(int[] lineLen) {
+        int[] field;
+
+        field = new int[100];
+        lineLen[0] = 10;
+
+        field[0] = 0;
+        field[1] = 0;
+        field[2] = 1;
+        field[3] = 0;
+        
+
+
+        return true && false;
+
+    }
+    
+    public boolean ge(int a, int b) {
+		return !this.gt(a, b) && !this.eq(a, b);
+	}
 
 }

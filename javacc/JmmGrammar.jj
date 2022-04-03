@@ -1,6 +1,7 @@
 PARSER_PACKAGE=pt.up.fe.comp;
 PARSER_CLASS=JmmGrammarParser;
 SMART_NODE_CREATION=false;
+TOKENS_ARE_NODES=false; // tokens are no longer nodes in the tree
 
 
 SKIP: < " " | "\t" | "\r" | "\n" | "\r\n" >
@@ -61,8 +62,11 @@ TOKEN :
 
 Program : ImportDeclaration ClassDeclaration <EOF> ;
 
-ImportDeclaration : 
-	( < IMPORT > < IDENTIFIER > ( < DOT > < IDENTIFIER > )* < SEMICOLON > )*
+// ({ jjtThis.put("value", lastConsumedToken.getImage()); })
+ImportDeclaration #void :
+	( (< IMPORT > 
+        < IDENTIFIER > ( < DOT > < IDENTIFIER > )* 
+    < SEMICOLON > ) #ImportStatement )*
 ;
 
 ClassDeclaration :
@@ -84,50 +88,78 @@ MethodDeclaration :
     < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* < CLOSE_CRV_BRACKET > )
 ;
 
-VarDeclaration :
-    Type < IDENTIFIER > < SEMICOLON >
+VarDeclaration #void :
+    (Type < IDENTIFIER > < SEMICOLON >) #VarStatement
 ;
 
-Statement: 
+Statement : 
         < OPEN_CRV_BRACKET > ( Statement )* < CLOSE_CRV_BRACKET >
-    |   < IF > < OPEN_PAREN > Expression < CLOSE_PAREN > Statement < ELSE > Statement
-    |   < WHILE > < OPEN_PAREN > Expression < CLOSE_PAREN > Statement
-    |   (SCAN 2 < IDENTIFIER > (< OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET >)? < EQ > Expression < SEMICOLON >
-    |    Expression < SEMICOLON >)
+    |   ( < IF > < OPEN_PAREN > Expression < CLOSE_PAREN > Statement < ELSE > Statement ) 
+    |   ( < WHILE > < OPEN_PAREN > Expression < CLOSE_PAREN > Statement )
+    |   (SCAN 2 < IDENTIFIER > (< OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET >)? < EQ > Expression < SEMICOLON > | Expression < SEMICOLON >)
 ;
 
-Type : 
+Type #void : 
 		< INT > (< OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET >)?
     |   < BOOLEAN >
     |   < IDENTIFIER >
 ;
 
-Expression:         AndExpression ;
-AndExpression:      LessThanExpression (< AND > LessThanExpression)* ;
-LessThanExpression: AddSubExpression (< LT > AddSubExpression)* ;
-AddSubExpression:   MulDivExpression (< ADD > MulDivExpression | < SUB > MulDivExpression)* ;
-MulDivExpression:   UnaryExpression (< MUL > UnaryExpression | < DIV > UnaryExpression)* ;
-UnaryExpression:    (< NOT > Expression | LastLevelExpression) ;
-LastLevelExpression:    FinalExpression (< DOT > DotExpression | ArrExpression)* ;
-ArrExpression:      < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET > ;
+Expression #void:         AndExpression ;
+AndExpression #void:      LessThanExpression (< AND > LessThanExpression #AndExp(2))* ;
+LessThanExpression #void: AddSubExpression (< LT > AddSubExpression #LessExp(2))* ;
+AddSubExpression #void:   MulDivExpression (< ADD > MulDivExpression #AddExp(2) | < SUB > MulDivExpression #SubExp(2))* ;
+MulDivExpression #void:   UnaryExpression (< MUL > UnaryExpression #MultExp(2) | < DIV > UnaryExpression #DivExp(2))* ;
+UnaryExpression #void:    (< NOT > UnaryExpression #NotExp(1) | LastLevelExpression) ;
+LastLevelExpression #void: FinalExpression (< DOT > DotExpression #DotExp(2) | ArrExpression #ArrayAccessExp(2) )* ;
+ArrExpression #void:      < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET > ;
 
-DotExpression:
-        < LENGTH >
-    |   < IDENTIFIER > < OPEN_PAREN > ( Expression (< COMMA > Expression)* )? < CLOSE_PAREN >
+DotExpression #void:
+        < LENGTH > #LengthToken
+    |   < IDENTIFIER > #IdentifierToken < OPEN_PAREN > ( Expression (< COMMA > Expression)* )? < CLOSE_PAREN >
 ;
 
 
-FinalExpression :
-        < INTEGER >
-    |   < TRUE >
-    |   < FALSE >
-    |   < THIS >
+FinalExpression #void:
+        < INTEGER > #NumberToken
+    |   < TRUE > #TrueToken
+    |   < FALSE > #FalseToken
+    |   < THIS > #ThisToken
     |   < NEW > NewExpression
     |   < OPEN_PAREN > Expression < CLOSE_PAREN >
-    |   < IDENTIFIER >
+    |   < IDENTIFIER > #IdentifierToken
 ;
 
-NewExpression :
+NewExpression #void:
         < INT > < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET >
-    |   < IDENTIFIER > < OPEN_PAREN > < CLOSE_PAREN >
+    |   < IDENTIFIER > #IdentifierToken < OPEN_PAREN > < CLOSE_PAREN >
 ;
+
+
+// in order to use jjtThis 
+
+INJECT BaseNode :
+		import pt.up.fe.comp.jmm.ast.JmmNode;
+		import pt.up.fe.comp.jmm.ast.AJmmNode;
+		import pt.up.fe.specs.util.SpecsCollections;
+		extends AJmmNode
+{
+    @Override
+    public List<JmmNode> getChildren() {
+
+        return SpecsCollections.cast(children(), JmmNode.class);
+    }
+
+    @Override
+    public void add(JmmNode child, int index) {
+
+        if (child instanceof Node) {
+
+            addChild(index, (Node) child);
+        } else {
+
+            throw new RuntimeException("Node " + child + " is not a Node.");
+        }
+
+    }
+}
