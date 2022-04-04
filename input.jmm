@@ -23,7 +23,8 @@ class Classe extends Parent {
             g = false;
             abc.f();
         }
-        b = new int[5+2]
-        new Other();
+        b = new int[5+2];
+
+        return new Other();
     }
 }

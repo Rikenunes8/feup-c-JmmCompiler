@@ -51,4 +51,5 @@ Class (id: Classe, ext: Parent)
                 Add
                     Number (val: 5)
                     Number (val: 2)
-            NewObject (id: Other)
+            Return
+                NewObject (id: Other)
