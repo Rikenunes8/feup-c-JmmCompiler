@@ -77,15 +77,20 @@ ClassDeclaration :
     < CLOSE_CRV_BRACKET >
 ;
 
-MethodDeclaration :
-    < PUBLIC > (
+MethodDeclaration #void :
+    < PUBLIC > ( Main | Method )
+;
+
+Main:
+    < STATIC > < VOID > < MAIN >
+    < OPEN_PAREN > <STRING> < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > < IDENTIFIER > < CLOSE_PAREN >
+    < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* < CLOSE_CRV_BRACKET >
+;
+
+Method:
     Type < IDENTIFIER >
     < OPEN_PAREN > (Type < IDENTIFIER > (< COMMA > Type < IDENTIFIER >)* )? < CLOSE_PAREN >
     < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* < RETURN > Expression < SEMICOLON > < CLOSE_CRV_BRACKET >
-    |
-    < STATIC > < VOID > < MAIN >
-    < OPEN_PAREN > <STRING> < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > < IDENTIFIER > < CLOSE_PAREN >
-    < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* < CLOSE_CRV_BRACKET > )
 ;
 
 VarDeclaration :
