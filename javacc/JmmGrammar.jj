@@ -126,7 +126,7 @@ WhileStatement:
 ;
 
 AssignmentStatement:
-    ( ((< IDENTIFIER > ({ jjtThis.put("var", lastConsumedToken.getImage()); }) ) #IdentifierLiteral ) (< OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET > #ArrayAccess(2) )? 
+    ( ((< IDENTIFIER > ({ jjtThis.put("val", lastConsumedToken.getImage()); }) ) #IdentifierLiteral ) (< OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET > #ArrayAccess(2) )? 
     < EQ > Expression < SEMICOLON >)
 ;
 
