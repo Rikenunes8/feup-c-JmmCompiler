@@ -1,7 +1,10 @@
 Imports
-    Import (id: abc)
-    Import (id: abc, id2: dfg) ????
-Class (id: Classe, ext: Parent)
+    ImportStatement 
+        PackageName (id: abc)
+    ImportStatement
+        PackageName (id: abc)
+        PackageName (id: dfg)
+Class (name: Classe, extends: Parent)
     VarDeclaration (type: int, id: a)
     VarDeclaration (type: int[], id: b)
     VarDeclaration (type: boolean, id: c)
@@ -33,7 +36,7 @@ Class (id: Classe, ext: Parent)
                     FunctionCall (id: set)
                         Identifier (id: e)
 
-    Method (type: boolean, id: set)
+    Method (type: boolean, name: set)
         Parameters
             Parameter (type: int, id: i)
             Parameter (type: int, id: j)
@@ -44,12 +47,13 @@ Class (id: Classe, ext: Parent)
                     True
                     Not
                         False
-            Assign
-                Identifier (id: g)
-                False
-            Dot
-                Identifier (id: abc)
-                FunctionCall (id: f)
+            WhileBlock
+                Assign
+                    Identifier (id: g)
+                    False
+                Dot
+                    Identifier (id: abc)
+                    FunctionCall (id: f)
         Assign
             Identifier (id: b)
             NewArray

@@ -28,6 +28,7 @@ TOKEN :
     |   < WHILE     : "while" >
     |   < FOR       : "for" >
 
+    |   < INTARR    : "int[]" >
     |   < INT       : "int" >
     |   < BOOLEAN   : "boolean" >
 
@@ -62,15 +63,17 @@ TOKEN :
 
 Program : ImportDeclaration ClassDeclaration <EOF> ;
 
-// ({ jjtThis.put("value", lastConsumedToken.getImage()); })
-ImportDeclaration #void :
-	( (< IMPORT > 
-        < IDENTIFIER > ( < DOT > < IDENTIFIER > )* 
+ImportDeclaration :
+	( (< IMPORT >
+        ( < IDENTIFIER > ({ jjtThis.put("val", lastConsumedToken.getImage()); }) #PackageName )
+        ( (< DOT > < IDENTIFIER > ({ jjtThis.put("val", lastConsumedToken.getImage()); }) #PackageName ) )* 
     < SEMICOLON > ) #ImportStatement )*
 ;
 
 ClassDeclaration :
-    < CLASS > < IDENTIFIER > (< EXTENDS > < IDENTIFIER >)?
+    < CLASS >  
+    < IDENTIFIER > ({ jjtThis.put("name", lastConsumedToken.getImage()); }) 
+    (< EXTENDS > < IDENTIFIER > ({ jjtThis.put("extends", lastConsumedToken.getImage()); }) )?
     < OPEN_CRV_BRACKET >
         ( VarDeclaration )*
         ( MethodDeclaration )*
@@ -78,35 +81,58 @@ ClassDeclaration :
 ;
 
 MethodDeclaration #void :
-    < PUBLIC > ( Main | Method )
+    < PUBLIC > ( PublicMain | PublicMethod )
 ;
 
-Main:
+PublicMain :
     < STATIC > < VOID > < MAIN >
-    < OPEN_PAREN > <STRING> < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > < IDENTIFIER > < CLOSE_PAREN >
+    < OPEN_PAREN > <STRING> < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > < IDENTIFIER > ({ jjtThis.put("args", lastConsumedToken.getImage()); }) < CLOSE_PAREN >
     < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* < CLOSE_CRV_BRACKET >
 ;
 
-Method:
-    Type < IDENTIFIER >
-    < OPEN_PAREN > (Type < IDENTIFIER > (< COMMA > Type < IDENTIFIER >)* )? < CLOSE_PAREN >
-    < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* < RETURN > Expression < SEMICOLON > < CLOSE_CRV_BRACKET >
+PublicMethod :
+    (Type) ({ jjtThis.put("type", lastConsumedToken.getImage()); }) < IDENTIFIER > ({ jjtThis.put("name", lastConsumedToken.getImage()); })
+    < OPEN_PAREN > ( MethodParameters )? < CLOSE_PAREN >
+    < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* ReturnStatement < CLOSE_CRV_BRACKET >
+;
+
+ReturnStatement :
+    < RETURN > Expression < SEMICOLON >
+; 
+
+MethodParameters : 
+    ( ( (Type) ({ jjtThis.put("type", lastConsumedToken.getImage()); }) < IDENTIFIER > ({ jjtThis.put("var", lastConsumedToken.getImage()); }) ) #Parameter )
+    ( ( < COMMA > (Type) ({ jjtThis.put("type", lastConsumedToken.getImage()); }) < IDENTIFIER > ({ jjtThis.put("var", lastConsumedToken.getImage()); }) ) #Parameter)* 
 ;
 
 VarDeclaration :
-    (Type < IDENTIFIER > < SEMICOLON >)
+    ( (Type) ({ jjtThis.put("type", lastConsumedToken.getImage()); }) < IDENTIFIER > ({ jjtThis.put("var", lastConsumedToken.getImage()); }) < SEMICOLON >) 
 ;
 
 Statement #void : 
-        < OPEN_CRV_BRACKET > ( Statement )* < CLOSE_CRV_BRACKET > #NestedStatement
-    |   ( < IF > < OPEN_PAREN > Expression < CLOSE_PAREN > Statement < ELSE > Statement ) #IfStatement
-    |   ( < WHILE > < OPEN_PAREN > Expression < CLOSE_PAREN > Statement ) #WhileStatement
-    |   SCAN 2 (< IDENTIFIER > (< OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET >)? < EQ > Expression < SEMICOLON >) #AssignmentStatement
+        < OPEN_CRV_BRACKET > ( Statement )* < CLOSE_CRV_BRACKET >
+    |   IfStatement
+    |   WhileStatement
+    |   SCAN 2 AssignmentStatement
     |   Expression < SEMICOLON >
 ;
 
+IfStatement: 
+    < IF > < OPEN_PAREN > (Expression) #Condition < CLOSE_PAREN > (Statement) #IfBlock < ELSE > (Statement) #ElseBlock
+;
+
+WhileStatement: 
+    < WHILE > < OPEN_PAREN > (Expression) #Condition < CLOSE_PAREN > (Statement) #WhileBlock 
+;
+
+AssignmentStatement:
+    ( ((< IDENTIFIER > ({ jjtThis.put("var", lastConsumedToken.getImage()); }) ) #IdentifierLiteral ) (< OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET > #ArrayAccess(2) )? 
+    < EQ > Expression < SEMICOLON >)
+;
+
 Type #void : 
-		< INT > (< OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET >)?
+		< INT > 
+    |   < INTARR >
     |   < BOOLEAN >
     |   < IDENTIFIER >
 ;
@@ -121,24 +147,24 @@ LastLevelExpression #void: FinalExpression (< DOT > DotExpression #DotExp(2) | A
 ArrExpression #void:      < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET > ;
 
 DotExpression #void:
-        < LENGTH > #LengthToken
-    |   (< IDENTIFIER > < OPEN_PAREN > (Expression (< COMMA > Expression)* )? < CLOSE_PAREN >) #FunctionCall
+        < LENGTH > #PropertyLength
+    |   (< IDENTIFIER > ({ jjtThis.put("name", lastConsumedToken.getImage()); }) < OPEN_PAREN > (Expression (< COMMA > Expression)* )? < CLOSE_PAREN >) #FunctionCall
 ;
 
 
 FinalExpression #void:
-        < INTEGER > #NumberToken
-    |   < TRUE > #TrueToken
-    |   < FALSE > #FalseToken
-    |   < THIS > #ThisToken
+        < INTEGER > ({ jjtThis.put("val", lastConsumedToken.getImage()); }) #IntegerLiteral
+    |   < TRUE > #TrueLiteral
+    |   < FALSE > #FalseLiteral
+    |   < THIS > #ThisLiteral
     |   < NEW > NewExpression
     |   < OPEN_PAREN > Expression < CLOSE_PAREN >
-    |   < IDENTIFIER > #IdentifierToken
+    |   < IDENTIFIER >  ({ jjtThis.put("val", lastConsumedToken.getImage()); }) #IdentifierLiteral
 ;
 
 NewExpression #void:
-        < INT > < OPEN_SQR_BRACKET > #NewArray Expression < CLOSE_SQR_BRACKET >
-    |   < IDENTIFIER > #NewObject < OPEN_PAREN > < CLOSE_PAREN >
+        < INT > < OPEN_SQR_BRACKET > (Expression) #NewArray < CLOSE_SQR_BRACKET >
+    |   ( < IDENTIFIER > ({ jjtThis.put("name", lastConsumedToken.getImage()); }) < OPEN_PAREN > < CLOSE_PAREN > ) #NewObject
 ;
 
 

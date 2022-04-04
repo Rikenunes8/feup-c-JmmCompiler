@@ -1,5 +1,5 @@
 import abc;
-import abc.dfg;
+import abc.dfg.gfd;
 
 class Classe extends Parent {
     int a;
@@ -22,6 +22,7 @@ class Classe extends Parent {
         while (true && !false) {
             g = false;
             abc.f();
+            f.length;
         }
         b = new int[5+2];
 
