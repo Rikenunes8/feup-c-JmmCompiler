@@ -23,41 +23,41 @@ public class Launcher {
 
         // At least the input file (mandatory argument)
         if (args.length < 1) {
-            throw new RuntimeException("Expected at least a single argument, a path to an existing input file." + correctInput);
+            throw new RuntimeException("Expected at least a single argument, a path to an existing input file. " + correctInput);
         }
         // No more than the needed arguments
         if (args.length > 4) {
-            throw new RuntimeException("Found too many arguments." + correctInput);
+            throw new RuntimeException("Found too many arguments. " + correctInput);
         }
         // Found invalid arguments: only -r=.., -o, -d and -i=.. are allowed
         if (Arrays.stream(args).anyMatch(arg -> (!arg.startsWith("-r=") && !Objects.equals(arg, "-o") && !Objects.equals(arg, "-d") && !arg.startsWith("-i=")))) {
-            throw new RuntimeException("Found invalid arguments: only -r=.., -o, -d and -i=.. are allowed." + correctInput);
+            throw new RuntimeException("Found invalid arguments: only -r=.., -o, -d and -i=.. are allowed. " + correctInput);
         }
 
         // Found repeated flags
         if ((Arrays.stream(args).filter(arg -> arg.startsWith("-r=")).count() > 1)
                 || (Collections.frequency(Arrays.asList(args),"-o") > 1)
                 || (Collections.frequency(Arrays.asList(args),"-d") > 1)) {
-            throw new RuntimeException("Found repeated flags." + correctInput);
+            throw new RuntimeException("Found repeated flags. " + correctInput);
         }
         // Not found the directive for the input file
         if (Arrays.stream(args).filter(arg -> arg.startsWith("-i=")).count() != 1) {
-            throw new RuntimeException("A path to one existing input file is a mandatory argument." + correctInput);
+            throw new RuntimeException("A path to one existing input file is a mandatory argument. " + correctInput);
         }
 
         // Get Arguments Values [Order between arguments do not matter]
-        String registerAllocation = (Arrays.stream(args).noneMatch(arg -> arg.startsWith("-r="))) ? "-1" : Arrays.stream(args).filter(arg -> arg.startsWith("-r=")).findFirst().toString().substring(3);
+        String registerAllocation = (Arrays.stream(args).noneMatch(arg -> arg.startsWith("-r="))) ? "-1" : Arrays.stream(args).filter(arg -> arg.startsWith("-r=")).findFirst().get().substring(3);
         String optimize = String.valueOf(Arrays.asList(args).contains("-o"));
         String debug = String.valueOf(Arrays.asList(args).contains("-d"));
-        String inputFileStr = Arrays.stream(args).filter(arg -> arg.startsWith("-i=")).findFirst().toString().substring(3);
+        String inputFileStr = Arrays.stream(args).filter(arg -> arg.startsWith("-i=")).findFirst().get().substring(3);
 
-        System.out.println("input file:" + inputFileStr);
-        System.out.println("optimize flag:" + optimize);
-        System.out.println("register value:" + registerAllocation);
-        System.out.println("debug flag:" + debug);
+        System.out.println("input file     : " + inputFileStr);
+        System.out.println("optimize flag  : " + optimize);
+        System.out.println("register value : " + registerAllocation);
+        System.out.println("debug flag     : " + debug);
 
         // Check -r option : <num> is an integer between 0 and 255 [or -1 that is equals to not having]
-        if (!registerAllocation.matches("\\b(-1|1?[0-9]{1,2}|2[0-4][0-9]|25[0-5])\\b")) {
+        if (!registerAllocation.matches("\\b(1?[0-9]{1,2}|2[0-4][0-9]|25[0-5])\\b") && !Objects.equals(registerAllocation, "-1")) {
             throw new RuntimeException("Expected a number between 0 and 255, got -r='" + registerAllocation + "'.");
         }
 
@@ -77,13 +77,13 @@ public class Launcher {
         config.put("debug", debug);
 
         // Instantiate JmmParser
-        // SimpleParser parser = new SimpleParser();
+        SimpleParser parser = new SimpleParser();
 
         // Parse stage
-        // JmmParserResult parserResult = parser.parse(input, config);
-        // System.out.println(parserResult.getRootNode().toTree());
+        JmmParserResult parserResult = parser.parse(input, config);
+        System.out.println(parserResult.getRootNode().toTree());
         // Check if there are parsing errors
-        // TestUtils.noErrors(parserResult.getReports());
+        TestUtils.noErrors(parserResult.getReports());
 
         // ... add remaining stages
     }
