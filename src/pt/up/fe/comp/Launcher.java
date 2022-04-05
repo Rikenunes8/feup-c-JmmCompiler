@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Collections;
+import java.util.Objects;
 
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.specs.util.SpecsIo;
@@ -18,50 +19,55 @@ public class Launcher {
 
         // comp [-r=<num>] [-o] [-d] -i=<file.jmm>
         SpecsLogs.info("Executing with args: " + Arrays.toString(args));
-        
-        // Default Arguments Values 
-        String registerAllocation = "-1"; // [-r] Type Integer
-        
+        String correctInput = "Correct input: .\\comp2022-1b [-r=<num>] [-o] [-d] -i=<file.jmm>";
 
-        // read the input code
-        // at least the input file
+        // At least the input file (mandatory argument)
         if (args.length < 1) {
-            throw new RuntimeException("Expected at least a single argument, a path to an existing input file.");
+            throw new RuntimeException("Expected at least a single argument, a path to an existing input file." + correctInput);
         }
-        // no more than the needed arguments
+        // No more than the needed arguments
         if (args.length > 4) {
-            throw new RuntimeException("Found too many arguments.");
+            throw new RuntimeException("Found too many arguments." + correctInput);
+        }
+        // Found invalid arguments: only -r=.., -o, -d and -i=.. are allowed
+        if (Arrays.stream(args).anyMatch(arg -> (!arg.startsWith("-r=") && !Objects.equals(arg, "-o") && !Objects.equals(arg, "-d") && !arg.startsWith("-i=")))) {
+            throw new RuntimeException("Found invalid arguments: only -r=.., -o, -d and -i=.. are allowed." + correctInput);
         }
 
-        // the last parameter is always the input file
-        String inputFileStr = "";
-        if (args[args.length-1].length() <= 3 || !args[args.length-1].substring(0, 3).equals("-i=") ) {
-            throw new RuntimeException("The last argument must be a path to an existing input file: -i=<input_file.jmm>.");        
-        } else {
-            inputFileStr = args[args.length-1].substring(3);
+        // Found repeated flags
+        if ((Arrays.stream(args).filter(arg -> arg.startsWith("-r=")).count() > 1)
+                || (Collections.frequency(Arrays.asList(args),"-o") > 1)
+                || (Collections.frequency(Arrays.asList(args),"-d") > 1)) {
+            throw new RuntimeException("Found repeated flags." + correctInput);
+        }
+        // Not found the directive for the input file
+        if (Arrays.stream(args).filter(arg -> arg.startsWith("-i=")).count() != 1) {
+            throw new RuntimeException("A path to one existing input file is a mandatory argument." + correctInput);
         }
 
-        // Repeted flags -o or -d not allowed
-        if (Collections.frequency(Arrays.asList(args),"-o") > 1 || Collections.frequency(Arrays.asList(args),"-d") > 1) {
-            throw new RuntimeException("The last argument must be a path to an existing input file: -i=<input_file.jmm>.");      
-        }
+        // Get Arguments Values [Order between arguments do not matter]
+        String registerAllocation = (Arrays.stream(args).noneMatch(arg -> arg.startsWith("-r="))) ? "-1" : Arrays.stream(args).filter(arg -> arg.startsWith("-r=")).findFirst().toString().substring(3);
         String optimize = String.valueOf(Arrays.asList(args).contains("-o"));
-        System.out.println(optimize);
         String debug = String.valueOf(Arrays.asList(args).contains("-d"));
-        // ArrayUtils.contains( fieldsToInclude, "id" )
-        // order between optional arguments do not matter
-
+        String inputFileStr = Arrays.stream(args).filter(arg -> arg.startsWith("-i=")).findFirst().toString().substring(3);
 
         System.out.println("input file:" + inputFileStr);
         System.out.println("optimize flag:" + optimize);
         System.out.println("register value:" + registerAllocation);
         System.out.println("debug flag:" + debug);
-        
+
+        // Check -r option : <num> is an integer between 0 and 255 [or -1 that is equals to not having]
+        if (!registerAllocation.matches("\\b(-1|1?[0-9]{1,2}|2[0-4][0-9]|25[0-5])\\b")) {
+            throw new RuntimeException("Expected a number between 0 and 255, got -r='" + registerAllocation + "'.");
+        }
+
+        // Is a path to an existing input file
         File inputFile = new File(inputFileStr);
         if (!inputFile.isFile()) {
-            throw new RuntimeException("Expected a path to an existing input file, got '" + inputFileStr + "'.");
+            throw new RuntimeException("Expected a path to an existing input file, got -i='" + inputFileStr + "'.");
         }
         String input = SpecsIo.read(inputFile);
+
 
         // Create config
         Map<String, String> config = new HashMap<>();
