@@ -6,7 +6,7 @@ class Classe extends Parent {
     int[] b;
     boolean c;
     Other d;
-    public static void main(String[] args) {
+    public static void main(String[ args) {
         int e;
         e = 0;
         b[0] = 1;
