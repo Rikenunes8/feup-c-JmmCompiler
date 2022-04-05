@@ -1,6 +1,7 @@
 PARSER_PACKAGE=pt.up.fe.comp;
 PARSER_CLASS=JmmGrammarParser;
 SMART_NODE_CREATION=false;
+TOKENS_ARE_NODES=false; // tokens are no longer nodes in the tree
 
 
 SKIP: < " " | "\t" | "\r" | "\n" | "\r\n" >
@@ -27,6 +28,7 @@ TOKEN :
     |   < WHILE     : "while" >
     |   < FOR       : "for" >
 
+    |   < INTARR    : "int[]" >
     |   < INT       : "int" >
     |   < BOOLEAN   : "boolean" >
 
@@ -61,73 +63,135 @@ TOKEN :
 
 Program : ImportDeclaration ClassDeclaration <EOF> ;
 
-ImportDeclaration : 
-	( < IMPORT > < IDENTIFIER > ( < DOT > < IDENTIFIER > )* < SEMICOLON > )*
+ImportDeclaration :
+	( (< IMPORT >
+        ( < IDENTIFIER > ({ jjtThis.put("val", lastConsumedToken.getImage()); }) #PackageName )
+        ( (< DOT > < IDENTIFIER > ({ jjtThis.put("val", lastConsumedToken.getImage()); }) #PackageName ) )* 
+    < SEMICOLON > ) #ImportStatement )*
 ;
 
 ClassDeclaration :
-    < CLASS > < IDENTIFIER > (< EXTENDS > < IDENTIFIER >)?
+    < CLASS >  
+    < IDENTIFIER > ({ jjtThis.put("name", lastConsumedToken.getImage()); }) 
+    (< EXTENDS > < IDENTIFIER > ({ jjtThis.put("extends", lastConsumedToken.getImage()); }) )?
     < OPEN_CRV_BRACKET >
         ( VarDeclaration )*
         ( MethodDeclaration )*
     < CLOSE_CRV_BRACKET >
 ;
 
-MethodDeclaration :
-    < PUBLIC > (
-    Type < IDENTIFIER >
-    < OPEN_PAREN > (Type < IDENTIFIER > (< COMMA > Type < IDENTIFIER >)* )? < CLOSE_PAREN >
-    < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* < RETURN > Expression < SEMICOLON > < CLOSE_CRV_BRACKET >
-    |
+MethodDeclaration #void :
+    < PUBLIC > ( PublicMain | PublicMethod )
+;
+
+PublicMain :
     < STATIC > < VOID > < MAIN >
-    < OPEN_PAREN > <STRING> < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > < IDENTIFIER > < CLOSE_PAREN >
-    < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* < CLOSE_CRV_BRACKET > )
+    < OPEN_PAREN > <STRING> < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > < IDENTIFIER > ({ jjtThis.put("args", lastConsumedToken.getImage()); }) < CLOSE_PAREN >
+    < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* < CLOSE_CRV_BRACKET >
+;
+
+PublicMethod :
+    (Type) ({ jjtThis.put("type", lastConsumedToken.getImage()); }) < IDENTIFIER > ({ jjtThis.put("name", lastConsumedToken.getImage()); })
+    < OPEN_PAREN > ( MethodParameters )? < CLOSE_PAREN >
+    < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* ReturnStatement < CLOSE_CRV_BRACKET >
+;
+
+ReturnStatement :
+    < RETURN > Expression < SEMICOLON >
+; 
+
+MethodParameters : 
+    ( ( (Type) ({ jjtThis.put("type", lastConsumedToken.getImage()); }) < IDENTIFIER > ({ jjtThis.put("var", lastConsumedToken.getImage()); }) ) #Parameter )
+    ( ( < COMMA > (Type) ({ jjtThis.put("type", lastConsumedToken.getImage()); }) < IDENTIFIER > ({ jjtThis.put("var", lastConsumedToken.getImage()); }) ) #Parameter)* 
 ;
 
 VarDeclaration :
-    Type < IDENTIFIER > < SEMICOLON >
+    ( (Type) ({ jjtThis.put("type", lastConsumedToken.getImage()); }) < IDENTIFIER > ({ jjtThis.put("var", lastConsumedToken.getImage()); }) < SEMICOLON >) 
 ;
 
-Statement: 
+Statement #void : 
         < OPEN_CRV_BRACKET > ( Statement )* < CLOSE_CRV_BRACKET >
-    |   < IF > < OPEN_PAREN > Expression < CLOSE_PAREN > Statement < ELSE > Statement
-    |   < WHILE > < OPEN_PAREN > Expression < CLOSE_PAREN > Statement
-    |   (SCAN 2 < IDENTIFIER > (< OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET >)? < EQ > Expression < SEMICOLON >
-    |    Expression < SEMICOLON >)
+    |   IfStatement
+    |   WhileStatement
+    |   SCAN 2 AssignmentStatement
+    |   Expression < SEMICOLON >
 ;
 
-Type : 
-		< INT > (< OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET >)?
+IfStatement: 
+    < IF > < OPEN_PAREN > (Expression) #Condition < CLOSE_PAREN > (Statement) #IfBlock < ELSE > (Statement) #ElseBlock
+;
+
+WhileStatement: 
+    < WHILE > < OPEN_PAREN > (Expression) #Condition < CLOSE_PAREN > (Statement) #WhileBlock 
+;
+
+AssignmentStatement:
+    ( ((< IDENTIFIER > ({ jjtThis.put("val", lastConsumedToken.getImage()); }) ) #IdentifierLiteral ) (< OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET > #ArrayAccess(2) )? 
+    < EQ > Expression < SEMICOLON >)
+;
+
+Type #void : 
+		< INT > 
+    |   < INTARR >
     |   < BOOLEAN >
     |   < IDENTIFIER >
 ;
 
-Expression:         AndExpression ;
-AndExpression:      LessThanExpression (< AND > LessThanExpression)* ;
-LessThanExpression: AddSubExpression (< LT > AddSubExpression)* ;
-AddSubExpression:   MulDivExpression (< ADD > MulDivExpression | < SUB > MulDivExpression)* ;
-MulDivExpression:   UnaryExpression (< MUL > UnaryExpression | < DIV > UnaryExpression)* ;
-UnaryExpression:    (< NOT > Expression | LastLevelExpression) ;
-LastLevelExpression:    FinalExpression (< DOT > DotExpression | ArrExpression)* ;
-ArrExpression:      < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET > ;
+Expression #void:         AndExpression ;
+AndExpression #void:      LessThanExpression (< AND > LessThanExpression #AndExp(2))* ;
+LessThanExpression #void: AddSubExpression (< LT > AddSubExpression #LessExp(2))* ;
+AddSubExpression #void:   MulDivExpression (< ADD > MulDivExpression #AddExp(2) | < SUB > MulDivExpression #SubExp(2))* ;
+MulDivExpression #void:   UnaryExpression (< MUL > UnaryExpression #MultExp(2) | < DIV > UnaryExpression #DivExp(2))* ;
+UnaryExpression #void:    (< NOT > UnaryExpression #NotExp(1) | LastLevelExpression) ;
+LastLevelExpression #void: FinalExpression (< DOT > DotExpression #DotExp(2) | ArrExpression #ArrayAccessExp(2) )* ;
+ArrExpression #void:      < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET > ;
 
-DotExpression:
-        < LENGTH >
-    |   < IDENTIFIER > < OPEN_PAREN > ( Expression (< COMMA > Expression)* )? < CLOSE_PAREN >
+DotExpression #void:
+        < LENGTH > #PropertyLength
+    |   (< IDENTIFIER > ({ jjtThis.put("name", lastConsumedToken.getImage()); }) < OPEN_PAREN > (Expression (< COMMA > Expression)* )? < CLOSE_PAREN >) #FunctionCall
 ;
 
 
-FinalExpression :
-        < INTEGER >
-    |   < TRUE >
-    |   < FALSE >
-    |   < THIS >
+FinalExpression #void:
+        < INTEGER > ({ jjtThis.put("val", lastConsumedToken.getImage()); }) #IntegerLiteral
+    |   < TRUE > #TrueLiteral
+    |   < FALSE > #FalseLiteral
+    |   < THIS > #ThisLiteral
     |   < NEW > NewExpression
     |   < OPEN_PAREN > Expression < CLOSE_PAREN >
-    |   < IDENTIFIER >
+    |   < IDENTIFIER >  ({ jjtThis.put("val", lastConsumedToken.getImage()); }) #IdentifierLiteral
 ;
 
-NewExpression :
-        < INT > < OPEN_SQR_BRACKET > Expression < CLOSE_SQR_BRACKET >
-    |   < IDENTIFIER > < OPEN_PAREN > < CLOSE_PAREN >
+NewExpression #void:
+        < INT > < OPEN_SQR_BRACKET > (Expression) #NewArray < CLOSE_SQR_BRACKET >
+    |   ( < IDENTIFIER > ({ jjtThis.put("name", lastConsumedToken.getImage()); }) < OPEN_PAREN > < CLOSE_PAREN > ) #NewObject
 ;
+
+
+// in order to use jjtThis 
+
+INJECT BaseNode :
+		import pt.up.fe.comp.jmm.ast.JmmNode;
+		import pt.up.fe.comp.jmm.ast.AJmmNode;
+		import pt.up.fe.specs.util.SpecsCollections;
+		extends AJmmNode
+{
+    @Override
+    public List<JmmNode> getChildren() {
+
+        return SpecsCollections.cast(children(), JmmNode.class);
+    }
+
+    @Override
+    public void add(JmmNode child, int index) {
+
+        if (child instanceof Node) {
+
+            addChild(index, (Node) child);
+        } else {
+
+            throw new RuntimeException("Node " + child + " is not a Node.");
+        }
+
+    }
+}

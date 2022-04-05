@@ -1,0 +1,64 @@
+Imports
+    ImportStatement 
+        PackageName (id: abc)
+    ImportStatement
+        PackageName (id: abc)
+        PackageName (id: dfg)
+Class (name: Classe, extends: Parent)
+    VarDeclaration (type: int, id: a)
+    VarDeclaration (type: int[], id: b)
+    VarDeclaration (type: boolean, id: c)
+    VarDeclaration (type: Other, id: d)
+    Main (id: args)
+        VarDeclaration (type: int, id: e)
+        Assign
+            Identifier (id: e)
+            Number (val: 0)
+        Assign
+            ArrAccess
+                Identifier (id: b)
+                Number (val: 0)
+            Number (val: 1)
+        IfStatement
+            Condition
+                True
+            IfBlock
+                Dot
+                    Identifier (id: d)
+                    FunctionCall (id: call)
+                        Identifier (id: e)
+            ElseBlock
+                Assign
+                    Identifier (id: e)
+                    Number (val: 1)
+                Dot
+                    This
+                    FunctionCall (id: set)
+                        Identifier (id: e)
+
+    Method (type: boolean, name: set)
+        Parameters
+            Parameter (type: int, id: i)
+            Parameter (type: int, id: j)
+        VarDeclaration (type: boolean, id: g)
+        WhileStatement
+            Condition
+                And
+                    True
+                    Not
+                        False
+            WhileBlock
+                Assign
+                    Identifier (id: g)
+                    False
+                Dot
+                    Identifier (id: abc)
+                    FunctionCall (id: f)
+        Assign
+            Identifier (id: b)
+            NewArray
+                Add
+                    Number (val: 5)
+                    Number (val: 2)
+        Return
+            NewObject (id: Other)
