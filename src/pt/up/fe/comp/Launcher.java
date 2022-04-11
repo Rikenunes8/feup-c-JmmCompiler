@@ -35,24 +35,10 @@ public class Launcher {
         config.put("registerAllocation", "-1");
         config.put("debug", "false");
 
-        // Instantiate JmmParser
-        SimpleParser parser = new SimpleParser();
-
         // Parse stage
+        SimpleParser parser = new SimpleParser();
         JmmParserResult parserResult = parser.parse(input, config);
 
-        // Check if there are parsing errors
-        try {
-            TestUtils.noErrors(parserResult.getReports());
-            System.out.println(parserResult.getRootNode().toTree());
-        }
-        catch (RuntimeException e) {
-            for (Report x : parserResult.getReports()) {
-                System.out.println(x);
-            }
-            return;
-        }
-        // ... add remaining stages
 
     }
 
