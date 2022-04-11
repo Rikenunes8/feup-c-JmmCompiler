@@ -39,7 +39,10 @@ public class Launcher {
         SimpleParser parser = new SimpleParser();
         JmmParserResult parserResult = parser.parse(input, config);
 
-
+        for (Report report : parserResult.getReports()) {
+            System.out.println(report);
+        }
+        
     }
 
 }
