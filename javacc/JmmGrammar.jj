@@ -134,6 +134,7 @@ Type #void :
 		< INT > 
     |   < INTARR >
     |   < BOOLEAN >
+    |   < STRING >
     |   < IDENTIFIER >
 ;
 

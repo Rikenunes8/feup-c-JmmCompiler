@@ -17,11 +17,13 @@ import org.junit.Test;
 
 public class GrammarTest {
 
-    private static final String IMPORT = "";
-    private static final String MAIN_METHOD = "";
-    private static final String INSTANCE_METHOD = "";
-    private static final String STATEMENT = "";
-    private static final String EXPRESSION = "";
+    private static final String IMPORT = "ImportDeclaration";
+    private static final String CLASS_DECLARATION = "ClassDeclaration";
+    private static final String VAR_DECLARATION = "VarDeclaration";
+    private static final String MAIN_METHOD = "MethodDeclaration";
+    private static final String INSTANCE_METHOD = "MethodDeclaration";
+    private static final String STATEMENT = "Statement";
+    private static final String EXPRESSION = "Expression";
 
     private static void noErrors(String code, String grammarRule) {
         if (grammarRule.isEmpty()) {
@@ -55,17 +57,17 @@ public class GrammarTest {
 
     @Test
     public void testClass() {
-        noErrors("class Foo extends Bar {}");
+        noErrors("class Foo extends Bar {}", CLASS_DECLARATION);
     }
 
     @Test
     public void testVarDecls() {
-        noErrors("class Foo {int a; int[] b; int c; boolean d; Bar e;}");
+        noErrors("class Foo {int a; int[] b; int c; boolean d; Bar e;}", CLASS_DECLARATION);
     }
 
     @Test
     public void testVarDeclString() {
-        noErrors("String aString;", "VarDecl");
+        noErrors("String aString;", VAR_DECLARATION);
     }
 
     @Test
