@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Collections;
 import java.util.Objects;
 
+import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.specs.util.SpecsIo;
@@ -55,7 +56,7 @@ public class Launcher {
         System.out.println("input file     : " + inputFileStr);
         System.out.println("optimize flag  : " + optimize);
         System.out.println("register value : " + registerAllocation);
-        System.out.println("debug flag     : " + debug);
+        System.out.println("debug flag     : " + debug + "\n");
 
         // Check -r option : <num> is an integer between 0 and 255 [or -1 that is equals to not having]
         if (!registerAllocation.matches("\\b(1?[0-9]{1,2}|2[0-4][0-9]|25[0-5])\\b") && !Objects.equals(registerAllocation, "-1")) {
@@ -80,6 +81,11 @@ public class Launcher {
         // Parse stage
         SimpleParser parser = new SimpleParser();
         JmmParserResult parserResult = parser.parse(input, config);
+
+        // Analysis stage
+        SimpleAnalysis analysis = new SimpleAnalysis();
+        JmmSemanticsResult semanticsResult = analysis.semanticAnalysis(parserResult);
+
 
         for (Report report : parserResult.getReports()) {
             System.out.println(report);
