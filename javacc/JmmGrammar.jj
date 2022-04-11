@@ -110,7 +110,7 @@ VarDeclaration :
 ;
 
 Statement #void : 
-        < OPEN_CRV_BRACKET > ( Statement )* < CLOSE_CRV_BRACKET >
+        (< OPEN_CRV_BRACKET > ( Statement )* < CLOSE_CRV_BRACKET >) #Scope
     |   IfStatement
     |   WhileStatement
     |   SCAN 2 AssignmentStatement
@@ -164,7 +164,7 @@ FinalExpression #void:
 ;
 
 NewExpression #void:
-        < INT > < OPEN_SQR_BRACKET > (Expression) #NewArray < CLOSE_SQR_BRACKET >
+        < INT > < OPEN_SQR_BRACKET > (Expression) #NewIntArray < CLOSE_SQR_BRACKET >
     |   ( < IDENTIFIER > ({ jjtThis.put("name", lastConsumedToken.getImage()); }) < OPEN_PAREN > < CLOSE_PAREN > ) #NewObject
 ;
 
