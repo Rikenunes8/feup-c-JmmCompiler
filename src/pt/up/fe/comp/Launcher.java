@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Objects;
 
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
+import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -76,16 +77,14 @@ public class Launcher {
         config.put("registerAllocation", registerAllocation);
         config.put("debug", debug);
 
-        // Instantiate JmmParser
-        SimpleParser parser = new SimpleParser();
-
         // Parse stage
+        SimpleParser parser = new SimpleParser();
         JmmParserResult parserResult = parser.parse(input, config);
-        System.out.println(parserResult.getRootNode().toTree());
-        // Check if there are parsing errors
-        TestUtils.noErrors(parserResult.getReports());
 
-        // ... add remaining stages
+        for (Report report : parserResult.getReports()) {
+            System.out.println(report);
+        }
+        
     }
 
 }

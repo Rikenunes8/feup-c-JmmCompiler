@@ -42,8 +42,14 @@ public class SimpleParser implements JmmParser {
                         "JmmNode interface not yet implemented, returning null root node"));
             }
 
+            JmmNode jmmRoot = ((JmmNode) root).sanitize();
+            System.out.println(jmmRoot.toTree());
+
             return new JmmParserResult((JmmNode) root, Collections.emptyList(), config);
 
+        } catch (ParseException e) {
+            Token t = e.getToken();
+            return JmmParserResult.newError(Report.newError(Stage.SYNTATIC, t.getBeginLine(), t.getBeginColumn(), e.getMessage(), e));
         } catch (Exception e) {
             return JmmParserResult.newError(Report.newError(Stage.SYNTATIC, -1, -1, "Exception during parsing", e));
         }
