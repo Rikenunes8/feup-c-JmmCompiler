@@ -10,6 +10,7 @@ import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
 import pt.up.fe.specs.util.SpecsIo;
+import pt.up.fe.specs.util.SpecsSystem;
 
 /**
  * Copyright 2022 SPeCS.
@@ -27,25 +28,38 @@ import pt.up.fe.specs.util.SpecsIo;
 public class SimpleParser implements JmmParser {
 
     @Override
-    public JmmParserResult parse(String jmmCode, Map<String, String> config) {
-
+    public JmmParserResult parse(String jmmCode, String startingRule, Map<String, String> config) {
         try {
 
             JmmGrammarParser parser = new JmmGrammarParser(SpecsIo.toInputStream(jmmCode));
-            parser.Start();
+            //parser.Program();
+            SpecsSystem.invoke(parser, startingRule);
 
             Node root = parser.rootNode();
-            root.dump("");
+            // root.dump("");
 
             if (!(root instanceof JmmNode)) {
                 return JmmParserResult.newError(new Report(ReportType.WARNING, Stage.SYNTATIC, -1,
                         "JmmNode interface not yet implemented, returning null root node"));
             }
 
+            JmmNode jmmRoot = ((JmmNode) root).sanitize();
+            System.out.println(jmmRoot.toTree());
+
             return new JmmParserResult((JmmNode) root, Collections.emptyList(), config);
 
         } catch (Exception e) {
+            ParseException err = TestUtils.getException(e, ParseException.class);
+            if (err != null) {
+                Token t = err.getToken();
+                return JmmParserResult.newError(Report.newError(Stage.SYNTATIC, t.getBeginLine(), t.getBeginColumn(), e.getMessage(), e));
+            }
             return JmmParserResult.newError(Report.newError(Stage.SYNTATIC, -1, -1, "Exception during parsing", e));
         }
+    }
+
+    @Override
+    public JmmParserResult parse(String jmmCode, Map<String, String> config) {
+        return parse(jmmCode, "Program", config);
     }
 }

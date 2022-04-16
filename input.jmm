@@ -1,1 +1,31 @@
--1+2*3
+import abc;
+import abc.dfg.gfd;
+
+class Classe extends Parent {
+    int a;
+    int[] b;
+    boolean c;
+    Other d;
+    public static void main(String[ args) {
+        int e;
+        e = 0;
+        b[0] = 1;
+        if (true)
+            d.call(e);
+        else {
+            e = 1;
+            this.set(e);
+        }
+    }
+    public boolean set(int i, int j) {
+        boolean g;
+        while (true && !false) {
+            g = false;
+            abc.f();
+            f.length;
+        }
+        b = new int[5+2];
+
+        return new Other();
+    }
+}
