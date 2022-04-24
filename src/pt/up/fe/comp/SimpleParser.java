@@ -32,8 +32,8 @@ public class SimpleParser implements JmmParser {
         try {
 
             JmmGrammarParser parser = new JmmGrammarParser(SpecsIo.toInputStream(jmmCode));
-            parser.Program();
-            // SpecsSystem.invoke(parser, startingRule); // TODO
+            //parser.Program();
+            SpecsSystem.invoke(parser, startingRule);
 
 
             Node root = parser.rootNode();
@@ -49,10 +49,12 @@ public class SimpleParser implements JmmParser {
 
             return new JmmParserResult((JmmNode) root, Collections.emptyList(), config);
 
-        } catch (ParseException e) {
-            Token t = e.getToken();
-            return JmmParserResult.newError(Report.newError(Stage.SYNTATIC, t.getBeginLine(), t.getBeginColumn(), e.getMessage(), e));
         } catch (Exception e) {
+            ParseException err = TestUtils.getException(e, ParseException.class);
+            if (err != null) {
+                Token t = err.getToken();
+                return JmmParserResult.newError(Report.newError(Stage.SYNTATIC, t.getBeginLine(), t.getBeginColumn(), e.getMessage(), e));
+            }
             return JmmParserResult.newError(Report.newError(Stage.SYNTATIC, -1, -1, "Exception during parsing", e));
         }
     }

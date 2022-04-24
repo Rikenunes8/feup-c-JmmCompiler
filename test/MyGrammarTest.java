@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class GrammarTest {
+public class MyGrammarTest {
   String passPath = "test/fixtures/public/";
   String failPath = "test/fixtures/public/fail/syntactical/";
 
