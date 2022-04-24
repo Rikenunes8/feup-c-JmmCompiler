@@ -83,7 +83,7 @@ public class Launcher {
         JmmParserResult parserResult = parser.parse(input, config);
 
         // Analysis stage
-        SimpleAnalysis analysis = new SimpleAnalysis();
+        JmmAnalyser analysis = new JmmAnalyser();
         JmmSemanticsResult semanticsResult = analysis.semanticAnalysis(parserResult);
 
 

@@ -9,13 +9,12 @@ import pt.up.fe.comp.jmm.report.Report;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class SimpleAnalysis implements JmmAnalysis {
+public class JmmAnalyser implements JmmAnalysis {
     SymbolTable symbolTable;
     private List<Report> reports;
 
-    public SimpleAnalysis() {
+    public JmmAnalyser() {
         this.symbolTable = new SimpleSymbolTable();
         this.reports = new ArrayList<>();
     }
