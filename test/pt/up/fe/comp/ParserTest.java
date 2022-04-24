@@ -54,6 +54,11 @@ public class ParserTest {
     }
 
     @Test
+    public void monteCarloPi() {
+        noErrors(SpecsIo.getResource("fixtures/public/MonteCarloPi.jmm"));
+    }
+
+    @Test
     public void quickSort() {
         noErrors(SpecsIo.getResource("fixtures/public/QuickSort.jmm"));
     }

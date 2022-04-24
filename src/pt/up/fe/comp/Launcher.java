@@ -9,6 +9,8 @@ import java.util.Objects;
 
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
+import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
@@ -78,7 +80,7 @@ public class Launcher {
         config.put("registerAllocation", registerAllocation);
         config.put("debug", debug);
 
-        // Parse stage
+        // JmmParse stage
         SimpleParser parser = new SimpleParser();
         JmmParserResult parserResult = parser.parse(input, config);
 
@@ -86,17 +88,31 @@ public class Launcher {
             System.out.println(report);
         }
 
-        // Analysis stage
+        // JmmAnalysis stage
         JmmAnalyser analyser = new JmmAnalyser();
-        JmmSemanticsResult analysisResult = analyser.semanticAnalysis(parserResult);
-        System.out.println(analysisResult.getSymbolTable().print());
+        JmmSemanticsResult semanticsResult = analyser.semanticAnalysis(parserResult);
+        System.out.println(semanticsResult.getSymbolTable().print());
 
-        for (Report report : analysisResult.getReports()) {
+        for (Report report : semanticsResult.getReports()) {
             System.out.println(report);
         }
 
-        // ... add remaining stages
+        // JmmOptimization stage
+        JmmOptimizer optimizer = new JmmOptimizer();
+        OllirResult ollirResult = optimizer.toOllir(semanticsResult);
+
+        for (Report report : ollirResult.getReports()) {
+            System.out.println(report);
+        }
+
+        // JasminBackend stage
+        JasBackend backend = new JasBackend();
+        JasminResult jasminResult = backend.toJasmin(ollirResult);
+        System.out.println(jasminResult.getJasminCode()); // program must output the jasmin code : name <class_name>.j (according to class declaration not input file)
+
+        for (Report report : jasminResult.getReports()) {
+            System.out.println(report);
+        }
 
     }
-
 }
