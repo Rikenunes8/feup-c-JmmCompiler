@@ -78,7 +78,7 @@ public class SimpleSymbolTable implements SymbolTable {
 
     /**
      * Add a import to the list of fully qualified names of imports
-     * @param import - fully qualified names of an import
+     * @param importSignature - fully qualified names of an import
      */
     public void addImport(String importSignature) {
       this.imports.add(importSignature);
@@ -133,5 +133,21 @@ public class SimpleSymbolTable implements SymbolTable {
      */
     public void addMethodLocalVariables(String methodSignature, List<Symbol> methodLocalVariables) {
         this.methodLocalVariables.put(methodSignature, methodLocalVariables);
+    }
+
+    /**
+     * Add a entry to the hash map of a local variable of methods
+     * @param methodSignature - name of the method of the scope of the local variable
+     * @param methodLocalVariable - local variable declared in the given method
+     */
+    public void addMethodLocalVariable(String methodSignature, Symbol methodLocalVariable) {
+        if (this.methodLocalVariables.containsKey(methodSignature)) {
+            List<Symbol> localVariables = this.methodLocalVariables.get(methodSignature);
+            localVariables.add(methodLocalVariable);
+            this.methodLocalVariables.replace(methodSignature, localVariables);
+        } else {
+            List<Symbol> localVariables = Array.asList(methodLocalVariable);
+            this.methodLocalVariables.put(methodSignature, localVariables);
+        }
     }
 }

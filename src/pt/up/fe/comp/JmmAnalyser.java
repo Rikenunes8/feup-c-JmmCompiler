@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JmmAnalyser implements JmmAnalysis {
-    SymbolTable symbolTable;
+    SimpleSymbolTable symbolTable;
     private List<Report> reports;
 
     public JmmAnalyser() {
@@ -19,7 +19,7 @@ public class JmmAnalyser implements JmmAnalysis {
         this.reports = new ArrayList<>();
     }
 
-    public SymbolTable getSymbolTable() {
+    public SimpleSymbolTable getSymbolTable() {
         return this.symbolTable;
     }
 
