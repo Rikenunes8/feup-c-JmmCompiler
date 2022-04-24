@@ -8,6 +8,7 @@ class Classe extends Parent {
     Other d;
     public static void main(String[] args) {
         int e;
+        boolean j;
         e = 0;
         b[0] = 1;
         if (true)

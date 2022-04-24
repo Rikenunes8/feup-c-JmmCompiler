@@ -4,6 +4,7 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -135,19 +136,4 @@ public class SimpleSymbolTable implements SymbolTable {
         this.methodLocalVariables.put(methodSignature, methodLocalVariables);
     }
 
-    /**
-     * Add a entry to the hash map of a local variable of methods
-     * @param methodSignature - name of the method of the scope of the local variable
-     * @param methodLocalVariable - local variable declared in the given method
-     */
-    public void addMethodLocalVariable(String methodSignature, Symbol methodLocalVariable) {
-        if (this.methodLocalVariables.containsKey(methodSignature)) {
-            List<Symbol> localVariables = this.methodLocalVariables.get(methodSignature);
-            localVariables.add(methodLocalVariable);
-            this.methodLocalVariables.replace(methodSignature, localVariables);
-        } else {
-            List<Symbol> localVariables = Array.asList(methodLocalVariable);
-            this.methodLocalVariables.put(methodSignature, localVariables);
-        }
-    }
 }
