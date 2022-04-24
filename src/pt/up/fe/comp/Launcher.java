@@ -82,15 +82,21 @@ public class Launcher {
         SimpleParser parser = new SimpleParser();
         JmmParserResult parserResult = parser.parse(input, config);
 
-        // Analysis stage
-        JmmAnalyser analysis = new JmmAnalyser();
-        JmmSemanticsResult semanticsResult = analysis.semanticAnalysis(parserResult);
-
-
         for (Report report : parserResult.getReports()) {
             System.out.println(report);
         }
-        
+
+        // Analysis stage
+        JmmAnalyser analyser = new JmmAnalyser();
+        JmmSemanticsResult analysisResult = analyser.semanticAnalysis(parserResult);
+        System.out.println(analysisResult.getSymbolTable().print());
+
+        for (Report report : analysisResult.getReports()) {
+            System.out.println(report);
+        }
+
+        // ... add remaining stages
+
     }
 
 }

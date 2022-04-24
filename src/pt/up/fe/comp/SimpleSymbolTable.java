@@ -4,6 +4,7 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class SimpleSymbolTable implements SymbolTable {
 
     /**
      * Add a import to the list of fully qualified names of imports
-     * @param import - fully qualified names of an import
+     * @param importSignature - fully qualified names of an import
      */
     public void addImport(String importSignature) {
       this.imports.add(importSignature);
@@ -134,4 +135,5 @@ public class SimpleSymbolTable implements SymbolTable {
     public void addMethodLocalVariables(String methodSignature, List<Symbol> methodLocalVariables) {
         this.methodLocalVariables.put(methodSignature, methodLocalVariables);
     }
+
 }
