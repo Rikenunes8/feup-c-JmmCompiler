@@ -56,15 +56,10 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
         Symbol parameter = new Symbol(new Type("String", true), publicMain.get("args"));
         jmmAnalyser.getSymbolTable().addMethodParameters(methodName, Arrays.asList(parameter));
 
-        List<Symbol> methodLocalVariables = new ArrayList<>();
-        for (JmmNode children: publicMain.getChildren()) {
-            if (children.getKind().equals("VarDeclaration")) {
-                Symbol localVar = new Symbol(this.getType(children.get("type")), children.get("var"));
-                methodLocalVariables.add(localVar);
-            } else {
-                break;
-            }
-        }
+        List<Symbol> methodLocalVariables = publicMain.getChildren().stream()
+            .filter(children -> children.getKind().equals("VarDeclaration"))
+            .map(id -> new Symbol(this.getType(id.get("type")), id.get("var")))
+            .collect(Collectors.toList());
         jmmAnalyser.getSymbolTable().addMethodLocalVariables(methodName, methodLocalVariables);
 
         return true;
@@ -76,22 +71,17 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
         jmmAnalyser.getSymbolTable().addMethodType(methodName, this.getType(methodType));
 
         List<Symbol> methodParameters = new ArrayList<>();
-        List<Symbol> methodLocalVariables = new ArrayList<>();
-        for (JmmNode children: publicMethod.getChildren()) {
-            if (children.getKind().equals("MethodParameters")) {
-                methodParameters = children.getChildren().stream()
-                    .map(id -> new Symbol(this.getType(id.get("type")), id.get("var")))
-                    .collect(Collectors.toList());
-            } 
-            else if (children.getKind().equals("VarDeclaration")) {
-                Symbol localVar = new Symbol(this.getType(children.get("type")), children.get("var"));
-                methodLocalVariables.add(localVar);
-            }
-            else {
-                break;
-            }
+        if (!publicMethod.getChildren().isEmpty() && publicMethod.getChildren().get(0).getKind().equals("MethodParameters")) {
+            methodParameters = publicMethod.getChildren().get(0).getChildren().stream()
+                .map(id -> new Symbol(this.getType(id.get("type")), id.get("var")))
+                .collect(Collectors.toList());
         }
         jmmAnalyser.getSymbolTable().addMethodParameters(methodName, methodParameters);
+
+        List<Symbol> methodLocalVariables = publicMethod.getChildren().stream()
+            .filter(children -> children.getKind().equals("VarDeclaration"))
+            .map(id -> new Symbol(this.getType(id.get("type")), id.get("var")))
+            .collect(Collectors.toList());
         jmmAnalyser.getSymbolTable().addMethodLocalVariables(methodName, methodLocalVariables);
 
         return true;
