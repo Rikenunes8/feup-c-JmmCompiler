@@ -26,7 +26,7 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
         addVisit("AndExp", this::visitAndExpression);
         addVisit("NotExp", this::visitNotExpression);
         addVisit("LessExp", this::visitLessThanExpression);
-        // addVisit("ArrayAccessExp", this::visitArrayAccessExpression);
+        addVisit("ArrayAccessExp", this::visitArrayAccessExpression);
         addVisit("AssignmentStatement", this::visitAssignmentStatement);
         addVisit("IfStatement", this::visitIfStatement);
     }
