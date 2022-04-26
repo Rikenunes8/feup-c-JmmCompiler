@@ -25,9 +25,8 @@ public class FunctionArgsVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean
 
         if (left.getKind().equals("ThisLiteral")) {
             if (!symbolTable.getMethods().contains(name)) {
-                if (symbolTable.getSuper() == null) {
+                if (symbolTable.getSuper() == null)
                     jmmAnalyser.addReport(jmmNode, "method "+name+" does not exist in class "+symbolTable.getClassName());
-                }
                 return true;
             }
 

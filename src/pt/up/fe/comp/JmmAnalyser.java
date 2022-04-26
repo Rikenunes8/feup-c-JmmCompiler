@@ -9,6 +9,7 @@ import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
 import pt.up.fe.comp.visitor.FunctionArgsVisitor;
+import pt.up.fe.comp.visitor.ReturnCheckingVisitor;
 import pt.up.fe.comp.visitor.SymbolTableVisitor;
 import pt.up.fe.comp.visitor.TypeCheckingVisitor;
 
@@ -44,6 +45,7 @@ public class JmmAnalyser implements JmmAnalysis {
         new SymbolTableVisitor().visit(root, this);
         new TypeCheckingVisitor().visit(root, this);
         new FunctionArgsVisitor().visit(root, this);
+        new ReturnCheckingVisitor().visit(root, this);
 
         return new JmmSemanticsResult(parserResult, this.symbolTable, this.reports);
     }
