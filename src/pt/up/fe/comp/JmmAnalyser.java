@@ -6,6 +6,8 @@ import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
 import pt.up.fe.comp.visitor.FunctionArgsVisitor;
 import pt.up.fe.comp.visitor.SymbolTableVisitor;
 import pt.up.fe.comp.visitor.TypeCheckingVisitor;
@@ -31,20 +33,18 @@ public class JmmAnalyser implements JmmAnalysis {
     }
 
     public void addReport(JmmNode node, String errorMessage) {
-        reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 2, errorMessage)); // [TODO] acrescentar linha no nó da AST e mudar aqui o 2 para Integer.parseInt(node.get("line"))
+        // TODO acrescentar linha no nó da AST e mudar aqui o -1 para Integer.parseInt(node.get("line"))
+        reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, -1, errorMessage));
     }
 
     @Override
     public JmmSemanticsResult semanticAnalysis(JmmParserResult parserResult) {
-        JmmNode root = (JmmNode) parserResult.getRootNode();
+        JmmNode root = parserResult.getRootNode();
 
         new SymbolTableVisitor().visit(root, this);
         new TypeCheckingVisitor().visit(root, this);
+        new FunctionArgsVisitor().visit(root, this);
 
         return new JmmSemanticsResult(parserResult, this.symbolTable, this.reports);
-    }
-
-    public void addReport(Report report) {
-        this.reports.add(report);
     }
 }
