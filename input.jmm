@@ -1,5 +1,5 @@
 import abc;
-import abc.dfg.gfd;
+import abc.dfg;
 
 class Classe extends Parent {
     int a;
@@ -18,7 +18,7 @@ class Classe extends Parent {
             this.set(e);
         }
     }
-    public boolean set(int i, int j) {
+    public boolean set(int i) {
         boolean g;
         while (true && !false) {
             g = false;

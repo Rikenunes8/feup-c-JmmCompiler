@@ -12,6 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static pt.up.fe.comp.visitor.Utils.buildType;
+
 public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean> {
     public SymbolTableVisitor() {
         addVisit("ImportStatement", this::visitImportStatements);
@@ -41,7 +43,7 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
 
         for (JmmNode children: classDeclaration.getChildren()) {
             if (children.getKind().equals("VarDeclaration")) {
-                Symbol field = new Symbol(this.getType(children.get("type")), children.get("var"));
+                Symbol field = new Symbol(buildType(children.get("type")), children.get("var"));
                 jmmAnalyser.getSymbolTable().addField(field);
             } else {
                 break;
@@ -53,13 +55,13 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
 
     private Boolean visitPublicMain(JmmNode publicMain, JmmAnalyser jmmAnalyser) {
         String methodName = "main";
-        jmmAnalyser.getSymbolTable().addMethodType(methodName, this.getType("void"));
+        jmmAnalyser.getSymbolTable().addMethodType(methodName, buildType("void"));
         Symbol parameter = new Symbol(new Type("String", true), publicMain.get("args"));
         jmmAnalyser.getSymbolTable().addMethodParameters(methodName, Arrays.asList(parameter));
 
         List<Symbol> methodLocalVariables = publicMain.getChildren().stream()
             .filter(children -> children.getKind().equals("VarDeclaration"))
-            .map(id -> new Symbol(this.getType(id.get("type")), id.get("var")))
+            .map(id -> new Symbol(buildType(id.get("type")), id.get("var")))
             .collect(Collectors.toList());
         jmmAnalyser.getSymbolTable().addMethodLocalVariables(methodName, methodLocalVariables);
 
@@ -69,31 +71,23 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
     private Boolean visitPublicMethod(JmmNode publicMethod, JmmAnalyser jmmAnalyser) {
         String methodName = publicMethod.get("name");
         String methodType = publicMethod.get("type");
-        jmmAnalyser.getSymbolTable().addMethodType(methodName, this.getType(methodType));
+        jmmAnalyser.getSymbolTable().addMethodType(methodName, buildType(methodType));
 
         List<Symbol> methodParameters = new ArrayList<>();
         if (!publicMethod.getChildren().isEmpty() && publicMethod.getChildren().get(0).getKind().equals("MethodParameters")) {
             methodParameters = publicMethod.getChildren().get(0).getChildren().stream()
-                .map(id -> new Symbol(this.getType(id.get("type")), id.get("var")))
+                .map(id -> new Symbol(buildType(id.get("type")), id.get("var")))
                 .collect(Collectors.toList());
         }
         jmmAnalyser.getSymbolTable().addMethodParameters(methodName, methodParameters);
 
         List<Symbol> methodLocalVariables = publicMethod.getChildren().stream()
             .filter(children -> children.getKind().equals("VarDeclaration"))
-            .map(id -> new Symbol(this.getType(id.get("type")), id.get("var")))
+            .map(id -> new Symbol(buildType(id.get("type")), id.get("var")))
             .collect(Collectors.toList());
         jmmAnalyser.getSymbolTable().addMethodLocalVariables(methodName, methodLocalVariables);
 
         return true;
-    }
-
-    private Type getType(String typeSignature) {
-      if (typeSignature.equals("int[]")) {
-          return new Type("int", true);
-      } else { 
-          return new Type(typeSignature, false);
-      }
     }
 }
 
