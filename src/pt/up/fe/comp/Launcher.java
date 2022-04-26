@@ -13,6 +13,8 @@ import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
+import pt.up.fe.comp.jmm.ollir.JmmOptimization;
+import pt.up.fe.comp.jmm.ollir.OllirResult;
 
 public class Launcher {
 
@@ -94,6 +96,15 @@ public class Launcher {
         for (Report report : analysisResult.getReports()) {
             System.out.println(report);
         }
+
+        // Optimization stage
+        JmmOptimizer optimizer = new JmmOptimizer(); 
+        OllirResult ollirResult = optimizer.toOllir(analysisResult);
+
+        // for ( Report report : ollirResult.getReports())
+        // {
+        //     System.out.println(report);
+        // }
 
         // ... add remaining stages
 
