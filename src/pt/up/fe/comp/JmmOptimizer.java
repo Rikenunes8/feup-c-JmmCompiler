@@ -1,8 +1,13 @@
 package pt.up.fe.comp;
 
+import java.util.List;
+
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
+import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.comp.jmm.report.Report;
 
 public class JmmOptimizer implements JmmOptimization {
     @Override
@@ -12,8 +17,14 @@ public class JmmOptimizer implements JmmOptimization {
 
     @Override
     public OllirResult toOllir(JmmSemanticsResult semanticsResult) {
-        
-        return null;
+        JmmNode node = semanticsResult.getRootNode();
+        SymbolTable symbolTable = semanticsResult.getSymbolTable();
+        List<Report> reports = semanticsResult.getReports();
+        String ollirCode = ast_to_ollir(node);
+
+        OllirResult ollirResult = new OllirResult(semanticsResult, ollirCode, reports);
+
+        return ollirResult;
     }
 
     @Override
