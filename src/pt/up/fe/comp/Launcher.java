@@ -89,7 +89,7 @@ public class Launcher {
         // Analysis stage
         JmmAnalyser analyser = new JmmAnalyser();
         JmmSemanticsResult analysisResult = analyser.semanticAnalysis(parserResult);
-        System.out.println(analysisResult.getSymbolTable().print());
+        // System.out.println(analysisResult.getSymbolTable().print());
 
         for (Report report : analysisResult.getReports()) {
             System.out.println(report);

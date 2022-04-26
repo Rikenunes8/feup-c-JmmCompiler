@@ -6,6 +6,7 @@ import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.visitor.FunctionArgsVisitor;
 import pt.up.fe.comp.visitor.SymbolTableVisitor;
 
 import java.util.ArrayList;
@@ -33,7 +34,12 @@ public class JmmAnalyser implements JmmAnalysis {
         JmmNode root = (JmmNode) parserResult.getRootNode();
 
         new SymbolTableVisitor().visit(root, this);
+        new FunctionArgsVisitor().visit(root, this);
 
         return new JmmSemanticsResult(parserResult, this.symbolTable, this.reports);
+    }
+
+    public void addReport(Report report) {
+        this.reports.add(report);
     }
 }
