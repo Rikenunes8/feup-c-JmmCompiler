@@ -16,9 +16,14 @@ public class ReturnCheckingVisitor extends PreorderJmmVisitor<JmmAnalyser, Boole
     private Boolean visitReturnStatement(JmmNode jmmNode, JmmAnalyser jmmAnalyser) {
         if (!jmmNode.getAncestor("PublicMethod").isPresent())
             return false;
+
+        JmmNode returnExp = jmmNode.getChildren().get(0);
+        if (returnExp.getKind().equals("DotExp"))
+            return true;
+
         String typeStr = jmmNode.getAncestor("PublicMethod").get().get("type");
         Type methodType = buildType(typeStr);
-        Type returnType = getType(jmmNode, jmmAnalyser.getSymbolTable());
+        Type returnType = getType(returnExp, jmmAnalyser.getSymbolTable());
 
         if (methodType.equals(returnType))
             return true;

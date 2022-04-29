@@ -34,8 +34,9 @@ public class JmmAnalyser implements JmmAnalysis {
     }
 
     public void addReport(JmmNode node, String errorMessage) {
-        // TODO acrescentar linha no nó da AST e mudar aqui o -1 para Integer.parseInt(node.get("line"))
-        reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, -1, errorMessage));
+        // [TODO] acrescentar linha e coluna no nó da AST
+        // reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(node.get("line")), Integer.parseInt(node.get("column")), errorMessage));
+        reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 2, 1, errorMessage)); 
     }
 
     @Override

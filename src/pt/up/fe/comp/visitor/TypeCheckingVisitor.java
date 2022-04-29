@@ -36,6 +36,9 @@ public class TypeCheckingVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean
         JmmNode op1 = arithmeticExpression.getChildren().get(0);
         JmmNode op2 = arithmeticExpression.getChildren().get(1);
 
+        if (op1.getKind().equals("DotExp") || op2.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
+            return true;
+
         Type op1Type = getType(op1, jmmAnalyser.getSymbolTable());
         Type op2Type = getType(op2, jmmAnalyser.getSymbolTable());
 
@@ -62,6 +65,9 @@ public class TypeCheckingVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean
         JmmNode op1 = andExpression.getChildren().get(0);
         JmmNode op2 = andExpression.getChildren().get(1);
 
+        if (op1.getKind().equals("DotExp") || op2.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
+            return true;
+
         Type op1Type = getType(op1, jmmAnalyser.getSymbolTable());
         Type op2Type = getType(op2, jmmAnalyser.getSymbolTable());  
 
@@ -82,6 +88,10 @@ public class TypeCheckingVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean
 
     private Boolean visitNotExpression(JmmNode notExpression, JmmAnalyser jmmAnalyser) {
         JmmNode exp = notExpression.getChildren().get(0);
+
+        if (exp.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
+            return true;
+
         Type expType = getType(exp, jmmAnalyser.getSymbolTable());
 
         if (exp.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(exp, jmmAnalyser)) //operand is not declared
@@ -98,6 +108,9 @@ public class TypeCheckingVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean
     private Boolean visitLessThanExpression(JmmNode lessThanExpression, JmmAnalyser jmmAnalyser) {
         JmmNode op1 = lessThanExpression.getChildren().get(0);
         JmmNode op2 = lessThanExpression.getChildren().get(1);
+
+        if (op1.getKind().equals("DotExp") || op2.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
+            return true;
 
         Type op1Type = getType(op1, jmmAnalyser.getSymbolTable());
         Type op2Type = getType(op2, jmmAnalyser.getSymbolTable());
@@ -143,6 +156,9 @@ public class TypeCheckingVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean
         JmmNode assigned = assignmentStatement.getChildren().get(0);
         JmmNode assignee = assignmentStatement.getChildren().get(1);
 
+        if (assignee.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
+            return true;
+
         Type assignedType = getType(assigned, jmmAnalyser.getSymbolTable());
         Type assigneeType = getType(assignee, jmmAnalyser.getSymbolTable());
 
@@ -161,6 +177,9 @@ public class TypeCheckingVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean
 
     private Boolean visitIfStatement(JmmNode ifStatement, JmmAnalyser jmmAnalyser) {
         JmmNode conditionExp = ifStatement.getChildren().get(0).getChildren().get(0);
+
+        if (conditionExp.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
+            return true;
 
         Type conditionExpType = getType(conditionExp, jmmAnalyser.getSymbolTable());
 

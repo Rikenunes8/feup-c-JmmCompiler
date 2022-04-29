@@ -22,11 +22,14 @@ public class Utils {
         if (var.getKind().matches("TrueLiteral|FalseLiteral|AndExp|NotExp|LessExp|Condition"))
             return new Type("boolean", false);
 
-        if (var.getKind().matches("IntegerLiteral|AddExp|SubExp|MultExp|DivExp|ArrayAccess"))
+        if (var.getKind().matches("IntegerLiteral|AddExp|SubExp|MultExp|DivExp|ArrayAccess|ArrayAccessExp"))
             return new Type("int", false);
 
         if (var.getKind().equals("NewIntArray"))
             return new Type("int", true);
+
+        if (var.getKind().equals("NewObject"))
+            return new Type(var.get("name"), true);
 
         String methodSignature = "";
         if (var.getAncestor("PublicMethod").isPresent()) {

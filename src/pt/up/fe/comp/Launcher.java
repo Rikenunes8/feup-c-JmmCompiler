@@ -86,6 +86,7 @@ public class Launcher {
             System.out.println(report);
         }
 
+        //[DUVIDA] Não deviamos fazer análise semantica apenas se passar a sintática?
         // Analysis stage
         JmmAnalyser analyser = new JmmAnalyser();
         JmmSemanticsResult analysisResult = analyser.semanticAnalysis(parserResult);
