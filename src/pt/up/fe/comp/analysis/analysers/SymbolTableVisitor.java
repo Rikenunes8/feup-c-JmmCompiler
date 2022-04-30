@@ -1,24 +1,17 @@
-package pt.up.fe.comp.analysis;
+package pt.up.fe.comp.analysis.analysers;
 
-import pt.up.fe.comp.ReportGenerator;
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.ast.JmmNode;
-import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
-import pt.up.fe.comp.jmm.report.Report;
-import pt.up.fe.comp.jmm.report.ReportType;
-import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static pt.up.fe.comp.Utils.buildType;
 
-public class SymbolTableVisitor extends PreorderJmmVisitor<SymbolTableBuilder, Boolean> implements ReportGenerator {
-    List<Report> reports;
-    
+public class SymbolTableVisitor extends SemanticAnalyserVisitor {
     public SymbolTableVisitor() {
-        this.reports = new ArrayList<>();
+        super();
         addVisit("ImportStatement", this::visitImportStatements);
         addVisit("ClassDeclaration", this::visitClassDeclaration);
         addVisit("MethodDeclaration", this::visitMethodDeclaration);
@@ -89,15 +82,5 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<SymbolTableBuilder, B
 
         symbolTable.addMethod(methodName, buildType(methodType), methodParameters, methodLocalVariables);
         return true;
-    }
-
-    @Override
-    public List<Report> getReports() {
-        return this.reports;
-    }
-
-    @Override
-    public void addReport(JmmNode node, String message) {
-        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(node.get("line")), Integer.parseInt(node.get("col")) , message));
     }
 }

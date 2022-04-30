@@ -70,14 +70,17 @@ public class Utils {
 
         if (!methodSignature.isEmpty()) {
 
-            if (symbolTable.getLocalVariables(methodSignature).stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a local variable
+            if (symbolTable.getLocalVariables(methodSignature).stream()
+                    .anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a local variable
                 return true;
 
-            if (symbolTable.getParameters(methodSignature).stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a method parameter
+            if (symbolTable.getParameters(methodSignature).stream()
+                    .anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a method parameter
                 return true;
         }
 
-        if (symbolTable.getFields().stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a field of the class
+        if (symbolTable.getFields().stream()
+                .anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a field of the class
             return true;
 
         if (identifier.getJmmParent().getKind().equals("DotExp")) //it is a function call (not checked here)
