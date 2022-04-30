@@ -17,7 +17,7 @@ public class ReturnCheckingVisitor extends PreorderJmmVisitor<JmmAnalyser, Boole
         if (!jmmNode.getAncestor("PublicMethod").isPresent())
             return false;
 
-        JmmNode returnExp = jmmNode.getChildren().get(0);
+        JmmNode returnExp = jmmNode.getJmmChild(0);
         if (returnExp.getKind().equals("DotExp"))
             return true;
 

@@ -6,9 +6,7 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static pt.up.fe.comp.visitor.Utils.buildType;
@@ -43,7 +41,12 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
         for (JmmNode children: classDeclaration.getChildren()) {
             if (children.getKind().equals("VarDeclaration")) {
                 Symbol field = new Symbol(buildType(children.get("type")), children.get("var"));
-                jmmAnalyser.getSymbolTable().addField(field);
+                List<String> fieldsNames = jmmAnalyser.getSymbolTable().getFields().stream()
+                        .map(Symbol::getName).collect(Collectors.toList());
+                if (fieldsNames.contains(field.getName()))
+                    jmmAnalyser.addReport(children, "Duplicated field declaration");
+                else
+                    jmmAnalyser.getSymbolTable().addField(field);
             } else {
                 break;
             }
@@ -64,6 +67,11 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
             .collect(Collectors.toList());
         jmmAnalyser.getSymbolTable().addMethodLocalVariables(methodName, methodLocalVariables);
 
+        // Check duplicated local variables
+        Set<String> setMethodLocalVariables = methodLocalVariables.stream().map(Symbol::getName).collect(Collectors.toSet());
+        if (methodLocalVariables.size() != setMethodLocalVariables.size())
+            jmmAnalyser.addReport(publicMain, "Duplicated local variables");
+
         return true;
     }
 
@@ -73,18 +81,30 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
         jmmAnalyser.getSymbolTable().addMethodType(methodName, buildType(methodType));
 
         List<Symbol> methodParameters = new ArrayList<>();
-        if (!publicMethod.getChildren().isEmpty() && publicMethod.getChildren().get(0).getKind().equals("MethodParameters")) {
+        if (!publicMethod.getChildren().isEmpty() && publicMethod.getJmmChild(0).getKind().equals("MethodParameters")) {
             methodParameters = publicMethod.getChildren().get(0).getChildren().stream()
-                .map(id -> new Symbol(buildType(id.get("type")), id.get("var")))
-                .collect(Collectors.toList());
+                    .map(id -> new Symbol(buildType(id.get("type")), id.get("var")))
+                    .collect(Collectors.toList());
         }
         jmmAnalyser.getSymbolTable().addMethodParameters(methodName, methodParameters);
+
+        // Check duplicated parameters
+        Set<String> setMethodParameters = methodParameters.stream().map(Symbol::getName).collect(Collectors.toSet());
+        if (methodParameters.size() != setMethodParameters.size()) {
+            jmmAnalyser.addReport(publicMethod, "Parameters with the same name");
+        }
+
 
         List<Symbol> methodLocalVariables = publicMethod.getChildren().stream()
             .filter(children -> children.getKind().equals("VarDeclaration"))
             .map(id -> new Symbol(buildType(id.get("type")), id.get("var")))
             .collect(Collectors.toList());
         jmmAnalyser.getSymbolTable().addMethodLocalVariables(methodName, methodLocalVariables);
+
+        // Check duplicated local variables
+        Set<String> setMethodLocalVariables = methodLocalVariables.stream().map(Symbol::getName).collect(Collectors.toSet());
+        if (methodLocalVariables.size() != setMethodLocalVariables.size())
+            jmmAnalyser.addReport(publicMethod, "Duplicated local variables");
 
         return true;
     }
