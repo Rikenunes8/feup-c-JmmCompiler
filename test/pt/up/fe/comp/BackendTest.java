@@ -13,6 +13,7 @@ public class BackendTest {
     private static void noErrors(OllirResult ollirResult) {
         var result = TestUtils.backend(ollirResult);
         TestUtils.noErrors(result.getReports());
+        System.out.println(result.getJasminCode());
         result.compile();
     }
 

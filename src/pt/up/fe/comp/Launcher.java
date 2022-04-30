@@ -7,14 +7,12 @@ import java.util.Map;
 import java.util.Collections;
 import java.util.Objects;
 
-import pt.up.fe.comp.analysis.JmmAnalyser;
-import pt.up.fe.comp.jasmin.Backend;
+import pt.up.fe.comp.jasmin.JasminEmitter;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.report.Report;
-import pt.up.fe.comp.ollir.JmmOptimizer;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -104,7 +102,9 @@ public class Launcher {
 
         // JmmOptimization stage
         JmmOptimizer optimizer = new JmmOptimizer();
-        OllirResult ollirResult = optimizer.toOllir(semanticsResult);
+        JmmSemanticsResult optimizationResultStep1 = optimizer.optimize(semanticsResult);
+        OllirResult optimizationResultStep2 = optimizer.toOllir(optimizationResultStep1);
+        OllirResult ollirResult = optimizer.optimize(optimizationResultStep2);
 
         for (Report report : ollirResult.getReports()) {
             System.out.println(report);
@@ -112,8 +112,8 @@ public class Launcher {
         TestUtils.noErrors(ollirResult.getReports());
 
         // JasminBackend stage
-        Backend backend = new Backend();
-        JasminResult jasminResult = backend.toJasmin(ollirResult);
+        JasminEmitter jasminEmitter = new JasminEmitter();
+        JasminResult jasminResult = jasminEmitter.toJasmin(ollirResult);
         System.out.println(jasminResult.getJasminCode());
 
         for (Report report : jasminResult.getReports()) {
