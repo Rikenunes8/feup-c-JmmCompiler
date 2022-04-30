@@ -15,8 +15,7 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
     public SymbolTableVisitor() {
         addVisit("ImportStatement", this::visitImportStatements);
         addVisit("ClassDeclaration", this::visitClassDeclaration);
-        addVisit("PublicMain", this::visitPublicMain);
-        addVisit("PublicMethod", this::visitPublicMethod);
+        addVisit("MethodDeclaration", this::visitMethodDeclaration);
     }
 
     private Boolean visitImportStatements(JmmNode importStatement, JmmAnalyser jmmAnalyser) {
@@ -29,14 +28,8 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
 
     private Boolean visitClassDeclaration(JmmNode classDeclaration, JmmAnalyser jmmAnalyser) {
         String className = classDeclaration.get("name");
-        String extendedClass = null;
-        try {
-            extendedClass = classDeclaration.get("extends");
-        }
-        catch(NullPointerException e) { }
-
         jmmAnalyser.getSymbolTable().setClassName(className);
-        jmmAnalyser.getSymbolTable().setSuper(extendedClass);
+        classDeclaration.getOptional("extends").ifPresent(superClass -> jmmAnalyser.getSymbolTable().setSuper(superClass));
 
         for (JmmNode children: classDeclaration.getChildren()) {
             if (children.getKind().equals("VarDeclaration")) {
@@ -55,58 +48,40 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
         return true;
     }
 
-    private Boolean visitPublicMain(JmmNode publicMain, JmmAnalyser jmmAnalyser) {
-        String methodName = "main";
-        jmmAnalyser.getSymbolTable().addMethodType(methodName, buildType("void"));
-        Symbol parameter = new Symbol(new Type("String", true), publicMain.get("args"));
-        jmmAnalyser.getSymbolTable().addMethodParameters(methodName, Arrays.asList(parameter));
+    private Boolean visitMethodDeclaration(JmmNode methodDecl, JmmAnalyser jmmAnalyser) {
+        String methodName = methodDecl.get("name");
+        String methodType = methodDecl.get("type");
 
-        List<Symbol> methodLocalVariables = publicMain.getChildren().stream()
-            .filter(children -> children.getKind().equals("VarDeclaration"))
-            .map(id -> new Symbol(buildType(id.get("type")), id.get("var")))
-            .collect(Collectors.toList());
-        jmmAnalyser.getSymbolTable().addMethodLocalVariables(methodName, methodLocalVariables);
-
-        // Check duplicated local variables
-        Set<String> setMethodLocalVariables = methodLocalVariables.stream().map(Symbol::getName).collect(Collectors.toSet());
-        if (methodLocalVariables.size() != setMethodLocalVariables.size())
-            jmmAnalyser.addReport(publicMain, "Duplicated local variables");
-
-        return true;
-    }
-
-    private Boolean visitPublicMethod(JmmNode publicMethod, JmmAnalyser jmmAnalyser) {
-        String methodName = publicMethod.get("name");
-        String methodType = publicMethod.get("type");
-        jmmAnalyser.getSymbolTable().addMethodType(methodName, buildType(methodType));
+        if (jmmAnalyser.getSymbolTable().hasMethod(methodName)) {
+            jmmAnalyser.addReport(methodDecl, "Duplicated method "+methodName);
+            return false;
+        }
 
         List<Symbol> methodParameters = new ArrayList<>();
-        if (!publicMethod.getChildren().isEmpty() && publicMethod.getJmmChild(0).getKind().equals("MethodParameters")) {
-            methodParameters = publicMethod.getChildren().get(0).getChildren().stream()
+        if (!methodDecl.getChildren().isEmpty() && methodDecl.getJmmChild(0).getKind().equals("MethodParameters")) {
+            methodParameters = methodDecl.getChildren().get(0).getChildren().stream()
                     .map(id -> new Symbol(buildType(id.get("type")), id.get("var")))
                     .collect(Collectors.toList());
         }
-        jmmAnalyser.getSymbolTable().addMethodParameters(methodName, methodParameters);
 
         // Check duplicated parameters
         Set<String> setMethodParameters = methodParameters.stream().map(Symbol::getName).collect(Collectors.toSet());
         if (methodParameters.size() != setMethodParameters.size()) {
-            jmmAnalyser.addReport(publicMethod, "Parameters with the same name");
+            jmmAnalyser.addReport(methodDecl, "Parameters with the same name");
         }
 
 
-        List<Symbol> methodLocalVariables = publicMethod.getChildren().stream()
-            .filter(children -> children.getKind().equals("VarDeclaration"))
-            .map(id -> new Symbol(buildType(id.get("type")), id.get("var")))
-            .collect(Collectors.toList());
-        jmmAnalyser.getSymbolTable().addMethodLocalVariables(methodName, methodLocalVariables);
+        List<Symbol> methodLocalVariables = methodDecl.getChildren().stream()
+                .filter(children -> children.getKind().equals("VarDeclaration"))
+                .map(id -> new Symbol(buildType(id.get("type")), id.get("var")))
+                .collect(Collectors.toList());
 
         // Check duplicated local variables
         Set<String> setMethodLocalVariables = methodLocalVariables.stream().map(Symbol::getName).collect(Collectors.toSet());
         if (methodLocalVariables.size() != setMethodLocalVariables.size())
-            jmmAnalyser.addReport(publicMethod, "Duplicated local variables");
+            jmmAnalyser.addReport(methodDecl, "Duplicated local variables");
 
+        jmmAnalyser.getSymbolTable().addMethod(methodName, buildType(methodType), methodParameters, methodLocalVariables);
         return true;
     }
 }
-

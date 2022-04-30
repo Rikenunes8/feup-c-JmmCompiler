@@ -84,13 +84,13 @@ MethodDeclaration #void :
     < PUBLIC > ( PublicMain | PublicMethod )
 ;
 
-PublicMain :
-    < STATIC > < VOID > < MAIN >
-    < OPEN_PAREN > <STRING> < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > < IDENTIFIER > ({ jjtThis.put("args", lastConsumedToken.getImage()); }) < CLOSE_PAREN >
+PublicMain #MethodDeclaration:
+    < STATIC > < VOID > < MAIN > ({ jjtThis.put("type", "void"); jjtThis.put("name", "main");})
+    < OPEN_PAREN > (<STRING> < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > (< IDENTIFIER > ({ jjtThis.put("var", lastConsumedToken.getImage()); jjtThis.put("type", "String[]"); })) #Parameter) #MethodParameters < CLOSE_PAREN >
     < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* < CLOSE_CRV_BRACKET >
 ;
 
-PublicMethod :
+PublicMethod #MethodDeclaration:
     (Type) ({ jjtThis.put("type", lastConsumedToken.getImage()); }) < IDENTIFIER > ({ jjtThis.put("name", lastConsumedToken.getImage()); })
     < OPEN_PAREN > ( MethodParameters )? < CLOSE_PAREN >
     < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* ReturnStatement < CLOSE_CRV_BRACKET >
@@ -100,7 +100,7 @@ ReturnStatement :
     < RETURN > Expression < SEMICOLON >
 ; 
 
-MethodParameters : 
+MethodParameters :
     ( ( (Type) ({ jjtThis.put("type", lastConsumedToken.getImage()); }) < IDENTIFIER > ({ jjtThis.put("var", lastConsumedToken.getImage()); }) ) #Parameter )
     ( ( < COMMA > (Type) ({ jjtThis.put("type", lastConsumedToken.getImage()); }) < IDENTIFIER > ({ jjtThis.put("var", lastConsumedToken.getImage()); }) ) #Parameter)* 
 ;

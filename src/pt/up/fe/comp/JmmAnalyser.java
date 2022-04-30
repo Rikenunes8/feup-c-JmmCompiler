@@ -44,9 +44,9 @@ public class JmmAnalyser implements JmmAnalysis {
         JmmNode root = parserResult.getRootNode();
 
         new SymbolTableVisitor().visit(root, this);
-        new TypeCheckingVisitor().visit(root, this);
-        new FunctionArgsVisitor().visit(root, this);
-        new ReturnCheckingVisitor().visit(root, this);
+        //new TypeCheckingVisitor().visit(root, this);
+        //new FunctionArgsVisitor().visit(root, this);
+        //new ReturnCheckingVisitor().visit(root, this);
 
         return new JmmSemanticsResult(parserResult, this.symbolTable, this.reports);
     }

@@ -4,36 +4,31 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 
-import java.util.List;
-import java.util.HashMap;
-import java.util.ArrayList;
+import java.util.*;
 
 public class SimpleSymbolTable implements SymbolTable {
  
     List<String> imports;
 
     String className;
-    String extendedClass;
+    String superClass;
     List<Symbol> fields; // Class's Private Attibutes
 
     // For each method save their return type, parameters and local variables
-    HashMap<String, Type> methodTypes;
-    HashMap<String, List<Symbol>> methodParameters;
-    HashMap<String, List<Symbol>> methodLocalVariables;
+    List<String> methods;
+    Map<String, Type> methodReturnTypes;
+    Map<String, List<Symbol>> methodParameters;
+    Map<String, List<Symbol>> methodLocalVariables;
 
     public SimpleSymbolTable() {
-
       this.imports = new ArrayList<>();
       this.fields  = new ArrayList<>();
-      this.methodTypes = new HashMap<>();
+      this.className = null;
+      this.superClass = null;
+      this.methods  = new ArrayList<>();
+      this.methodReturnTypes = new HashMap<>();
       this.methodParameters = new HashMap<>();
       this.methodLocalVariables = new HashMap<>();
-    }
-
-    public SimpleSymbolTable(String className, String extendedClass) {
-      this();
-      this.setClassName(className);
-      this.setSuper(extendedClass);
     }
     
     @Override
@@ -48,7 +43,7 @@ public class SimpleSymbolTable implements SymbolTable {
 
     @Override
     public String getSuper() {
-        return this.extendedClass;
+        return this.superClass;
     }
 
     @Override
@@ -58,12 +53,12 @@ public class SimpleSymbolTable implements SymbolTable {
 
     @Override
     public List<String> getMethods() {
-        return new ArrayList<>(this.methodTypes.keySet());
+        return this.methods;
     }
 
     @Override
     public Type getReturnType(String methodSignature) {
-        return this.methodTypes.get(methodSignature);
+        return this.methodReturnTypes.get(methodSignature);
     }
 
     @Override
@@ -94,10 +89,10 @@ public class SimpleSymbolTable implements SymbolTable {
 
     /**
      * Change the name of the extended class of the class
-     * @param extendedClass - the of the class the main class extends, or null if the class does not extend another class
+     * @param superClass - the of the class the main class extends, or null if the class does not extend another class
      */
-    public void setSuper(String extendedClass){
-        this.extendedClass = extendedClass;
+    public void setSuper(String superClass){
+        this.superClass = superClass;
     }
 
     /**
@@ -111,10 +106,10 @@ public class SimpleSymbolTable implements SymbolTable {
     /**
      * Add a entry to the hash map of return type of methods
      * @param methodSignature - name of the method with that return type
-     * @param methodType - type of the given method
+     * @param methodReturnType - type of the given method
      */
-    public void addMethodType(String methodSignature, Type methodType) {
-        this.methodTypes.put(methodSignature, methodType);
+    public void addMethodType(String methodSignature, Type methodReturnType) {
+        this.methodReturnTypes.put(methodSignature, methodReturnType);
     }
 
     /**
@@ -135,4 +130,14 @@ public class SimpleSymbolTable implements SymbolTable {
         this.methodLocalVariables.put(methodSignature, methodLocalVariables);
     }
 
+    public void addMethod(String methodSignature, Type returnType, List<Symbol> params, List<Symbol> localVariables) {
+        this.methods.add(methodSignature);
+        addMethodType(methodSignature, returnType);
+        addMethodParameters(methodSignature, params);
+        addMethodLocalVariables(methodSignature, localVariables);
+    }
+
+    public boolean hasMethod(String methodSignature) {
+        return this.methods.contains(methodSignature);
+    }
 }
