@@ -6,6 +6,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 
 import static pt.up.fe.comp.visitor.Utils.getType;
+import static pt.up.fe.comp.visitor.Utils.isIdentifierDeclared;
 
 
 public class TypeCheckingVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean> {
@@ -192,32 +193,6 @@ public class TypeCheckingVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean
         }
         
         return true;
-    }
-
-    private Boolean isIdentifierDeclared(JmmNode identifier, JmmAnalyser jmmAnalyser) {
-        String methodSignature = "";
-        if (identifier.getAncestor("PublicMethod").isPresent()) {
-            methodSignature = identifier.getAncestor("PublicMethod").get().get("name");
-        }
-        else if (identifier.getAncestor("PublicMain").isPresent()) {
-            methodSignature = "main";
-        }
-        if (!methodSignature.isEmpty()) {
-
-            if (jmmAnalyser.getSymbolTable().getLocalVariables(methodSignature).stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a local variable
-                return true;
-
-            if (jmmAnalyser.getSymbolTable().getParameters(methodSignature).stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a method parameter
-                return true;
-        }
-
-        if (jmmAnalyser.getSymbolTable().getFields().stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a field of the class
-            return true;
-
-        if (identifier.getJmmParent().getKind().equals("DotExp")) //it is a function call (not checked here)
-            return true;
-
-        return false;
     }
 
 }

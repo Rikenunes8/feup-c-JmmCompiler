@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static pt.up.fe.comp.visitor.Utils.getType;
+import static pt.up.fe.comp.visitor.Utils.isIdentifierDeclared;
 
 public class FunctionArgsVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean> {
     public FunctionArgsVisitor() {
@@ -30,7 +31,7 @@ public class FunctionArgsVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean
                 return true;
             }
 
-            List<Type> params = symbolTable.getParameters(name).stream().map(symbol -> symbol.getType()).collect(Collectors.toList());
+            List<Type> params = symbolTable.getParameters(name).stream().map(Symbol::getType).collect(Collectors.toList());
             List<Type> args = jmmNode.getChildren().stream().map(arg -> getType(arg, symbolTable)).collect(Collectors.toList());
             if (params.size() != args.size()) {
                 jmmAnalyser.addReport(jmmNode,"method "+name+" in class "+symbolTable.getClassName()+" cannot be applied to given types");
@@ -46,10 +47,22 @@ public class FunctionArgsVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean
             return true;
         }
         else {
-            // TODO is this the goal?
-            if (symbolTable.getImports().contains(left.get("val")))
-                return true;
-            jmmAnalyser.addReport(jmmNode, "Unable to find "+left.get("val"));
+            if (isIdentifierDeclared(left, jmmAnalyser)) {
+                String typeName = getType(left, symbolTable).getName();
+                if (!typeName.matches("boolean|int"))
+                    return true;
+                jmmAnalyser.addReport(jmmNode, "Primitive type ("+typeName+") "+left.get("val")+" has no methods");
+            }
+            else {
+                List<String> lastImports = symbolTable.getImports().stream()
+                        .map(s -> s.split("\\."))
+                        .map(strs -> strs[strs.length-1])
+                        .collect(Collectors.toList());
+
+                if (lastImports.contains(left.get("val")))
+                    return true;
+                jmmAnalyser.addReport(jmmNode, "Unable to find "+left.get("val"));
+            }
             return false;
         }
     }

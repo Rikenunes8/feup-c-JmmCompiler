@@ -1,5 +1,6 @@
 package pt.up.fe.comp.visitor;
 
+import pt.up.fe.comp.JmmAnalyser;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
@@ -59,5 +60,31 @@ public class Utils {
             return classFields.get(0).getType();
 
         return new Type(null, false);
+    }
+
+    static public Boolean isIdentifierDeclared(JmmNode identifier, JmmAnalyser jmmAnalyser) {
+        String methodSignature = "";
+        if (identifier.getAncestor("PublicMethod").isPresent()) {
+            methodSignature = identifier.getAncestor("PublicMethod").get().get("name");
+        }
+        else if (identifier.getAncestor("PublicMain").isPresent()) {
+            methodSignature = "main";
+        }
+        if (!methodSignature.isEmpty()) {
+
+            if (jmmAnalyser.getSymbolTable().getLocalVariables(methodSignature).stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a local variable
+                return true;
+
+            if (jmmAnalyser.getSymbolTable().getParameters(methodSignature).stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a method parameter
+                return true;
+        }
+
+        if (jmmAnalyser.getSymbolTable().getFields().stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a field of the class
+            return true;
+
+        if (identifier.getJmmParent().getKind().equals("DotExp")) //it is a function call (not checked here)
+            return true;
+
+        return false;
     }
 }
