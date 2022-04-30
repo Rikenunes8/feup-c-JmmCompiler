@@ -7,11 +7,14 @@ import java.util.Map;
 import java.util.Collections;
 import java.util.Objects;
 
+import pt.up.fe.comp.analysis.JmmAnalyser;
+import pt.up.fe.comp.jasmin.Backend;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.ollir.JmmOptimizer;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -22,7 +25,7 @@ public class Launcher {
         SpecsSystem.programStandardInit();
 
         // comp [-r=<num>] [-o] [-d] -i=<file.jmm>
-        SpecsLogs.info("Executing with args: " + Arrays.toString(args));
+        SpecsLogs.info("Executing with args: " + Arrays.toString(args) + "\n");
         String correctInput = "Correct input: .\\comp2022-1b [-r=<num>] [-o] [-d] -i=<file.jmm>";
 
         // At least the input file (mandatory argument)
@@ -87,15 +90,17 @@ public class Launcher {
         for (Report report : parserResult.getReports()) {
             System.out.println(report);
         }
+        TestUtils.noErrors(parserResult.getReports());
 
         // JmmAnalysis stage
         JmmAnalyser analyser = new JmmAnalyser();
         JmmSemanticsResult semanticsResult = analyser.semanticAnalysis(parserResult);
-        System.out.println(semanticsResult.getSymbolTable().print());
+        System.out.println("Symbol table:\n" + semanticsResult.getSymbolTable().print());
 
         for (Report report : semanticsResult.getReports()) {
             System.out.println(report);
         }
+        TestUtils.noErrors(semanticsResult.getReports());
 
         // JmmOptimization stage
         JmmOptimizer optimizer = new JmmOptimizer();
@@ -104,15 +109,17 @@ public class Launcher {
         for (Report report : ollirResult.getReports()) {
             System.out.println(report);
         }
+        TestUtils.noErrors(ollirResult.getReports());
 
         // JasminBackend stage
-        JasBackend backend = new JasBackend();
+        Backend backend = new Backend();
         JasminResult jasminResult = backend.toJasmin(ollirResult);
-        System.out.println(jasminResult.getJasminCode()); // program must output the jasmin code : name <class_name>.j (according to class declaration not input file)
+        System.out.println(jasminResult.getJasminCode());
 
         for (Report report : jasminResult.getReports()) {
             System.out.println(report);
         }
+        TestUtils.noErrors(jasminResult.getReports());
 
     }
 }

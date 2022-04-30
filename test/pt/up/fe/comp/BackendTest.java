@@ -8,11 +8,12 @@ import pt.up.fe.specs.util.SpecsIo;
 
 import java.util.Collections;
 
-public class JasminBackendTest {
+public class BackendTest {
 
     private static void noErrors(OllirResult ollirResult) {
         var result = TestUtils.backend(ollirResult);
         TestUtils.noErrors(result.getReports());
+        result.compile();
     }
 
     private static void noErrors(String jmmCode) {
