@@ -14,6 +14,10 @@ public class AnalysisTest {
         TestUtils.mustFail(result);
     }
 
+    /*
+     * Code that must be successfully analysed
+     */
+
     @Test
     public void helloWorld() {
         noErrors(SpecsIo.getResource("fixtures/public/HelloWorld.jmm"));
@@ -52,5 +56,60 @@ public class AnalysisTest {
     @Test
     public void whileAndIf() {
         noErrors(SpecsIo.getResource("fixtures/public/WhileAndIf.jmm"));
+    }
+
+
+    /*
+     * Code that must fail
+     */
+
+    @Test
+    public void arr_index_not_int() {
+        mustFail(SpecsIo.getResource("fixtures/public/fail/semantic/arr_index_not_int.jmm"));
+    }
+
+    @Test
+    public void arr_size_not_int() {
+        mustFail(SpecsIo.getResource("fixtures/public/fail/semantic/arr_size_not_int.jmm"));
+    }
+
+    @Test
+    public void badArguments() {
+        mustFail(SpecsIo.getResource("fixtures/public/fail/semantic/badArguments.jmm"));
+    }
+
+    @Test
+    public void binop_incomp() {
+        mustFail(SpecsIo.getResource("fixtures/public/fail/semantic/binop_incomp.jmm"));
+    }
+
+    @Test
+    public void funcNotFound() {
+        mustFail(SpecsIo.getResource("fixtures/public/fail/semantic/funcNotFound.jmm"));
+    }
+
+    @Test
+    public void simple_length() {
+        mustFail(SpecsIo.getResource("fixtures/public/fail/semantic/simple_length.jmm"));
+    }
+
+    @Test
+    public void var_exp_incomp() {
+        mustFail(SpecsIo.getResource("fixtures/public/fail/semantic/var_exp_incomp.jmm"));
+    }
+
+    @Test
+    public void var_lit_incomp() {
+        mustFail(SpecsIo.getResource("fixtures/public/fail/semantic/var_lit_incomp.jmm"));
+    }
+
+    @Test
+    public void var_undef() {
+        mustFail(SpecsIo.getResource("fixtures/public/fail/semantic/var_undef.jmm"));
+    }
+
+    @Test
+    public void varNotInit() {
+        mustFail(SpecsIo.getResource("fixtures/public/fail/semantic/varNotInit.jmm"));
     }
 }

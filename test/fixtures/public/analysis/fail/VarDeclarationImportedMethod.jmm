@@ -1,0 +1,9 @@
+import Parent
+
+class Child extends Parent {
+    public static void main(String[] args) {
+        String c;
+        c = File.read(file);
+    }
+
+}
