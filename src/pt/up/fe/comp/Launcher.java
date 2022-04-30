@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Collections;
 import java.util.Objects;
 
+import pt.up.fe.comp.analysis.JmmAnalyser;
+import pt.up.fe.comp.ast.SimpleParser;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;

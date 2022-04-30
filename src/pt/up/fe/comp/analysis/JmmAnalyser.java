@@ -1,31 +1,26 @@
-package pt.up.fe.comp;
+package pt.up.fe.comp.analysis;
 
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
-import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
-import pt.up.fe.comp.visitor.FunctionArgsVisitor;
-import pt.up.fe.comp.visitor.ReturnCheckingVisitor;
-import pt.up.fe.comp.visitor.SymbolTableVisitor;
-import pt.up.fe.comp.visitor.TypeCheckingVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class JmmAnalyser implements JmmAnalysis {
-    SimpleSymbolTable symbolTable;
+    SymbolTableBuilder symbolTable;
     private List<Report> reports;
 
     public JmmAnalyser() {
-        this.symbolTable = new SimpleSymbolTable();
+        this.symbolTable = new SymbolTableBuilder();
         this.reports = new ArrayList<>();
     }
 
-    public SimpleSymbolTable getSymbolTable() {
+    public SymbolTableBuilder getSymbolTable() {
         return this.symbolTable;
     }
 

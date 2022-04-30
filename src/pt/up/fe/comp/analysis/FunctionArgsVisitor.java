@@ -1,18 +1,17 @@
-package pt.up.fe.comp.visitor;
+package pt.up.fe.comp.analysis;
 
-import pt.up.fe.comp.JmmAnalyser;
+import pt.up.fe.comp.analysis.JmmAnalyser;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pt.up.fe.comp.visitor.Utils.getType;
-import static pt.up.fe.comp.visitor.Utils.isIdentifierDeclared;
+import static pt.up.fe.comp.Utils.getType;
+import static pt.up.fe.comp.Utils.isIdentifierDeclared;
 
 public class FunctionArgsVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean> {
     public FunctionArgsVisitor() {

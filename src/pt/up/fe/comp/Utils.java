@@ -1,6 +1,6 @@
-package pt.up.fe.comp.visitor;
+package pt.up.fe.comp;
 
-import pt.up.fe.comp.JmmAnalyser;
+import pt.up.fe.comp.analysis.JmmAnalyser;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;

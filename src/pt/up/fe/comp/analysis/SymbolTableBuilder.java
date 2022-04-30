@@ -1,4 +1,4 @@
-package pt.up.fe.comp;
+package pt.up.fe.comp.analysis;
 
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
@@ -6,7 +6,7 @@ import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 
 import java.util.*;
 
-public class SimpleSymbolTable implements SymbolTable {
+public class SymbolTableBuilder implements SymbolTable {
  
     List<String> imports;
 
@@ -20,7 +20,7 @@ public class SimpleSymbolTable implements SymbolTable {
     Map<String, List<Symbol>> methodParameters;
     Map<String, List<Symbol>> methodLocalVariables;
 
-    public SimpleSymbolTable() {
+    public SymbolTableBuilder() {
       this.imports = new ArrayList<>();
       this.fields  = new ArrayList<>();
       this.className = null;
