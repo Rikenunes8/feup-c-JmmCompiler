@@ -8,5 +8,4 @@ import java.util.List;
 public interface ReportGenerator {
     List<Report> getReports();
     void addReport(JmmNode node, String message);
-
 }

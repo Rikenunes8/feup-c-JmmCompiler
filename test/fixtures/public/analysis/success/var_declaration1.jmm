@@ -1,5 +1,5 @@
-import java.io.File
-import Parent
+import java.io.File;
+import Parent;
 
 class Child extends Parent {
     int a;
@@ -10,6 +10,7 @@ class Child extends Parent {
         int b;
 
         c = 1;
-        b = true;
+        b = 2;
+        a = 3;
     }
 }

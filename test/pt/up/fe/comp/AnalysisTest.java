@@ -61,6 +61,34 @@ public class AnalysisTest {
     }
 
 
+
+    @Test
+    public void import_super() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/import_super.jmm"));
+    }
+    @Test
+    public void import_type() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/import_type.jmm"));
+    }
+    @Test
+    public void var_declaration1() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/var_declaration1.jmm"));
+    }
+    @Test
+    public void var_declaration2() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/var_declaration2.jmm"));
+    }
+    @Test
+    public void var_declaration_imported_method() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/var_declaration_imported_method.jmm"));
+    }
+    @Test
+    public void var_declaration_method_call() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/var_declaration_method_call.jmm"));
+    }
+
+
+
     /*
      * Code that must fail
      */
@@ -114,4 +142,28 @@ public class AnalysisTest {
     public void varNotInit() {
         mustFail(SpecsIo.getResource("fixtures/public/fail/semantic/varNotInit.jmm"));
     }
+
+
+
+    @Test
+    public void import_super_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/import_super.jmm"));
+    }
+    @Test
+    public void import_type_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/import_type.jmm"));
+    }
+    @Test
+    public void var_declaration1_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/var_declaration1.jmm"));
+    }
+    @Test
+    public void var_declaration2_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/var_declaration2.jmm"));
+    }
+    @Test
+    public void var_declaration_imported_method_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/var_declaration_imported_method.jmm"));
+    }
+
 }

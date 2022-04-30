@@ -1,9 +1,11 @@
-import Parent
+import java.io.File;
+import Parent;
 
 class Child extends Parent {
-    public static void main(String[] args) {
-        String c;
-        c = File.read(file);
-    }
+    int a;
+    boolean b;
 
+    public static void main(String[] args) {
+        File c;
+    }
 }

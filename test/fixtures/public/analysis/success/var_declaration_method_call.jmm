@@ -1,5 +1,5 @@
-import java.io.File
-import Parent
+import java.io.File;
+import Parent;
 
 class Child extends Parent {
     int a;
@@ -8,6 +8,10 @@ class Child extends Parent {
     public static void main(String[] args) {
         File c;
 
-        c = true;
+        c = this.newFile();
+    }
+
+    public File newFile() {
+        return new File();
     }
 }
