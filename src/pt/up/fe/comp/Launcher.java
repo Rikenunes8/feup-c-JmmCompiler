@@ -83,20 +83,20 @@ public class Launcher {
         // Parse stage
         SimpleParser parser = new SimpleParser();
         JmmParserResult parserResult = parser.parse(input, config);
-
         for (Report report : parserResult.getReports()) {
             System.out.println(report);
         }
+        TestUtils.noErrors(parserResult.getReports());
 
-        //[DUVIDA] Não deviamos fazer análise semantica apenas se passar a sintática?
+
         // Analysis stage
         JmmAnalyser analyser = new JmmAnalyser();
         JmmSemanticsResult analysisResult = analyser.semanticAnalysis(parserResult);
-        System.out.println(analysisResult.getSymbolTable().print());
-
+        // System.out.println(analysisResult.getSymbolTable().print());
         for (Report report : analysisResult.getReports()) {
             System.out.println(report);
         }
+        TestUtils.noErrors(parserResult.getReports());
 
         // ... add remaining stages
 

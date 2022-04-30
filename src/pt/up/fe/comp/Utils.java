@@ -35,12 +35,10 @@ public class Utils {
             return new Type(var.get("name"), true);
 
         String methodSignature = "";
-        if (var.getAncestor("PublicMethod").isPresent()) {
-            methodSignature = var.getAncestor("PublicMethod").get().get("name");
+        if (var.getAncestor("MethodDeclaration").isPresent()) {
+            methodSignature = var.getAncestor("MethodDeclaration").get().get("name");
         }
-        else if (var.getAncestor("PublicMain").isPresent()) {
-            methodSignature = "main";
-        }
+
         if (!methodSignature.isEmpty()) {
             List<Symbol> localVariables = symbolTable.getLocalVariables(methodSignature).stream()
                     .filter(symbol -> symbol.getName().equals(var.get("val")))
@@ -64,24 +62,22 @@ public class Utils {
         return new Type(null, false);
     }
 
-    static public Boolean isIdentifierDeclared(JmmNode identifier, JmmAnalyser jmmAnalyser) {
+    static public Boolean isIdentifierDeclared(JmmNode identifier, SymbolTable symbolTable) {
         String methodSignature = "";
-        if (identifier.getAncestor("PublicMethod").isPresent()) {
-            methodSignature = identifier.getAncestor("PublicMethod").get().get("name");
+        if (identifier.getAncestor("MethodDeclaration").isPresent()) {
+            methodSignature = identifier.getAncestor("MethodDeclaration").get().get("name");
         }
-        else if (identifier.getAncestor("PublicMain").isPresent()) {
-            methodSignature = "main";
-        }
+
         if (!methodSignature.isEmpty()) {
 
-            if (jmmAnalyser.getSymbolTable().getLocalVariables(methodSignature).stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a local variable
+            if (symbolTable.getLocalVariables(methodSignature).stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a local variable
                 return true;
 
-            if (jmmAnalyser.getSymbolTable().getParameters(methodSignature).stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a method parameter
+            if (symbolTable.getParameters(methodSignature).stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a method parameter
                 return true;
         }
 
-        if (jmmAnalyser.getSymbolTable().getFields().stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a field of the class
+        if (symbolTable.getFields().stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a field of the class
             return true;
 
         if (identifier.getJmmParent().getKind().equals("DotExp")) //it is a function call (not checked here)

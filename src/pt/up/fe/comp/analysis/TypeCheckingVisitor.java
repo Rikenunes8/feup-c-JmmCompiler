@@ -1,17 +1,27 @@
 package pt.up.fe.comp.analysis;
 
-import pt.up.fe.comp.analysis.JmmAnalyser;
+import pt.up.fe.comp.ReportGenerator;
+import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
+import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static pt.up.fe.comp.Utils.getType;
 import static pt.up.fe.comp.Utils.isIdentifierDeclared;
 
 
-public class TypeCheckingVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean> {
+public class TypeCheckingVisitor extends PreorderJmmVisitor<SymbolTableBuilder, Boolean> implements ReportGenerator {
+
+    private List<Report> reports;
 
     public TypeCheckingVisitor() {
+        this.reports = new ArrayList<>();
         addVisit("IdentifierLiteral", this::visitIdentifier);
         addVisit("AddExp", this::visitArithmeticExpression);
         addVisit("SubExp", this::visitArithmeticExpression);
@@ -25,174 +35,183 @@ public class TypeCheckingVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean
         addVisit("IfStatement", this::visitIfStatement);
     }
     
-    private Boolean visitIdentifier(JmmNode identifier, JmmAnalyser jmmAnalyser) {
-        if (isIdentifierDeclared(identifier, jmmAnalyser))
+    private Boolean visitIdentifier(JmmNode identifier, SymbolTableBuilder symbolTable) {
+        if (isIdentifierDeclared(identifier, symbolTable))
             return true;
 
-        jmmAnalyser.addReport(identifier, "Variable used is not declared.");
+        this.addReport(identifier, "Variable used is not declared.");
         return false;
     }
 
-    private Boolean visitArithmeticExpression(JmmNode arithmeticExpression, JmmAnalyser jmmAnalyser) {
+    private Boolean visitArithmeticExpression(JmmNode arithmeticExpression, SymbolTableBuilder symbolTable) {
         JmmNode op1 = arithmeticExpression.getChildren().get(0);
         JmmNode op2 = arithmeticExpression.getChildren().get(1);
 
         if (op1.getKind().equals("DotExp") || op2.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
             return true;
 
-        Type op1Type = getType(op1, jmmAnalyser.getSymbolTable());
-        Type op2Type = getType(op2, jmmAnalyser.getSymbolTable());
+        Type op1Type = getType(op1, symbolTable);
+        Type op2Type = getType(op2, symbolTable);
 
-        if (op1.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op1, jmmAnalyser)) //operand is not declared
+        if (op1.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op1, symbolTable)) //operand is not declared
             return false;     
 
-        if (op2.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op2, jmmAnalyser)) //operand is not declared
+        if (op2.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op2, symbolTable)) //operand is not declared
             return false;     
 
         if (op1Type.isArray() || op2Type.isArray()) {
-            jmmAnalyser.addReport(arithmeticExpression, "Arrays cannot be used in arithmetic operations.");
+            this.addReport(arithmeticExpression, "Arrays cannot be used in arithmetic operations.");
             return false;
         }
 
         if ((!op1.getKind().equals("IntegerLiteral") && !op1Type.getName().equals("int")) || (!op2.getKind().equals("IntegerLiteral") && !op2Type.getName().equals("int"))){        
-            jmmAnalyser.addReport(arithmeticExpression, "The operands in an arithmetic expression must be integers.");
+            this.addReport(arithmeticExpression, "The operands in an arithmetic expression must be integers.");
             return false;
         }
         
         return true;
     }
 
-    private Boolean visitAndExpression(JmmNode andExpression, JmmAnalyser jmmAnalyser) {
+    private Boolean visitAndExpression(JmmNode andExpression, SymbolTableBuilder symbolTable) {
         JmmNode op1 = andExpression.getChildren().get(0);
         JmmNode op2 = andExpression.getChildren().get(1);
 
         if (op1.getKind().equals("DotExp") || op2.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
             return true;
 
-        Type op1Type = getType(op1, jmmAnalyser.getSymbolTable());
-        Type op2Type = getType(op2, jmmAnalyser.getSymbolTable());  
+        Type op1Type = getType(op1, symbolTable);
+        Type op2Type = getType(op2, symbolTable);  
 
-        if (op1.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op1, jmmAnalyser)) //operand is not declared
+        if (op1.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op1, symbolTable)) //operand is not declared
             return false;     
 
-        if (op2.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op2, jmmAnalyser)) //operand is not declared
+        if (op2.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op2, symbolTable)) //operand is not declared
             return false;  
 
         if ((!op1.getKind().equals("TrueLiteral") && !op1.getKind().equals("FalseLiteral") && !op1Type.getName().equals("boolean"))
                 || (!op2.getKind().equals("TrueLiteral") && !op2.getKind().equals("FalseLiteral") && !op2Type.getName().equals("boolean"))) {
-            jmmAnalyser.addReport(andExpression, "The operands in a logic expression must be booleans.");
+            this.addReport(andExpression, "The operands in a logic expression must be booleans.");
             return false;
         }
         
         return true;
     }
 
-    private Boolean visitNotExpression(JmmNode notExpression, JmmAnalyser jmmAnalyser) {
+    private Boolean visitNotExpression(JmmNode notExpression, SymbolTableBuilder symbolTable) {
         JmmNode exp = notExpression.getChildren().get(0);
 
         if (exp.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
             return true;
 
-        Type expType = getType(exp, jmmAnalyser.getSymbolTable());
+        Type expType = getType(exp, symbolTable);
 
-        if (exp.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(exp, jmmAnalyser)) //operand is not declared
+        if (exp.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(exp, symbolTable)) //operand is not declared
             return false;     
 
         if (!exp.getKind().equals("TrueLiteral") && !exp.getKind().equals("FalseLiteral") && !expType.getName().equals("boolean")) {
-            jmmAnalyser.addReport(notExpression, "The operands in a logic expression must be booleans.");
+            this.addReport(notExpression, "The operands in a logic expression must be booleans.");
             return false;
         }
 
         return true;
     }
 
-    private Boolean visitLessThanExpression(JmmNode lessThanExpression, JmmAnalyser jmmAnalyser) {
+    private Boolean visitLessThanExpression(JmmNode lessThanExpression, SymbolTableBuilder symbolTable) {
         JmmNode op1 = lessThanExpression.getChildren().get(0);
         JmmNode op2 = lessThanExpression.getChildren().get(1);
 
         if (op1.getKind().equals("DotExp") || op2.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
             return true;
 
-        Type op1Type = getType(op1, jmmAnalyser.getSymbolTable());
-        Type op2Type = getType(op2, jmmAnalyser.getSymbolTable());
+        Type op1Type = getType(op1, symbolTable);
+        Type op2Type = getType(op2, symbolTable);
 
-        if (op1.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op1, jmmAnalyser)) //operand is not declared
+        if (op1.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op1, symbolTable)) //operand is not declared
             return false;     
 
-        if (op2.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op2, jmmAnalyser)) //operand is not declared
+        if (op2.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op2, symbolTable)) //operand is not declared
             return false;  
 
         if ((!op1.getKind().equals("IntegerLiteral") && !op1Type.getName().equals("int")) || (!op2.getKind().equals("IntegerLiteral") && !op2Type.getName().equals("int"))) {
-            jmmAnalyser.addReport(lessThanExpression, "The operands in a comparison expression must be integers.");
+            this.addReport(lessThanExpression, "The operands in a comparison expression must be integers.");
             return false;
         }
             
         return true; 
     }
 
-    private Boolean visitArrayAccessExpression(JmmNode arrayAccessExpression, JmmAnalyser jmmAnalyser) {
+    private Boolean visitArrayAccessExpression(JmmNode arrayAccessExpression, SymbolTableBuilder symbolTable) {
         JmmNode array = arrayAccessExpression.getChildren().get(0);
         JmmNode index = arrayAccessExpression.getChildren().get(1);
 
-        Type arrayType = getType(array, jmmAnalyser.getSymbolTable());
-        Type indexType = getType(index, jmmAnalyser.getSymbolTable());
+        Type arrayType = getType(array, symbolTable);
+        Type indexType = getType(index, symbolTable);
 
-        if (index.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(index, jmmAnalyser)) //operand is not declared
+        if (index.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(index, symbolTable)) //operand is not declared
             return false;  
     
         if (!arrayType.isArray()){
-            jmmAnalyser.addReport(arrayAccessExpression, "Array access must be done over an array.");
+            this.addReport(arrayAccessExpression, "Array access must be done over an array.");
             return false;
         }
 
         if (!index.getKind().equals("IntegerLiteral") && !indexType.getName().equals("int")) {
-            jmmAnalyser.addReport(arrayAccessExpression, "Array access index must be an expression of type integer.");
+            this.addReport(arrayAccessExpression, "Array access index must be an expression of type integer.");
             return false;
         }
 
         return true;
     }
 
-    private Boolean visitAssignmentStatement(JmmNode assignmentStatement, JmmAnalyser jmmAnalyser) {
+    private Boolean visitAssignmentStatement(JmmNode assignmentStatement, SymbolTableBuilder symbolTable) {
         JmmNode assigned = assignmentStatement.getChildren().get(0);
         JmmNode assignee = assignmentStatement.getChildren().get(1);
 
         if (assignee.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
             return true;
 
-        Type assignedType = getType(assigned, jmmAnalyser.getSymbolTable());
-        Type assigneeType = getType(assignee, jmmAnalyser.getSymbolTable());
+        Type assignedType = getType(assigned, symbolTable);
+        Type assigneeType = getType(assignee, symbolTable);
 
         JmmNode assignedIdentifier = assigned.getKind().equals("ArrayAccess") ? assigned.getChildren().get(0) : assigned;
 
-        if (!isIdentifierDeclared(assignedIdentifier, jmmAnalyser)) //assigned is not declared
+        if (!isIdentifierDeclared(assignedIdentifier, symbolTable)) //assigned is not declared
             return false; 
 
         if (!assignedType.getName().equals(assigneeType.getName())){
-            jmmAnalyser.addReport(assignmentStatement, "Type of the assignee must be compatible with the assigned.");
+            this.addReport(assignmentStatement, "Type of the assignee must be compatible with the assigned.");
             return false;
         }
                 
         return true;
     }
 
-    private Boolean visitIfStatement(JmmNode ifStatement, JmmAnalyser jmmAnalyser) {
+    private Boolean visitIfStatement(JmmNode ifStatement, SymbolTableBuilder symbolTable) {
         JmmNode conditionExp = ifStatement.getChildren().get(0).getChildren().get(0);
 
         if (conditionExp.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
             return true;
 
-        Type conditionExpType = getType(conditionExp, jmmAnalyser.getSymbolTable());
+        Type conditionExpType = getType(conditionExp, symbolTable);
 
-        if (conditionExp.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(conditionExp, jmmAnalyser)) //operand is not declared
+        if (conditionExp.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(conditionExp, symbolTable)) //operand is not declared
             return false;    
 
         if (!conditionExp.getKind().equals("TrueLiteral") && !conditionExp.getKind().equals("FalseLiteral") && !conditionExpType.getName().equals("boolean")) {
-            jmmAnalyser.addReport(conditionExp, "Expression in a condition must return a boolean.");
+            this.addReport(conditionExp, "Expression in a condition must return a boolean.");
             return false;
         }
         
         return true;
     }
+    
+    @Override
+    public List<Report> getReports() {
+        return this.reports;
+    }
 
+    @Override
+    public void addReport(JmmNode node, String message) {
+        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(node.get("line")), Integer.parseInt(node.get("col")) , message));
+    }
 }

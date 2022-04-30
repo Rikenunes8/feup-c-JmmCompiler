@@ -1,44 +1,51 @@
 package pt.up.fe.comp.analysis;
 
-import pt.up.fe.comp.analysis.JmmAnalyser;
+import pt.up.fe.comp.ReportGenerator;
+import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
+import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static pt.up.fe.comp.Utils.buildType;
 
-public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean> {
+public class SymbolTableVisitor extends PreorderJmmVisitor<SymbolTableBuilder, Boolean> implements ReportGenerator {
+    List<Report> reports;
+    
     public SymbolTableVisitor() {
+        this.reports = new ArrayList<>();
         addVisit("ImportStatement", this::visitImportStatements);
         addVisit("ClassDeclaration", this::visitClassDeclaration);
         addVisit("MethodDeclaration", this::visitMethodDeclaration);
     }
 
-    private Boolean visitImportStatements(JmmNode importStatement, JmmAnalyser jmmAnalyser) {
+    private Boolean visitImportStatements(JmmNode importStatement, SymbolTableBuilder symbolTable) {
         String importString = importStatement.getChildren().stream()
                 .map(id -> id.get("val"))
                 .collect(Collectors.joining("."));
-        jmmAnalyser.getSymbolTable().addImport(importString);
+        symbolTable.addImport(importString);
         return true;
     }
 
-    private Boolean visitClassDeclaration(JmmNode classDeclaration, JmmAnalyser jmmAnalyser) {
+    private Boolean visitClassDeclaration(JmmNode classDeclaration, SymbolTableBuilder symbolTable) {
         String className = classDeclaration.get("name");
-        jmmAnalyser.getSymbolTable().setClassName(className);
-        classDeclaration.getOptional("extends").ifPresent(superClass -> jmmAnalyser.getSymbolTable().setSuper(superClass));
+        symbolTable.setClassName(className);
+        classDeclaration.getOptional("extends").ifPresent(symbolTable::setSuper);
 
         for (JmmNode children: classDeclaration.getChildren()) {
             if (children.getKind().equals("VarDeclaration")) {
                 Symbol field = new Symbol(buildType(children.get("type")), children.get("var"));
-                List<String> fieldsNames = jmmAnalyser.getSymbolTable().getFields().stream()
+                List<String> fieldsNames = symbolTable.getFields().stream()
                         .map(Symbol::getName).collect(Collectors.toList());
                 if (fieldsNames.contains(field.getName()))
-                    jmmAnalyser.addReport(children, "Duplicated field declaration");
+                    this.addReport(children, "Duplicated field declaration");
                 else
-                    jmmAnalyser.getSymbolTable().addField(field);
+                    symbolTable.addField(field);
             } else {
                 break;
             }
@@ -47,12 +54,12 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
         return true;
     }
 
-    private Boolean visitMethodDeclaration(JmmNode methodDecl, JmmAnalyser jmmAnalyser) {
+    private Boolean visitMethodDeclaration(JmmNode methodDecl, SymbolTableBuilder symbolTable) {
         String methodName = methodDecl.get("name");
         String methodType = methodDecl.get("type");
 
-        if (jmmAnalyser.getSymbolTable().hasMethod(methodName)) {
-            jmmAnalyser.addReport(methodDecl, "Duplicated method "+methodName);
+        if (symbolTable.hasMethod(methodName)) {
+            this.addReport(methodDecl, "Duplicated method "+methodName);
             return false;
         }
 
@@ -66,7 +73,7 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
         // Check duplicated parameters
         Set<String> setMethodParameters = methodParameters.stream().map(Symbol::getName).collect(Collectors.toSet());
         if (methodParameters.size() != setMethodParameters.size()) {
-            jmmAnalyser.addReport(methodDecl, "Parameters with the same name");
+            this.addReport(methodDecl, "Parameters with the same name");
         }
 
 
@@ -78,9 +85,19 @@ public class SymbolTableVisitor extends PreorderJmmVisitor<JmmAnalyser, Boolean>
         // Check duplicated local variables
         Set<String> setMethodLocalVariables = methodLocalVariables.stream().map(Symbol::getName).collect(Collectors.toSet());
         if (methodLocalVariables.size() != setMethodLocalVariables.size())
-            jmmAnalyser.addReport(methodDecl, "Duplicated local variables");
+            this.addReport(methodDecl, "Duplicated local variables");
 
-        jmmAnalyser.getSymbolTable().addMethod(methodName, buildType(methodType), methodParameters, methodLocalVariables);
+        symbolTable.addMethod(methodName, buildType(methodType), methodParameters, methodLocalVariables);
         return true;
+    }
+
+    @Override
+    public List<Report> getReports() {
+        return this.reports;
+    }
+
+    @Override
+    public void addReport(JmmNode node, String message) {
+        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(node.get("line")), Integer.parseInt(node.get("col")) , message));
     }
 }

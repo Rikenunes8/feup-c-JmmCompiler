@@ -28,20 +28,18 @@ public class JmmAnalyser implements JmmAnalysis {
         return reports;
     }
 
-    public void addReport(JmmNode node, String errorMessage) {
-        // [TODO] acrescentar linha e coluna no nó da AST
-        // reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(node.get("line")), Integer.parseInt(node.get("column")), errorMessage));
-        reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 2, 1, errorMessage)); 
-    }
 
     @Override
     public JmmSemanticsResult semanticAnalysis(JmmParserResult parserResult) {
         JmmNode root = parserResult.getRootNode();
 
-        new SymbolTableVisitor().visit(root, this);
-        //new TypeCheckingVisitor().visit(root, this);
-        //new FunctionArgsVisitor().visit(root, this);
-        //new ReturnCheckingVisitor().visit(root, this);
+        var symbolTableVisitor = new SymbolTableVisitor();
+        symbolTableVisitor.visit(root, this.symbolTable);
+        this.reports.addAll(symbolTableVisitor.getReports());
+
+        new TypeCheckingVisitor().visit(root, this.symbolTable);
+        //new FunctionArgsVisitor().visit(root, this.symbolTable);
+        new ReturnCheckingVisitor().visit(root, this.symbolTable);
 
         return new JmmSemanticsResult(parserResult, this.symbolTable, this.reports);
     }
