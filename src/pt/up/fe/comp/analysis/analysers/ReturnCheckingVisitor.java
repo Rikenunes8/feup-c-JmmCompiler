@@ -14,18 +14,17 @@ public class ReturnCheckingVisitor extends SemanticAnalyserVisitor {
     }
 
     private Boolean visitReturnStatement(JmmNode jmmNode, SymbolTableBuilder symbolTable) {
-        if (!jmmNode.getAncestor("PublicMethod").isPresent())
+        var methodDeclarationOpt = jmmNode.getAncestor("MethodDeclaration");
+        if (!methodDeclarationOpt.isPresent())
             return false;
 
         JmmNode returnExp = jmmNode.getJmmChild(0);
-        if (returnExp.getKind().equals("DotExp"))
-            return true;
 
-        String typeStr = jmmNode.getAncestor("PublicMethod").get().get("type");
+        String typeStr = methodDeclarationOpt.get().get("type");
         Type methodType = buildType(typeStr);
         Type returnType = getType(returnExp, symbolTable);
 
-        if (methodType.equals(returnType))
+        if (returnType == null || methodType.equals(returnType))
             return true;
         this.addReport(jmmNode, "Return expression does not match method return type.");
         return false;

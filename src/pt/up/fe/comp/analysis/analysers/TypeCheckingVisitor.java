@@ -28,6 +28,9 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
         if (isIdentifierDeclared(identifier, symbolTable))
             return true;
 
+        if (identifier.getJmmParent().getKind().equals("DotExp"))
+            return true;
+
         this.addReport(identifier, "Variable used is not declared.");
         return false;
     }
@@ -36,11 +39,11 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
         JmmNode op1 = arithmeticExpression.getChildren().get(0);
         JmmNode op2 = arithmeticExpression.getChildren().get(1);
 
-        if (op1.getKind().equals("DotExp") || op2.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
-            return true;
-
         Type op1Type = getType(op1, symbolTable);
         Type op2Type = getType(op2, symbolTable);
+
+        if (op1Type == null || op2Type == null)
+            return true;
 
         if (op1.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op1, symbolTable)) //operand is not declared
             return false;     
@@ -65,11 +68,11 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
         JmmNode op1 = andExpression.getChildren().get(0);
         JmmNode op2 = andExpression.getChildren().get(1);
 
-        if (op1.getKind().equals("DotExp") || op2.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
-            return true;
-
         Type op1Type = getType(op1, symbolTable);
-        Type op2Type = getType(op2, symbolTable);  
+        Type op2Type = getType(op2, symbolTable);
+
+        if (op1Type == null || op2Type == null)
+            return true;
 
         if (op1.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op1, symbolTable)) //operand is not declared
             return false;     
@@ -89,10 +92,10 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
     private Boolean visitNotExpression(JmmNode notExpression, SymbolTableBuilder symbolTable) {
         JmmNode exp = notExpression.getChildren().get(0);
 
-        if (exp.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
-            return true;
-
         Type expType = getType(exp, symbolTable);
+
+        if (expType == null)
+            return true;
 
         if (exp.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(exp, symbolTable)) //operand is not declared
             return false;     
@@ -109,11 +112,11 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
         JmmNode op1 = lessThanExpression.getChildren().get(0);
         JmmNode op2 = lessThanExpression.getChildren().get(1);
 
-        if (op1.getKind().equals("DotExp") || op2.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
-            return true;
-
         Type op1Type = getType(op1, symbolTable);
         Type op2Type = getType(op2, symbolTable);
+
+        if (op1Type == null || op2Type == null)
+            return true;
 
         if (op1.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(op1, symbolTable)) //operand is not declared
             return false;     
@@ -136,6 +139,9 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
         Type arrayType = getType(array, symbolTable);
         Type indexType = getType(index, symbolTable);
 
+        if (arrayType == null || indexType == null)
+            return true;
+
         if (index.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(index, symbolTable)) //operand is not declared
             return false;  
     
@@ -153,16 +159,16 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
     }
 
     private Boolean visitAssignmentStatement(JmmNode assignmentStatement, SymbolTableBuilder symbolTable) {
-        JmmNode assigned = assignmentStatement.getChildren().get(0);
-        JmmNode assignee = assignmentStatement.getChildren().get(1);
-
-        if (assignee.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
-            return true;
+        JmmNode assigned = assignmentStatement.getJmmChild(0);
+        JmmNode assignee = assignmentStatement.getJmmChild(1);
 
         Type assignedType = getType(assigned, symbolTable);
         Type assigneeType = getType(assignee, symbolTable);
 
-        JmmNode assignedIdentifier = assigned.getKind().equals("ArrayAccess") ? assigned.getChildren().get(0) : assigned;
+        if (assigneeType == null || assignedType == null)
+            return true;
+
+        JmmNode assignedIdentifier = assigned.getKind().equals("ArrayAccess") ? assigned.getJmmChild(0) : assigned;
 
         if (!isIdentifierDeclared(assignedIdentifier, symbolTable)) //assigned is not declared
             return false; 
@@ -178,10 +184,10 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
     private Boolean visitIfStatement(JmmNode ifStatement, SymbolTableBuilder symbolTable) {
         JmmNode conditionExp = ifStatement.getChildren().get(0).getChildren().get(0);
 
-        if (conditionExp.getKind().equals("DotExp")) //[TODO] verificar tipo de DotExp com this
-            return true;
-
         Type conditionExpType = getType(conditionExp, symbolTable);
+
+        if (conditionExpType == null)
+            return true;
 
         if (conditionExp.getKind().equals("IdentifierLiteral") && !isIdentifierDeclared(conditionExp, symbolTable)) //operand is not declared
             return false;    

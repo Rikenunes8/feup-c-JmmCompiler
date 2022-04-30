@@ -8,8 +8,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pt.up.fe.comp.Utils.getType;
-import static pt.up.fe.comp.Utils.isIdentifierDeclared;
+import static pt.up.fe.comp.Utils.*;
 
 public class FunctionArgsVisitor extends SemanticAnalyserVisitor {
 
@@ -52,13 +51,9 @@ public class FunctionArgsVisitor extends SemanticAnalyserVisitor {
                 this.addReport(jmmNode, "Primitive type ("+typeName+") "+left.get("val")+" has no methods");
             }
             else {
-                List<String> lastImports = symbolTable.getImports().stream()
-                        .map(s -> s.split("\\."))
-                        .map(strs -> strs[strs.length-1])
-                        .collect(Collectors.toList());
-
-                if (lastImports.contains(left.get("val")))
+                if (isImported(left.get("val"), symbolTable))
                     return true;
+
                 this.addReport(jmmNode, "Unable to find "+left.get("val"));
             }
             return false;

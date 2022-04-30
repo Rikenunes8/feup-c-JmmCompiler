@@ -1,6 +1,7 @@
 package pt.up.fe.comp;
 
 import pt.up.fe.comp.analysis.JmmAnalyser;
+import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
@@ -20,7 +21,7 @@ public class Utils {
         }
     }
 
-    static public Type getType(JmmNode var, SymbolTable symbolTable) {
+    static public Type getType(JmmNode var, SymbolTableBuilder symbolTable) {
 
         if (var.getKind().matches("TrueLiteral|FalseLiteral|AndExp|NotExp|LessExp|Condition"))
             return new Type("boolean", false);
@@ -32,7 +33,10 @@ public class Utils {
             return new Type("int", true);
 
         if (var.getKind().equals("NewObject"))
-            return new Type(var.get("name"), true);
+            return new Type(var.get("name"), false);
+
+        if (var.getKind().equals("DotExp"))
+            return getDotExpType(var, symbolTable);
 
         String methodSignature = "";
         if (var.getAncestor("MethodDeclaration").isPresent()) {
@@ -59,7 +63,26 @@ public class Utils {
         if (!classFields.isEmpty()) //var is a field of the class
             return classFields.get(0).getType();
 
-        return new Type(null, false);
+        return null;
+    }
+
+    static public Type getDotExpType(JmmNode dotExp, SymbolTableBuilder symbolTable) {
+        JmmNode leftNode  = dotExp.getJmmChild(0);
+        JmmNode rightNode = dotExp.getJmmChild(1);
+
+        if (rightNode.getKind().equals("PropertyLength")) {
+            Type leftNodeType = getType(leftNode, symbolTable);
+            if (leftNodeType == null || leftNodeType.isArray())
+                return new Type("int", false);
+        }
+        else if (rightNode.getKind().equals("FunctionCall")) {
+            if (leftNode.getKind().equals("ThisLiteral")) {
+                if (symbolTable.hasMethod(rightNode.get("name"))) {
+                    return symbolTable.getReturnType(rightNode.get("name"));
+                }
+            }
+        }
+        return null;
     }
 
     static public Boolean isIdentifierDeclared(JmmNode identifier, SymbolTable symbolTable) {
@@ -69,23 +92,34 @@ public class Utils {
         }
 
         if (!methodSignature.isEmpty()) {
-
-            if (symbolTable.getLocalVariables(methodSignature).stream()
-                    .anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a local variable
+            if (symbolTable.getLocalVariables(methodSignature).stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a local variable
                 return true;
-
-            if (symbolTable.getParameters(methodSignature).stream()
-                    .anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a method parameter
+            if (symbolTable.getParameters(methodSignature).stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a method parameter
                 return true;
         }
 
-        if (symbolTable.getFields().stream()
-                .anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a field of the class
-            return true;
-
-        if (identifier.getJmmParent().getKind().equals("DotExp")) //it is a function call (not checked here)
+        if (symbolTable.getFields().stream().anyMatch(symbol -> symbol.getName().equals(identifier.get("val")))) //identifier is a field of the class
             return true;
 
         return false;
+    }
+
+    static public boolean isImported(String signature, SymbolTable symbolTable) {
+        List<String> lastImports = symbolTable.getImports().stream()
+                .map(s -> s.split("\\."))
+                .map(strs -> strs[strs.length-1])
+                .collect(Collectors.toList());
+
+        if (lastImports.contains(signature))
+            return true;
+        return false;
+    }
+
+    static public boolean isBuiltInType(String type) {
+        return isBuiltInType(buildType(type));
+    }
+
+    static public boolean isBuiltInType(Type type) {
+        return type.getName().matches("int|boolean|String|void");
     }
 }
