@@ -7,11 +7,13 @@ public class AnalysisTest {
     private static void noErrors(String code) {
         var result = TestUtils.analyse(code);
         TestUtils.noErrors(result);
+        System.out.println(result.getSymbolTable().print());
     }
 
     private static void mustFail(String code) {
         var result = TestUtils.analyse(code);
         TestUtils.mustFail(result);
+        System.out.println(result.getSymbolTable().print());
     }
 
     /*
