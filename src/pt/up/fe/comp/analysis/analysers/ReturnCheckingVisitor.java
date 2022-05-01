@@ -6,15 +6,16 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import static pt.up.fe.comp.Utils.buildType;
 import static pt.up.fe.comp.Utils.getType;
+import static pt.up.fe.comp.ast.AstNode.*;
 
 public class ReturnCheckingVisitor extends SemanticAnalyserVisitor {
     public ReturnCheckingVisitor() {
         super();
-        addVisit("ReturnStatement", this::visitReturnStatement);
+        addVisit(RETURN_STATEMENT, this::visitReturnStatement);
     }
 
     private Boolean visitReturnStatement(JmmNode jmmNode, SymbolTableBuilder symbolTable) {
-        var methodDeclarationOpt = jmmNode.getAncestor("MethodDeclaration");
+        var methodDeclarationOpt = jmmNode.getAncestor(METHOD_DECLARATION.toString());
         if (!methodDeclarationOpt.isPresent())
             return false;
 

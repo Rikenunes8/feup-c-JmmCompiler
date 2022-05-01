@@ -9,19 +9,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static pt.up.fe.comp.Utils.*;
+import static pt.up.fe.comp.ast.AstNode.*;
 
 public class FunctionArgsVisitor extends SemanticAnalyserVisitor {
 
     public FunctionArgsVisitor() {
         super();
-        addVisit("FunctionCall", this::visitFunctionCall);
+        addVisit(FUNCTION_CALL, this::visitFunctionCall);
     }
 
     private Boolean visitFunctionCall(JmmNode jmmNode, SymbolTableBuilder symbolTable) {
         String name = jmmNode.get("name");
         JmmNode left = jmmNode.getJmmParent().getJmmChild(0);
 
-        if (left.getKind().equals("ThisLiteral")) {
+        if (left.getKind().equals(THIS_LITERAL.toString())) {
             if (!symbolTable.getMethods().contains(name)) {
                 if (symbolTable.getSuper() == null)
                     this.addReport(jmmNode, "method "+name+" does not exist in class "+symbolTable.getClassName());

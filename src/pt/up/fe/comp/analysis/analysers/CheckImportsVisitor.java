@@ -5,20 +5,21 @@ import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import static pt.up.fe.comp.Utils.*;
+import static pt.up.fe.comp.ast.AstNode.*;
 
 public class CheckImportsVisitor extends SemanticAnalyserVisitor {
     public CheckImportsVisitor() {
         super();
-        addVisit("ClassDeclaration", this::visitClassDeclarationn);
-        addVisit("NewObject", this::visitNewObject);
-        addVisit("VarDeclaration", this::visitVarDeclaration);
-        addVisit("MethodDeclaration", this::visitMethodDeclaration);
-        addVisit("DotExp", this::visitDotExp);
+        addVisit(CLASS_DECLARATION, this::visitClassDeclarationn);
+        addVisit(NEW_OBJECT, this::visitNewObject);
+        addVisit(VAR_DECLARATION, this::visitVarDeclaration);
+        addVisit(METHOD_DECLARATION, this::visitMethodDeclaration);
+        addVisit(DOT_EXP, this::visitDotExp);
     }
 
     private Boolean visitDotExp(JmmNode dotExp, SymbolTableBuilder symbolTableBuilder) {
         JmmNode leftNode = dotExp.getJmmChild(0);
-        if (leftNode.getKind().equals("IdentifierLiteral")) {
+        if (leftNode.getKind().equals(IDENTIFIER_LITERAL.toString())) {
             if (isIdentifierDeclared(leftNode, symbolTableBuilder))
                 return true;
             if (leftNode.get("val").equals(symbolTableBuilder.getClassName()))
