@@ -39,6 +39,8 @@ public class FunctionArgsVisitor extends SemanticAnalyserVisitor {
             for (int i = 0; i < args.size(); i++) {
                 Type argType = args.get(i);
                 Type paramType = params.get(i);
+                if (argType == null || paramType == null)
+                    continue;
                 if (!argType.equals(paramType)) {
                     this.addReport(methodCall, "Incompatible types: "+argType.print()+" cannot be converted to "+paramType.print());
                 }
