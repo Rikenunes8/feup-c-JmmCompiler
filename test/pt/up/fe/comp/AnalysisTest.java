@@ -7,13 +7,16 @@ public class AnalysisTest {
     private static void noErrors(String code) {
         var result = TestUtils.analyse(code);
         TestUtils.noErrors(result);
-        System.out.println(result.getSymbolTable().print());
+        // System.out.println(result.getSymbolTable().print());
     }
 
     private static void mustFail(String code) {
         var result = TestUtils.analyse(code);
         TestUtils.mustFail(result);
-        System.out.println(result.getSymbolTable().print());
+        for (var report : result.getReports())
+            System.out.println(report);
+
+        // System.out.println(result.getSymbolTable().print());
     }
 
     /*
@@ -86,7 +89,10 @@ public class AnalysisTest {
     public void var_declaration_method_call() {
         noErrors(SpecsIo.getResource("fixtures/public/analysis/success/var_declaration_method_call.jmm"));
     }
-
+    @Test
+    public void params_args() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/params_args.jmm"));
+    }
 
 
     /*
@@ -165,5 +171,8 @@ public class AnalysisTest {
     public void var_declaration_imported_method_f() {
         mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/var_declaration_imported_method.jmm"));
     }
-
+    @Test
+    public void params_args_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/params_args.jmm"));
+    }
 }

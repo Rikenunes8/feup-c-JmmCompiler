@@ -1,0 +1,20 @@
+import T;
+
+class Child {
+    int a;
+    boolean b;
+
+    public static void main(String[] args) {
+        T c;
+        String d;
+        this.call1(a, b);
+        this.call2(c, d);
+    }
+
+    public int call1(int x, boolean y) {
+        return 1;
+    }
+    public boolean call2(T w, String z) {
+        return false;
+    }
+}

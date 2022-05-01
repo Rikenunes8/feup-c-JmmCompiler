@@ -37,7 +37,7 @@ public class JmmAnalyser implements JmmAnalysis {
                 new SymbolTableVisitor(),
                 new CheckImportsVisitor(),
                 new TypeCheckingVisitor(),
-                //new FunctionArgsVisitor(),
+                new FunctionArgsVisitor(),
                 new ReturnCheckingVisitor()
         );
 
