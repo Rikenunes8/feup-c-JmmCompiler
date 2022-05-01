@@ -1,0 +1,28 @@
+stages:          
+  # - build
+  - test
+
+# build:       
+#  stage: build
+#  script:
+#    - echo "Building"
+#    - gradle installDist
+#    - echo "Compile complete."
+
+Parser Test:   
+  stage: test
+  script:
+    - echo "Running Parser tests..."
+    - gradle test --tests "*.ParserTest"
+
+Grammar Test:   
+  stage: test
+  script:
+    - echo "Running Grammar tests..."
+    - gradle test --tests "*.GrammarTest"
+
+Analysis Test:   
+  stage: test
+  script:
+    - echo "Running Analysis tests..."
+    - gradle test --tests "*.AnalysisTest"
