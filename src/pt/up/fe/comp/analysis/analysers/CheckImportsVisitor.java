@@ -1,6 +1,5 @@
 package pt.up.fe.comp.analysis.analysers;
 
-import pt.up.fe.comp.Utils;
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
