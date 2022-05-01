@@ -22,6 +22,8 @@ public class Utils {
     }
 
     static public Type getType(JmmNode var, SymbolTableBuilder symbolTable) {
+        if (var.getKind().equals("ThisLiteral"))
+            return null;
 
         if (var.getKind().matches("TrueLiteral|FalseLiteral|AndExp|NotExp|LessExp|Condition"))
             return new Type("boolean", false);

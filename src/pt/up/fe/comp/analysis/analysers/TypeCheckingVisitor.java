@@ -4,8 +4,7 @@ import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
-import static pt.up.fe.comp.Utils.getType;
-import static pt.up.fe.comp.Utils.isIdentifierDeclared;
+import static pt.up.fe.comp.Utils.*;
 
 
 public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
@@ -19,11 +18,35 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
         addVisit("AndExp", this::visitAndExpression);
         addVisit("NotExp", this::visitNotExpression);
         addVisit("LessExp", this::visitLessThanExpression);
-        addVisit("ArrayAccess", this::visitArrayAccessExpression);
+        addVisit("ArrayAccessExp", this::visitArrayAccessExpression);
         addVisit("AssignmentStatement", this::visitAssignmentStatement);
         addVisit("IfStatement", this::visitIfStatement);
+        addVisit("NewIntArray", this::visitNewIntArray);
+        addVisit("DotExp", this::visitDotExp);
     }
-    
+
+    private Boolean visitDotExp(JmmNode dotExp, SymbolTableBuilder symbolTable) {
+        JmmNode left = dotExp.getJmmChild(0);
+        JmmNode right = dotExp.getJmmChild(1);
+
+        Type leftType = getType(left, symbolTable);
+
+        if (leftType == null)
+            return true;
+
+        if (right.getKind().equals("PropertyLength")) {
+            if (leftType.isArray())
+                return true;
+            addReport(left, "length is a property of an array");
+            return false;
+        }
+
+        if (!isBuiltInType(leftType))
+            return true;
+        addReport(left, "Built in types has no methods");
+        return false;
+    }
+
     private Boolean visitIdentifier(JmmNode identifier, SymbolTableBuilder symbolTable) {
         if (isIdentifierDeclared(identifier, symbolTable))
             return true;
@@ -155,6 +178,20 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
             return false;
         }
 
+        return true;
+    }
+
+    private Boolean visitNewIntArray(JmmNode newIntArray, SymbolTableBuilder symbolTable) {
+        JmmNode index = newIntArray.getJmmChild(0);
+        Type indexType = getType(index, symbolTable);
+
+        if (indexType == null)
+            return true;
+
+        if (!indexType.getName().equals("int")) {
+            this.addReport(index, "New Int Array size must be an expression of type integer.");
+            return false;
+        }
         return true;
     }
 
