@@ -1,6 +1,16 @@
+image: java:8-jdk
+
 stages:          
   # - build
   - test
+
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
 
 # build:       
 #  stage: build
