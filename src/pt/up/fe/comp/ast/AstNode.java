@@ -5,6 +5,7 @@ import pt.up.fe.specs.util.SpecsStrings;
 public enum AstNode {
     CLASS_DECLARATION,
     METHOD_DECLARATION,
+    METHOD_PARAMETERS,
     RETURN_STATEMENT,
     IDENTIFIER_LITERAL,
     THIS_LITERAL,

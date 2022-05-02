@@ -93,6 +93,26 @@ public class AnalysisTest {
     public void params_args() {
         noErrors(SpecsIo.getResource("fixtures/public/analysis/success/params_args.jmm"));
     }
+    @Test
+    public void undefined_var1() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var1.jmm"));
+    }
+    @Test
+    public void undefined_var2() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var2.jmm"));
+    }
+    @Test
+    public void undefined_var3() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var3.jmm"));
+    }
+    @Test
+    public void undefined_var_array1() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var_array1.jmm"));
+    }
+    @Test
+    public void undefined_var_array2() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var_array2.jmm"));
+    }
 
 
     /*
@@ -174,5 +194,25 @@ public class AnalysisTest {
     @Test
     public void params_args_f() {
         mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/params_args.jmm"));
+    }
+    @Test
+    public void undefined_var1_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var1.jmm"));
+    }
+    @Test
+    public void undefined_var2_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var2.jmm"));
+    }
+    @Test
+    public void undefined_var3_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var3.jmm"));
+    }
+    @Test
+    public void undefined_var_array1_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var_array1.jmm"));
+    }
+    @Test
+    public void undefined_var_array2_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var_array2.jmm"));
     }
 }

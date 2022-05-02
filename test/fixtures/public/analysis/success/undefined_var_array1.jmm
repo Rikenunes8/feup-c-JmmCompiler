@@ -1,0 +1,11 @@
+class Child {
+    public static void main(String[] args) {
+        int[] c;
+        int[] d;
+
+        c = new int[10];
+        d = new int[10];
+
+        c[1] = d[2];
+    }
+}

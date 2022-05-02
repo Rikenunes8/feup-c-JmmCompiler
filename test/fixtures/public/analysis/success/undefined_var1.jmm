@@ -1,0 +1,14 @@
+class Child {
+    int a;
+    boolean b;
+
+    public static void main(String[] args) {
+        int c;
+        a = this.f1();
+        c = a;
+    }
+
+    public int f1() {
+        return 2;
+    }
+}
