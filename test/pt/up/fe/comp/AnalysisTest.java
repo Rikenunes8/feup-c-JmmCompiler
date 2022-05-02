@@ -223,4 +223,8 @@ public class AnalysisTest {
     public void call_class_object_method_f() {
         mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/call_class_object_method.jmm"));
     }
+    @Test
+    public void true_call_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/true_call.jmm"));
+    }
 }
