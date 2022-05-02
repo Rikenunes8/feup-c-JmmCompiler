@@ -22,7 +22,10 @@ public class FunctionArgsVisitor extends SemanticAnalyserVisitor {
         String methodName = methodCall.get("name");
         JmmNode left = methodCall.getJmmParent().getJmmChild(0);
 
-        if (left.getKind().equals(THIS_LITERAL.toString())) {
+        Type leftType = getType(left, symbolTable);
+
+        if (left.getKind().equals(THIS_LITERAL.toString())
+                || (leftType != null && !leftType.isArray() && leftType.getName().equals(symbolTable.getClassName()))) {
             if (symbolTable.getSuper() != null)
                 return true;
             if (!symbolTable.hasMethod(methodName)) {
