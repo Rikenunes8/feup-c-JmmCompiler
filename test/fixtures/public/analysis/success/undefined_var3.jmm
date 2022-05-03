@@ -1,0 +1,30 @@
+class Child {
+    int a;
+    boolean b;
+
+    public static void main(String[] args) {
+        int c;
+
+        c = 1;
+        b = true;
+
+        c + 1;
+        b && false;
+    }
+
+    public int f1() {
+        int c;
+        a = 1;
+        c = 2;
+        
+        a + 1;
+        c + 2;
+        return a;
+    }
+
+    public int f2(int a, int b) {
+        int c;
+        c = a + b; // Defined a and b
+        return c;
+    }
+}

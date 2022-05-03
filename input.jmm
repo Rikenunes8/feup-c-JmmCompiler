@@ -1,32 +1,17 @@
-import abc;
-import abc.dfg.gfd;
+import Other;
 
-class Classe extends Parent {
-    int a;
-    int[] b;
-    boolean c;
-    Other d;
+class Classe  {
     public static void main(String[] args) {
-        int e;
-        boolean j;
-        e = 0;
-        b[0] = 1;
-        if (true)
-            d.call(e);
-        else {
-            e = 1;
-            this.set(e);
-        }
+        Other t;
+        Other.call();
+        new Other();
     }
-    public boolean set(int i, int j) {
-        boolean g;
-        while (true && !false) {
-            g = false;
-            abc.f();
-            f.length;
-        }
-        b = new int[5+2];
 
+    public int set() {
+        return 1;
+    }
+
+    public Other call() {
         return new Other();
     }
 }

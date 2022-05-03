@@ -1,13 +1,10 @@
-package pt.up.fe.comp;
-
-import java.util.List;
+package pt.up.fe.comp.ollir;
 
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
-import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
-import pt.up.fe.comp.jmm.ast.JmmNode;
-import pt.up.fe.comp.jmm.report.Report;
+
+import java.util.Collections;
 
 public class JmmOptimizer implements JmmOptimization {
     @Override
@@ -17,14 +14,14 @@ public class JmmOptimizer implements JmmOptimization {
 
     @Override
     public OllirResult toOllir(JmmSemanticsResult semanticsResult) {
-        JmmNode node = semanticsResult.getRootNode();
-        SymbolTable symbolTable = semanticsResult.getSymbolTable();
-        List<Report> reports = semanticsResult.getReports();
-        String ollirCode = ast_to_ollir(node);
+        OllirGenerator ollirGenerator = new OllirGenerator(semanticsResult.getSymbolTable());
+        ollirGenerator.visit(semanticsResult.getRootNode());
 
-        OllirResult ollirResult = new OllirResult(semanticsResult, ollirCode, reports);
+        String ollirCode = ollirGenerator.getCode();
 
-        return ollirResult;
+        System.out.println("\nOLLIR CODE:\n" + ollirCode);
+
+        return new OllirResult(semanticsResult, ollirCode, Collections.emptyList());
     }
 
     @Override

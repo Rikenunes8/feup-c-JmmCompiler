@@ -1,0 +1,12 @@
+import Parent;
+
+class Child {
+    public static void main(String[] args) {
+        Child a;
+        a = new Child();
+        a.f(1);
+    }
+    public int f() {
+        return 1;
+    }
+}

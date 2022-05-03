@@ -1,0 +1,15 @@
+import java.io.File;
+import Parent;
+
+class Child extends Parent {
+    int a;
+    boolean b;
+
+    public static void main(String[] args) {
+        int c;
+        int b;
+
+        c = 1;
+        b = true;
+    }
+}

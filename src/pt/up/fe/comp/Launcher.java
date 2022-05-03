@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Collections;
 import java.util.Objects;
 
+import pt.up.fe.comp.analysis.JmmAnalyser;
+import pt.up.fe.comp.ast.SimpleParser;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
@@ -83,19 +85,20 @@ public class Launcher {
         // Parse stage
         SimpleParser parser = new SimpleParser();
         JmmParserResult parserResult = parser.parse(input, config);
-
         for (Report report : parserResult.getReports()) {
             System.out.println(report);
         }
+        TestUtils.noErrors(parserResult.getReports());
+
 
         // Analysis stage
         JmmAnalyser analyser = new JmmAnalyser();
         JmmSemanticsResult analysisResult = analyser.semanticAnalysis(parserResult);
-        System.out.println(analysisResult.getSymbolTable().print());
-
+        // System.out.println(analysisResult.getSymbolTable().print());
         for (Report report : analysisResult.getReports()) {
             System.out.println(report);
         }
+        TestUtils.noErrors(parserResult.getReports());
 
         // Optimization stage
         JmmOptimizer optimizer = new JmmOptimizer(); 

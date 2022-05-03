@@ -1,0 +1,16 @@
+import Parent;
+import GrandParent;
+
+class Child extends Parent {
+    public static void main(String[] args) {
+        Child a;
+        GrandParent b;
+        a = new Child();
+        b = new GrandParent();
+        a.f();
+        b.f3();
+    }
+    public int f() {
+        return 1;
+    }
+}
