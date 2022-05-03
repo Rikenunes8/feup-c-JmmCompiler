@@ -3,6 +3,7 @@ package pt.up.fe.comp.ast;
 import pt.up.fe.specs.util.SpecsStrings;
 
 public enum AstNode {
+    PROGRAM,
     CLASS_DECLARATION,
     METHOD_DECLARATION,
     METHOD_PARAMETERS,

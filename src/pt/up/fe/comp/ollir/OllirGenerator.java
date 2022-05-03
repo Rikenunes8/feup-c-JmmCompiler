@@ -1,10 +1,14 @@
 package pt.up.fe.comp.ollir;
 
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
+import java.util.List;
 import java.util.stream.Collectors;
+import static pt.up.fe.comp.ast.AstNode.*;
+
 
 // TODO Change many things
 public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
@@ -16,9 +20,9 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
 
-        addVisit("Program", this::visitProgram);
-        addVisit("ClassDeclaration", this::visitClassDeclaration);
-        addVisit("PublicMain", this::visitMainMethod);
+        addVisit(PROGRAM, this::visitProgram);
+        addVisit(CLASS_DECLARATION, this::visitClassDeclaration);
+        addVisit(METHOD_DECLARATION, this::visitMethodDeclaration);
     }
 
     public String getCode() {
@@ -40,7 +44,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     private Integer visitClassDeclaration(JmmNode classDeclaration, Integer dummy) {
 
         code.append("public ").append(symbolTable.getClassName());
-        var extendedClass = symbolTable.getSuper();
+        String extendedClass = symbolTable.getSuper();
         if (extendedClass != null) {
             code.append(" extends ").append(extendedClass);
         }
@@ -55,13 +59,16 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return 0;
     }
 
-    private Integer visitMainMethod(JmmNode methodDeclaration, Integer dummy) {
+    private Integer visitMethodDeclaration(JmmNode methodDeclaration, Integer dummy) {
 
-        var methodSignature = "main";
-        code.append("\n.method public static ").append(methodSignature).append("(");
+        String methodSignature = methodDeclaration.get("name");
+        boolean isStatic = Boolean.parseBoolean(methodDeclaration.get("static"));
+        code.append("\n\t.method public ");
+        if (isStatic) code.append("static ");
+        code.append(methodSignature).append("(");
 
-        var params = symbolTable.getParameters(methodSignature);
-        var paramCode = params.stream().map(symbol -> OllirUtils.getCode(symbol)).collect(Collectors.joining(", "));
+        List<Symbol> params = symbolTable.getParameters(methodSignature);
+        String paramCode = params.stream().map(symbol -> OllirUtils.getCode(symbol)).collect(Collectors.joining(", "));
 
         code.append(paramCode);
         code.append(").");
@@ -70,7 +77,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         // aqui as coisas para visitar os correspondentes
 
-        code.append("}\n");
+        code.append("\t}\n");
 
         return 0;
     }
