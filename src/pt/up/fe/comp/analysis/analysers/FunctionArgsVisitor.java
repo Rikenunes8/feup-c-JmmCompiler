@@ -8,60 +8,47 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pt.up.fe.comp.Utils.getType;
-import static pt.up.fe.comp.Utils.isIdentifierDeclared;
+import static pt.up.fe.comp.Utils.*;
+import static pt.up.fe.comp.ast.AstNode.*;
 
 public class FunctionArgsVisitor extends SemanticAnalyserVisitor {
 
     public FunctionArgsVisitor() {
         super();
-        addVisit("FunctionCall", this::visitFunctionCall);
+        addVisit(FUNCTION_CALL, this::visitFunctionCall);
     }
 
-    private Boolean visitFunctionCall(JmmNode jmmNode, SymbolTableBuilder symbolTable) {
-        String name = jmmNode.get("name");
-        JmmNode left = jmmNode.getJmmParent().getJmmChild(0);
+    private Boolean visitFunctionCall(JmmNode methodCall, SymbolTableBuilder symbolTable) {
+        String methodName = methodCall.get("name");
+        JmmNode left = methodCall.getJmmParent().getJmmChild(0);
 
-        if (left.getKind().equals("ThisLiteral")) {
-            if (!symbolTable.getMethods().contains(name)) {
-                if (symbolTable.getSuper() == null)
-                    this.addReport(jmmNode, "method "+name+" does not exist in class "+symbolTable.getClassName());
+        Type leftType = getType(left, symbolTable);
+
+        if (left.getKind().equals(THIS_LITERAL.toString())
+                || (leftType != null && !leftType.isArray() && leftType.getName().equals(symbolTable.getClassName()))) {
+            if (symbolTable.getSuper() != null)
+                return true;
+            if (!symbolTable.hasMethod(methodName)) {
+                this.addReport(methodCall, "Method "+methodName+" does not exist in class "+symbolTable.getClassName());
                 return true;
             }
 
-            List<Type> params = symbolTable.getParameters(name).stream().map(Symbol::getType).collect(Collectors.toList());
-            List<Type> args = jmmNode.getChildren().stream().map(arg -> getType(arg, symbolTable)).collect(Collectors.toList());
+            List<Type> params = symbolTable.getParameters(methodName).stream().map(Symbol::getType).collect(Collectors.toList());
+            List<Type> args = methodCall.getChildren().stream().map(arg -> getType(arg, symbolTable)).collect(Collectors.toList());
             if (params.size() != args.size()) {
-                this.addReport(jmmNode,"method "+name+" in class "+symbolTable.getClassName()+" cannot be applied to given types");
+                this.addReport(methodCall,"Number of arguments does not match number of parameters");
                 return true;
             }
             for (int i = 0; i < args.size(); i++) {
                 Type argType = args.get(i);
                 Type paramType = params.get(i);
+                if (argType == null || paramType == null)
+                    continue;
                 if (!argType.equals(paramType)) {
-                    this.addReport(jmmNode, "error: incompatible types: "+argType.print()+" cannot be converted to "+paramType.print());
+                    this.addReport(methodCall, "Incompatible types: "+argType.print()+" cannot be converted to "+paramType.print());
                 }
             }
-            return true;
         }
-        else {
-            if (isIdentifierDeclared(left, symbolTable)) {
-                String typeName = getType(left, symbolTable).getName();
-                if (!typeName.matches("boolean|int"))
-                    return true;
-                this.addReport(jmmNode, "Primitive type ("+typeName+") "+left.get("val")+" has no methods");
-            }
-            else {
-                List<String> lastImports = symbolTable.getImports().stream()
-                        .map(s -> s.split("\\."))
-                        .map(strs -> strs[strs.length-1])
-                        .collect(Collectors.toList());
-
-                if (lastImports.contains(left.get("val")))
-                    return true;
-                this.addReport(jmmNode, "Unable to find "+left.get("val"));
-            }
-            return false;
-        }
+        return true;
     }
 }

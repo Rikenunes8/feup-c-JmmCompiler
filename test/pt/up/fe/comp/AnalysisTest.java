@@ -7,13 +7,16 @@ public class AnalysisTest {
     private static void noErrors(String code) {
         var result = TestUtils.analyse(code);
         TestUtils.noErrors(result);
-        System.out.println(result.getSymbolTable().print());
+        // System.out.println(result.getSymbolTable().print());
     }
 
     private static void mustFail(String code) {
         var result = TestUtils.analyse(code);
         TestUtils.mustFail(result);
-        System.out.println(result.getSymbolTable().print());
+        for (var report : result.getReports())
+            System.out.println(report);
+
+        // System.out.println(result.getSymbolTable().print());
     }
 
     /*
@@ -42,7 +45,7 @@ public class AnalysisTest {
 
     @Test
     public void quickSort() {
-        noErrors(SpecsIo.getResource("fixtures/public/QuickSort.jmm"));
+        // noErrors(SpecsIo.getResource("fixtures/public/QuickSort.jmm")); // TODO Method overloading is not to be implemented
     }
 
     @Test
@@ -86,8 +89,34 @@ public class AnalysisTest {
     public void var_declaration_method_call() {
         noErrors(SpecsIo.getResource("fixtures/public/analysis/success/var_declaration_method_call.jmm"));
     }
-
-
+    @Test
+    public void params_args() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/params_args.jmm"));
+    }
+    @Test
+    public void undefined_var1() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var1.jmm"));
+    }
+    @Test
+    public void undefined_var2() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var2.jmm"));
+    }
+    @Test
+    public void undefined_var3() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var3.jmm"));
+    }
+    @Test
+    public void undefined_var_array1() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var_array1.jmm"));
+    }
+    @Test
+    public void undefined_var_array2() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var_array2.jmm"));
+    }
+    @Test
+    public void call_class_object_method() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/call_class_object_method.jmm"));
+    }
 
     /*
      * Code that must fail
@@ -165,5 +194,37 @@ public class AnalysisTest {
     public void var_declaration_imported_method_f() {
         mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/var_declaration_imported_method.jmm"));
     }
+    @Test
+    public void params_args_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/params_args.jmm"));
+    }
+    @Test
+    public void undefined_var1_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var1.jmm"));
+    }
+    @Test
+    public void undefined_var2_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var2.jmm"));
+    }
+    @Test
+    public void undefined_var3_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var3.jmm"));
+    }
+    @Test
+    public void undefined_var_array1_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var_array1.jmm"));
+    }
+    @Test
+    public void undefined_var_array2_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var_array2.jmm"));
+    }
 
+    @Test
+    public void call_class_object_method_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/call_class_object_method.jmm"));
+    }
+    @Test
+    public void true_call_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/true_call.jmm"));
+    }
 }

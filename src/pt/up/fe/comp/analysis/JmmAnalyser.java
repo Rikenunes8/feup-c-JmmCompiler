@@ -1,9 +1,6 @@
 package pt.up.fe.comp.analysis;
 
-import pt.up.fe.comp.analysis.analysers.ReturnCheckingVisitor;
-import pt.up.fe.comp.analysis.analysers.SemanticAnalyserVisitor;
-import pt.up.fe.comp.analysis.analysers.SymbolTableVisitor;
-import pt.up.fe.comp.analysis.analysers.TypeCheckingVisitor;
+import pt.up.fe.comp.analysis.analysers.*;
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ast.JmmNode;
@@ -38,8 +35,10 @@ public class JmmAnalyser implements JmmAnalysis {
 
         List<SemanticAnalyserVisitor> anlysers = Arrays.asList(
                 new SymbolTableVisitor(),
+                new UndefinedVarsVisitor(),
+                new CheckImportsVisitor(),
                 new TypeCheckingVisitor(),
-                //new FunctionArgsVisitor(),
+                new FunctionArgsVisitor(),
                 new ReturnCheckingVisitor()
         );
 

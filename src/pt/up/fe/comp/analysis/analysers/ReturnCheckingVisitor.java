@@ -6,26 +6,26 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import static pt.up.fe.comp.Utils.buildType;
 import static pt.up.fe.comp.Utils.getType;
+import static pt.up.fe.comp.ast.AstNode.*;
 
 public class ReturnCheckingVisitor extends SemanticAnalyserVisitor {
     public ReturnCheckingVisitor() {
         super();
-        addVisit("ReturnStatement", this::visitReturnStatement);
+        addVisit(RETURN_STATEMENT, this::visitReturnStatement);
     }
 
     private Boolean visitReturnStatement(JmmNode jmmNode, SymbolTableBuilder symbolTable) {
-        if (!jmmNode.getAncestor("PublicMethod").isPresent())
+        var methodDeclarationOpt = jmmNode.getAncestor(METHOD_DECLARATION.toString());
+        if (!methodDeclarationOpt.isPresent())
             return false;
 
         JmmNode returnExp = jmmNode.getJmmChild(0);
-        if (returnExp.getKind().equals("DotExp"))
-            return true;
 
-        String typeStr = jmmNode.getAncestor("PublicMethod").get().get("type");
+        String typeStr = methodDeclarationOpt.get().get("type");
         Type methodType = buildType(typeStr);
         Type returnType = getType(returnExp, symbolTable);
 
-        if (methodType.equals(returnType))
+        if (returnType == null || methodType.equals(returnType))
             return true;
         this.addReport(jmmNode, "Return expression does not match method return type.");
         return false;
