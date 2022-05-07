@@ -20,11 +20,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
 
-        // PROGRAM,
-        // CLASS_DECLARATION,
-        // METHOD_DECLARATION,
+
         // METHOD_PARAMETERS,
-        // RETURN_STATEMENT,
         // IDENTIFIER_LITERAL,
         // THIS_LITERAL,
         // ADD_EXP,
@@ -109,7 +106,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         JmmNode methodDeclaration = returnStatement.getJmmParent();
         String methodSignature = methodDeclaration.get("name");
         
-        code.append("\t").append("ret.");
+        code.append("\t\t").append("ret.");
         var returnType = OllirUtils.getCode(symbolTable.getReturnType(methodSignature));
         code.append(returnType);
         if( returnType != "V")
@@ -170,7 +167,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
 
     private Integer visitDotExp(JmmNode dotExp, Integer dummy) {
-        code.append("invokestatic(");
+        code.append("\t\t").append("invokestatic(");
         visit(dotExp.getJmmChild(0));
         // code.append( dotExp.getJmmChild(0).get("val"));
         code.append(", \"");
@@ -181,7 +178,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         {
             visit(dotExp.getJmmChild(2));
         }
-        code.append(").").append("V;");
+        code.append(").").append("V;\n");
 
         return 0;
     }
