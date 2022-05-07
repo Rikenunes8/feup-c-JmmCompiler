@@ -104,7 +104,8 @@ public class Launcher {
 
         // Optimization stage
         JmmOptimizer optimizer = new JmmOptimizer();
-        JmmSemanticsResult optimizationResult = optimizer.optimize(analysisResult);
+        OllirResult optimizationResult = optimizer.toOllir(analysisResult);
+        //JmmSemanticsResult optimizationResult = optimizer.optimize(analysisResult);
         // System.out.println(analysisResult.getSymbolTable().print());
         for (Report report : optimizationResult.getReports()) {
             System.out.println(report);

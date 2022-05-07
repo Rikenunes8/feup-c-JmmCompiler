@@ -23,6 +23,10 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         addVisit(PROGRAM, this::visitProgram);
         addVisit(CLASS_DECLARATION, this::visitClassDeclaration);
         addVisit(METHOD_DECLARATION, this::visitMethodDeclaration);
+        addVisit(DOT_EXP, this::visitExprStmt);
+
+        addVisit(IDENTIFIER_LITERAL, this::visitIdentifierLiteral);
+        addVisit(FUNCTION_CALL, this::visitFunctionCall);
     }
 
     public String getCode() {
@@ -76,9 +80,54 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         code.append(" {\n");
 
         // aqui as coisas para visitar os correspondentes
+        
+        int lastParamIndex = -1;
+        for (int i = 0; i< methodDeclaration.getNumChildren(); i++)
+        {
+            if(methodDeclaration.getJmmChild(i).getKind().equals("MethodParameters"))
+            {
+                lastParamIndex = i;
+            }
+        }
+
+        var stmts = methodDeclaration.getChildren().subList(lastParamIndex + 1, methodDeclaration.getNumChildren());
+        System.out.println("\nSTMTS :\n" + stmts);
+
+        for (var stmt : stmts) {
+            visit(stmt);
+        }
+
 
         code.append("\t}\n");
 
         return 0;
     }
+
+    private Integer visitExprStmt(JmmNode exprStmt, Integer dummy) {
+        code.append("invokestatic(");
+        visit(exprStmt.getJmmChild(0));
+        // code.append( exprStmt.getJmmChild(0).get("val"));
+        code.append(", \"");
+        // code.append( exprStmt.getJmmChild(1).get("name"));
+        visit(exprStmt.getJmmChild(1));
+        code.append("\"");
+        if(exprStmt.getNumChildren() > 2)
+        {
+            visit(exprStmt.getJmmChild(2));
+        }
+        code.append(").").append("V;");
+
+        return 0;
+    }
+
+    private Integer visitIdentifierLiteral(JmmNode identifierLiteral, Integer dummy) {
+        code.append( identifierLiteral.get("val"));
+        return 0;
+    }
+
+    private Integer visitFunctionCall(JmmNode functionCall, Integer dummy) {
+        code.append( functionCall.get("name"));
+        return 0;
+    }
+
 }
