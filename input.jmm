@@ -1,19 +1,24 @@
 import Other;
+import io;
 
 class Classe {
     int a;
-    public static void main(String[] args) {
-        Other t;
-        Other.call();
-        new Other();
-    }
 
-    public int set(int ok, int test) {
-        return 1;
-    }
+    public static void main(String[] args){
+        int a;
+        int b;
+        int c;
+        int[] d;
+        a = 20;
+        b = 10;
+        d = new int[10];
 
-    public Other call() {
-        return new Other();
+
+        c=0;
+        while(c < d.length){
+            io.println(d[c]);
+            c= c+1;
+        }
     }
 
     public boolean MoveRow(int[] row, int column) {

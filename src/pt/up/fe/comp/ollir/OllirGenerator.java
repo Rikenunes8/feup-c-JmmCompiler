@@ -15,14 +15,13 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
     private final StringBuilder code;
     private final SymbolTable symbolTable;
+    private int whileNumber;
 
     public OllirGenerator(SymbolTable symbolTable) {
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
+        this.whileNumber = 0;
 
-
-        // METHOD_PARAMETERS,
-        // IDENTIFIER_LITERAL,
         // THIS_LITERAL,
         // ADD_EXP,
         // SUB_EXP,
@@ -34,22 +33,28 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         // ARRAY_ACCESS_EXP,
         // ASSIGNMENT_STATEMENT,
         // NEW_INT_ARRAY,
-        // DOT_EXP,
-        // FUNCTION_CALL,
+
         // NEW_OBJECT,
         // VAR_DECLARATION,
         // PROPERTY_LENGTH,
         // CONDITION
+        // IF_STATEMENT,
+        // IF_BLOCK,
+        // ELSE_BLOCK,
+        // WHILE_STATEMENT,
+        // WHILE_BLOCK,
+        // SCOPE
 
         addVisit(PROGRAM, this::visitProgram);
         addVisit(CLASS_DECLARATION, this::visitClassDeclaration);
         addVisit(METHOD_DECLARATION, this::visitMethodDeclaration);
         addVisit(VAR_DECLARATION, this::visitVarDeclaration);
-        addVisit(RETURN_STATEMENT, this::returnStatement);
-
+        addVisit(RETURN_STATEMENT, this::visitReturnStatement);
+        addVisit(WHILE_STATEMENT, this::visitWhileStatement);
         addVisit(DOT_EXP, this::visitDotExp);
 
         addVisit(IDENTIFIER_LITERAL, this::visitIdentifierLiteral);
+        addVisit(NEW_OBJECT, this::visitNewObject);
         addVisit(FUNCTION_CALL, this::visitFunctionCall);
     }
 
@@ -102,7 +107,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return 0;
     }
 
-    private Integer returnStatement(JmmNode returnStatement, Integer dummy) {
+    private Integer visitReturnStatement(JmmNode returnStatement, Integer dummy) {
         JmmNode methodDeclaration = returnStatement.getJmmParent();
         String methodSignature = methodDeclaration.get("name");
         
@@ -121,9 +126,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         
         return 0;
     }
-
-
-    
+  
     private Integer visitMethodDeclaration(JmmNode methodDeclaration, Integer dummy) {
 
         String methodSignature = methodDeclaration.get("name");
@@ -152,7 +155,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         }
 
         var stmts = methodDeclaration.getChildren().subList(lastParamIndex + 1, methodDeclaration.getNumChildren());
-        System.out.println("\nSTMTS :\n" + stmts);
+        //System.out.println("\nSTMTS :\n" + stmts);
 
         for (var stmt : stmts) {
             visit(stmt);
@@ -163,8 +166,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         return 0;
     }
-
-
 
     private Integer visitDotExp(JmmNode dotExp, Integer dummy) {
         code.append("\t\t").append("invokestatic(");
@@ -183,7 +184,10 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return 0;
     }
 
-    
+    private Integer visitNewObject(JmmNode newObject, Integer dummy) {
+        // TODO
+        return 0;
+    }
 
     private Integer visitIdentifierLiteral(JmmNode identifierLiteral, Integer dummy) {
         code.append(identifierLiteral.get("val"));
@@ -195,4 +199,13 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return 0;
     }
 
+    private Integer visitWhileStatement(JmmNode whileStatement, Integer dummy) {
+        String number = Integer.toString(whileNumber);
+        // condition
+        visit(whileStatement.getJmmChild(0));
+        JmmNode whileBlock = whileStatement.getChildren().get(1);
+
+        code.append("\t ").append("Loop" + number + ":\n");
+        return 0;
+    }
 }

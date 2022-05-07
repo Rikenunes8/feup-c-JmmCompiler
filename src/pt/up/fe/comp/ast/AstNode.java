@@ -25,7 +25,13 @@ public enum AstNode {
     NEW_OBJECT,
     VAR_DECLARATION,
     PROPERTY_LENGTH,
-    CONDITION
+    CONDITION,
+    IF_STATEMENT,
+    IF_BLOCK,
+    ELSE_BLOCK,
+    WHILE_STATEMENT,
+    WHILE_BLOCK,
+    SCOPE
     ;
     private final String name;
     private AstNode() {
