@@ -20,10 +20,37 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
 
+        // PROGRAM,
+        // CLASS_DECLARATION,
+        // METHOD_DECLARATION,
+        // METHOD_PARAMETERS,
+        // RETURN_STATEMENT,
+        // IDENTIFIER_LITERAL,
+        // THIS_LITERAL,
+        // ADD_EXP,
+        // SUB_EXP,
+        // MULT_EXP,
+        // DIV_EXP,
+        // AND_EXP,
+        // NOT_EXP,
+        // LESS_EXP,
+        // ARRAY_ACCESS_EXP,
+        // ASSIGNMENT_STATEMENT,
+        // NEW_INT_ARRAY,
+        // DOT_EXP,
+        // FUNCTION_CALL,
+        // NEW_OBJECT,
+        // VAR_DECLARATION,
+        // PROPERTY_LENGTH,
+        // CONDITION
+
         addVisit(PROGRAM, this::visitProgram);
         addVisit(CLASS_DECLARATION, this::visitClassDeclaration);
         addVisit(METHOD_DECLARATION, this::visitMethodDeclaration);
-        addVisit(DOT_EXP, this::visitExprStmt);
+        addVisit(VAR_DECLARATION, this::visitVarDeclaration);
+        addVisit(RETURN_STATEMENT, this::returnStatement);
+
+        addVisit(DOT_EXP, this::visitDotExp);
 
         addVisit(IDENTIFIER_LITERAL, this::visitIdentifierLiteral);
         addVisit(FUNCTION_CALL, this::visitFunctionCall);
@@ -54,6 +81,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         }
 
         code.append(" {\n");
+        visitPrivateAttibutes();
         // JMM visitor conseguir controlar quando é que os filhos são visitados
         for (var child : classDeclaration.getChildren()) {
             visit(child);
@@ -63,6 +91,42 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return 0;
     }
 
+    private Integer visitPrivateAttibutes() {
+        for(Symbol field : symbolTable.getFields()){
+            code.append("\t").append(".field private ");
+            code.append(field.getName());
+            code.append(".").append(OllirUtils.getCode(field.getType()));
+            code.append(";\n");
+        }
+        return 0;
+    }
+
+    private Integer visitVarDeclaration(JmmNode varDeclaration, Integer dummy) {
+        return 0;
+    }
+
+    private Integer returnStatement(JmmNode returnStatement, Integer dummy) {
+        JmmNode methodDeclaration = returnStatement.getJmmParent();
+        String methodSignature = methodDeclaration.get("name");
+        
+        code.append("\t").append("ret.");
+        var returnType = OllirUtils.getCode(symbolTable.getReturnType(methodSignature));
+        code.append(returnType);
+        if( returnType != "V")
+        {
+            code.append(" ");
+            visit(returnStatement.getJmmChild(0));
+            code.append(".").append(returnType);
+        }
+
+        
+        code.append(";\n");
+        
+        return 0;
+    }
+
+
+    
     private Integer visitMethodDeclaration(JmmNode methodDeclaration, Integer dummy) {
 
         String methodSignature = methodDeclaration.get("name");
@@ -103,30 +167,34 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return 0;
     }
 
-    private Integer visitExprStmt(JmmNode exprStmt, Integer dummy) {
+
+
+    private Integer visitDotExp(JmmNode dotExp, Integer dummy) {
         code.append("invokestatic(");
-        visit(exprStmt.getJmmChild(0));
-        // code.append( exprStmt.getJmmChild(0).get("val"));
+        visit(dotExp.getJmmChild(0));
+        // code.append( dotExp.getJmmChild(0).get("val"));
         code.append(", \"");
-        // code.append( exprStmt.getJmmChild(1).get("name"));
-        visit(exprStmt.getJmmChild(1));
+        // code.append( dotExp.getJmmChild(1).get("name"));
+        visit(dotExp.getJmmChild(1));
         code.append("\"");
-        if(exprStmt.getNumChildren() > 2)
+        if(dotExp.getNumChildren() > 2)
         {
-            visit(exprStmt.getJmmChild(2));
+            visit(dotExp.getJmmChild(2));
         }
         code.append(").").append("V;");
 
         return 0;
     }
 
+    
+
     private Integer visitIdentifierLiteral(JmmNode identifierLiteral, Integer dummy) {
-        code.append( identifierLiteral.get("val"));
+        code.append(identifierLiteral.get("val"));
         return 0;
     }
 
     private Integer visitFunctionCall(JmmNode functionCall, Integer dummy) {
-        code.append( functionCall.get("name"));
+        code.append(functionCall.get("name"));
         return 0;
     }
 

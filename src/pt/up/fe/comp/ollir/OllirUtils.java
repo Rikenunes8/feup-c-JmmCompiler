@@ -25,6 +25,10 @@ public class OllirUtils {
         switch (jmmType) {
             case "void":
                 return "V";
+            case "int":
+                return "i32";
+            case "boolean":
+                return "bool";
             default:
                 return jmmType;
         }

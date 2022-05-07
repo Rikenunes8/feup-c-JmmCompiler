@@ -1,17 +1,33 @@
 import Other;
 
-class Classe  {
+class Classe {
+    int a;
     public static void main(String[] args) {
         Other t;
         Other.call();
         new Other();
     }
 
-    public int set() {
+    public int set(int ok, int test) {
         return 1;
     }
 
     public Other call() {
         return new Other();
     }
+
+    public boolean MoveRow(int[] row, int column) {
+        boolean moved;
+
+        if(column < 0){
+            moved = false;
+        }else if(2 < column){
+            moved = false;
+        }else{
+            moved = false;
+        }
+        return moved;
+    }
+
+
 }
