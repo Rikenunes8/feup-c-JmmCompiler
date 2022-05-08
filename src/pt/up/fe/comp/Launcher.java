@@ -121,5 +121,10 @@ public class Launcher {
         }
         TestUtils.noErrors(jasminResult.getReports());
 
+        // TODO
+        // Save Jasmin Result in file
+        // String filePath = "generated/jasmin/" + jasminResult.getClassName() + ".j";
+        // String fileContent = jasminResult.getJasminCode();
+
     }
 }
