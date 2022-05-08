@@ -207,8 +207,20 @@ public class OllirToJasmin {
                         .append(")").append(this.getJasminType(instruction.getReturnType())).append("\n");
 
                 return code.toString();
-            // case NEW:
-            // case arraylength:
+            case arraylength:
+                return code.append(this.loadElementCode(instruction.getFirstArg(), this.methodVarTable))
+                        .append("arraylength\n").toString();
+            case NEW:
+                if (instruction.getFirstArg().getType().getTypeOfElement() == ElementType.ARRAYREF) {
+                    return code.append(this.loadElementCode(instruction.getListOfOperands().get(0), this.methodVarTable))
+                            .append("newarray int\n").toString();
+                }
+                if (instruction.getFirstArg().getType().getTypeOfElement() == ElementType.OBJECTREF) {
+                    String qualifiedClassName = this.getFullyQualifiedClassName(((Operand) instruction.getFirstArg()).getName());
+                    return code.append("new ").append(qualifiedClassName).append("\n")
+                            .append("dup\n").toString();
+                }
+                throw new RuntimeException("A new function call must reference an array or object");
             default:
                 throw new NotImplementedException(instruction.getInvocationType());
         }
