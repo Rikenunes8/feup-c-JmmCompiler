@@ -1,12 +1,12 @@
 package pt.up.fe.comp.jasmin;
 
 import org.specs.comp.ollir.*;
-import pt.up.fe.comp.CLASS;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.specs.util.classmap.FunctionClassMap;
 import pt.up.fe.specs.util.exceptions.NotImplementedException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,12 +14,15 @@ public class OllirToJasmin {
 
     private final ClassUnit classUnit;
     private final List<Report> reports;
+    private HashMap<String, Descriptor> methodVarTable;
+    private int stackCounter;
 
     private final FunctionClassMap<Instruction, String> instructionMap;
 
     public OllirToJasmin(ClassUnit classUnit) {
         this.classUnit = classUnit;
         this.reports = new ArrayList<>();
+        this.methodVarTable = new HashMap<>();
 
         this.instructionMap = new FunctionClassMap<>();
 
@@ -55,6 +58,9 @@ public class OllirToJasmin {
 
         for (Method method : this.classUnit.getMethods()) {
             if (!method.isConstructMethod()) {
+                this.stackCounter = 0;
+
+                this.methodVarTable = method.getVarTable();
                 jasminCode.append(this.getJasminCode(method));
             }
         }
@@ -118,7 +124,7 @@ public class OllirToJasmin {
 
         // Method Instructions
         for (Instruction instruction : method.getInstructions()) {
-            code.append(this.getJasminCode(instruction));
+            code.append(this.getJasminCode(instruction, method.getLabels()));
         }
 
         // This may be improved in optimization STAGE by always adding an empty return instruction
@@ -150,12 +156,34 @@ public class OllirToJasmin {
     // 4. assignments*
     // 5. command sequences*
 
-    public String getJasminCode(Instruction instruction) {
-        return this.instructionMap.apply(instruction);
+    public String getJasminCode(Instruction instruction, HashMap<String, Instruction> methodLabels) {
+        String instructionLabels = methodLabels.entrySet().stream()
+                .filter(entry -> entry.getValue().equals(instruction))
+                .map(entry -> "\t" + entry.getKey() + ":\n")
+                .collect(Collectors.joining());
+
+        return instructionLabels + this.instructionMap.apply(instruction);
     }
 
-    public String getJasminCode(AssignInstruction instruction) {
-        throw new NotImplementedException(instruction.getInstType());
+    public String getJasminCode(AssignInstruction instruction)  {
+        StringBuilder code = new StringBuilder();
+
+        if (instruction.getDest() instanceof ArrayOperand) {
+            ArrayOperand arrayOperand = (ArrayOperand) instruction.getDest();
+            // Load array
+            code.append("aload").append(this.getVariableVirtualRegister(arrayOperand.getName(), this.methodVarTable)).append("\n");
+            // Load index
+            code.append(loadElementCode(arrayOperand.getIndexOperands().get(0), this.methodVarTable));
+        }
+
+        code.append(getJasminCode(instruction.getRhs(), new HashMap<String, Instruction>()));
+
+        // In case that on the right side of the assignment there is a call instruction for a new object - do not store yet
+        if (!(instruction.getRhs() instanceof CallInstruction && instruction.getDest().getType().getTypeOfElement().equals(ElementType.OBJECTREF))) {
+            code.append(this.storeElementCode((Operand) instruction.getDest(), this.methodVarTable));
+        }
+
+        return code.toString();
     }
 
     public String getJasminCode(CallInstruction instruction) {
@@ -235,5 +263,83 @@ public class OllirToJasmin {
             default:
                 throw new NotImplementedException(type);
         }
+    }
+
+    private String getVariableVirtualRegister(String variableName, HashMap<String, Descriptor> methodVarTable) {
+        int virtualRegister = methodVarTable.get(variableName).getVirtualReg();
+
+        return virtualRegister > 3 ? " " + virtualRegister : "_" + virtualRegister;
+    }
+
+    private String loadElementCode(Element element, HashMap<String, Descriptor> methodVarTable) {
+        if (element instanceof LiteralElement) {
+            return this.getConstantElementCode(((LiteralElement) element).getLiteral()) + "\n";
+        }
+
+        if (element instanceof ArrayOperand) {
+            ArrayOperand arrayOperand = (ArrayOperand) element;
+
+            // Load array + Load index + Load value
+            return "aload" + this.getVariableVirtualRegister(arrayOperand.getName(), this.methodVarTable) + "\n" +
+                    loadElementCode(arrayOperand.getIndexOperands().get(0), this.methodVarTable) +
+                    "iaload\n";
+        }
+
+        if (element instanceof Operand) {
+            Operand operand = (Operand) element;
+
+            switch (operand.getType().getTypeOfElement()) {
+                case THIS:
+                    return "aload_0\n";
+                case INT32:
+                case BOOLEAN:
+                    return "iload" + this.getVariableVirtualRegister(operand.getName(), this.methodVarTable) + "\n";
+                case OBJECTREF:
+                case ARRAYREF:
+                    return "aload" + this.getVariableVirtualRegister(operand.getName(), this.methodVarTable) + "\n";
+                default:
+                    throw new RuntimeException("Exception during load elements of type operand");
+            }
+        }
+
+        throw new RuntimeException("Exception during load elements");
+    }
+
+    private String getConstantElementCode(String constantLiteral) {
+        int number = Integer.parseInt(constantLiteral);
+
+        if (number >= -1 && number <= 5)
+            return "iconst_" + constantLiteral;
+        else if (number >= -128 && number <= 127)
+            return "bipush " + constantLiteral;
+        else if (number >= -32768 && number <= 32767)
+            return "sipush " + constantLiteral;
+        else
+            return "ldc " + constantLiteral;
+    }
+
+    private String storeElementCode(Operand operand, HashMap<String, Descriptor> methodVarTable) {
+        if (operand instanceof ArrayOperand) {
+            return "iastore\n";
+        }
+
+        switch (operand.getType().getTypeOfElement()) {
+            case INT32:
+            case BOOLEAN:
+                return "istore" + this.getVariableVirtualRegister(operand.getName(), this.methodVarTable) + "\n";
+            case OBJECTREF:
+            case ARRAYREF:
+                return "astore" + this.getVariableVirtualRegister(operand.getName(), this.methodVarTable) + "\n";
+            default:
+                throw new RuntimeException("Exception during store elements");
+        }
+    }
+
+    private void incrementStackCounter(int value) {
+        this.stackCounter += value;
+    }
+
+    private void decrementStackCounter(int value) {
+        this.stackCounter -= value;
     }
 }
