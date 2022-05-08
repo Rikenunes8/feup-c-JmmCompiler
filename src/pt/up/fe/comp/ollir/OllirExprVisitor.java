@@ -4,7 +4,6 @@ import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
-import pt.up.fe.specs.util.exceptions.NotImplementedException;
 
 import static pt.up.fe.comp.Utils.*;
 import static pt.up.fe.comp.ast.AstNode.*;
@@ -13,12 +12,10 @@ import static pt.up.fe.comp.ollir.OllirUtils.getOllirType;
 
 
 public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
-    private final StringBuilder code;
     private final SymbolTableBuilder symbolTable;
     private static int varAuxNumber = 0;
 
     public OllirExprVisitor(SymbolTableBuilder symbolTable) {
-        this.code = new StringBuilder();
         this.symbolTable = symbolTable;
 
         addVisit(IDENTIFIER_LITERAL, this::visitIdentifierLiteral);
@@ -89,7 +86,6 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
         return new OllirExprPair(temps.toString(), expr.toString());
     }
 
-    // t1.i32 :=.i32 arraylength($1.A.array.i32).i32;
     private OllirExprPair visitDotExp(JmmNode dotExp, Integer integer) {
         StringBuilder temps = new StringBuilder();
         JmmNode left = dotExp.getJmmChild(0);
@@ -104,8 +100,6 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
         else {
             OllirExprPair rightPair = visit(right);
             temps.append(rightPair.getTemps());
-
-
 
             // TODO
             return new OllirExprPair();
@@ -186,14 +180,14 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
     }
 
     public OllirExprPair visitTrueLiteral(JmmNode trueLiteral, Integer dummy) {
-        String exp = "t" + varAuxNumber++ + ".i32";
-        String temp = "\t\t" + exp + " :=.i32 1.bool;\n";
+        String exp = "t" + varAuxNumber++ + ".bool";
+        String temp = "\t\t" + exp + " :=.bool 1.bool;\n";
         return new OllirExprPair(temp, exp);
     }
 
     public OllirExprPair visitFalseLiteral(JmmNode falseLiteral, Integer dummy) {
-        String exp = "t" + varAuxNumber++ + ".i32";
-        String temp = "\t\t" + exp + " :=.i32 0.bool;\n";
+        String exp = "t" + varAuxNumber++ + ".bool";
+        String temp = "\t\t" + exp + " :=.bool 0.bool;\n";
         return new OllirExprPair(temp, exp);
     }
 }

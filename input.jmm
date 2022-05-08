@@ -6,4 +6,19 @@ class HelloWorld {
         a = new int[4];
         b = a.length;
 	}
+
+	public int set() {
+	    int a;
+        while(true) {
+            a = 2;
+            a = 3;
+        }
+        if (false) {
+            a = 1;
+        }
+        else {
+            a = 4;
+        }
+        return 1;
+    }
 }
