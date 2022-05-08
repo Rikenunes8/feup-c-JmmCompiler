@@ -222,7 +222,7 @@ public class OllirToJasmin {
     }
 
     public String getJasminCode(SingleOpInstruction instruction) {
-        throw new NotImplementedException(instruction.getInstType());
+        return this.loadElementCode(instruction.getSingleOperand(), this.methodVarTable);
     }
 
     public String getJasminCode(CondBranchInstruction instruction) {
