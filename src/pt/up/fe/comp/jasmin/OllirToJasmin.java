@@ -2,6 +2,7 @@ package pt.up.fe.comp.jasmin;
 
 import org.specs.comp.ollir.*;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.specs.util.exceptions.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -140,29 +141,30 @@ public class OllirToJasmin {
     }
 
     private String getJasminType(Type type) {
-        ElementType elementType = type.getTypeOfElement() == ElementType.ARRAYREF
-                ? ((ArrayType) type).getTypeOfElements() : type.getTypeOfElement();
-        String jasminType = type.getTypeOfElement() == ElementType.ARRAYREF ? "[" : "";
+        if (type instanceof ArrayType) {
+            return "[" + this.getJasminType(((ArrayType) type).getTypeOfElements());
+        }
 
-        // TODO consultar no site
-        switch (elementType) {
+        if (type instanceof ClassType) {
+            String className = ((ClassType) type).getName();
+            return "L" + this.getFullyQualifiedClassName(className) + ";";
+        }
+
+        return this.getJasminType(type.getTypeOfElement());
+    }
+
+    private String getJasminType(ElementType type) {
+        switch (type) {
             case VOID:
                 return "V";
             case INT32:
-                return jasminType + "I";
+                return "I";
             case BOOLEAN:
-                return jasminType + "Z";
+                return "Z";
             case STRING:
-                return jasminType + "Ljava/lang/String;";
-            case CLASS:
-            case OBJECTREF:
-                String className = ((ClassType) type).getName();
-                return jasminType + "L" + this.getFullyQualifiedClassName(className) + ";";
-            case THIS:
-                return "THIS"; // TODO check
+                return "Ljava/lang/String;";
             default:
-                // TODO add to reports
-                throw new RuntimeException("There is not in jasmin match for the type " + type);
+                throw new NotImplementedException(type);
         }
     }
 }
