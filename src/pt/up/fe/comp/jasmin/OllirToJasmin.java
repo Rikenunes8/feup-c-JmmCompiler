@@ -1,6 +1,7 @@
 package pt.up.fe.comp.jasmin;
 
 import org.specs.comp.ollir.*;
+import pt.up.fe.comp.CLASS;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.specs.util.classmap.FunctionClassMap;
 import pt.up.fe.specs.util.exceptions.NotImplementedException;
@@ -158,32 +159,30 @@ public class OllirToJasmin {
     }
 
     public String getJasminCode(CallInstruction instruction) {
+        StringBuilder code = new StringBuilder();
+
         switch (instruction.getInvocationType()) {
             case invokestatic:
-                return getCallInstInvokeStaticCode(instruction);
+            case invokevirtual:
+            case invokespecial:
+                String methodClass = instruction.getFirstArg().getType().getTypeOfElement() == ElementType.CLASS
+                        ? this.getFullyQualifiedClassName(((Operand) instruction.getFirstArg()).getName())
+                        : this.getFullyQualifiedClassName(((ClassType) instruction.getFirstArg().getType()).getName());
+                String methodCall = ((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "");
+
+                code.append("\t").append(instruction.getInvocationType().toString()).append(" ")
+                        .append(methodClass).append("/").append(methodCall).append("(")
+                        .append(instruction.getListOfOperands().stream()
+                                .map(operand -> this.getJasminType(operand.getType()))
+                                .collect(Collectors.joining()))
+                        .append(")").append(this.getJasminType(instruction.getReturnType())).append("\n");
+
+                return code.toString();
+            // case NEW:
+            // case arraylength:
             default:
                 throw new NotImplementedException(instruction.getInvocationType());
         }
-    }
-
-    private String getCallInstInvokeStaticCode(CallInstruction instruction) {
-        StringBuilder code = new StringBuilder();
-
-        String methodClass = this.getFullyQualifiedClassName(((Operand) instruction.getFirstArg()).getName());
-        String methodCall = ((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "");
-
-        code.append("\tinvokestatic ")
-                .append(methodClass).append("/").append(methodCall).append("(")
-                .append(instruction.getListOfOperands().stream()
-                        .map(this::getArgumentCode)
-                        .collect(Collectors.joining()))
-                .append(")").append(this.getJasminType(instruction.getReturnType())).append("\n");
-
-        return code.toString();
-    }
-
-    private String getArgumentCode(Element operand) {
-        throw new NotImplementedException(this);
     }
 
     public String getJasminCode(GetFieldInstruction instruction) {
