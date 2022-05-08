@@ -2,7 +2,6 @@ package pt.up.fe.comp.jasmin;
 
 import org.specs.comp.ollir.*;
 import pt.up.fe.comp.jmm.report.Report;
-import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,27 +46,22 @@ public class OllirToJasmin {
         StringBuilder code = new StringBuilder();
 
         String extendedClass = (this.classUnit.getSuperClass() == null) ?
-                "java/lang/Object" : this.getFullyClassName(this.classUnit.getSuperClass());
+                "java/lang/Object" : this.getFullyQualifiedClassName(this.classUnit.getSuperClass());
 
         code.append(".class public ").append(this.classUnit.getClassName()).append("\n");
         code.append(".super ").append(extendedClass).append("\n");
 
         if (!this.classUnit.getFields().isEmpty()) code.append("\n");
         for (Field field : this.classUnit.getFields()) {
-            String accessAnnotation = field.getFieldAccessModifier().name().toLowerCase() + " ";
-            String staticAnnotation = field.isStaticField() ? "static " : "";
-            String finalAnnotation  = field.isFinalField() ? "final " : "";
-
-            code.append(".field ").append(accessAnnotation).append(staticAnnotation).append(finalAnnotation)
-                    .append(field.getFieldName()).append(" ").append(this.getJasminType(field.getFieldType())).append("\n");
+            code.append(this.getFieldCode(field));
         }
 
-        code.append(this.jasminConstructor(extendedClass));
+        code.append(this.getJasminConstructorCode(extendedClass));
 
         return code.toString();
     }
 
-    private String getFullyClassName(String className) {
+    private String getFullyQualifiedClassName(String className) {
         var extendImport = classUnit.getImports().stream()
                 .filter(importStr -> importStr.substring(importStr.lastIndexOf('.') + 1).equals(className))
                 .collect(Collectors.toList());
@@ -80,7 +74,21 @@ public class OllirToJasmin {
         return extendImport.get(0).replace('.', '/');
     }
 
-    private String jasminConstructor(String extendedClass) {
+    private String getFieldCode(Field field) {
+        StringBuilder code = new StringBuilder();
+
+        String accessAnnotation = field.getFieldAccessModifier() == AccessModifiers.DEFAULT ?
+                "" : field.getFieldAccessModifier().name().toLowerCase() + " ";
+        String staticAnnotation = field.isStaticField() ? "static " : "";
+        String finalAnnotation  = field.isFinalField() ? "final " : "";
+
+        code.append(".field ").append(accessAnnotation).append(staticAnnotation).append(finalAnnotation)
+                .append(field.getFieldName()).append(" ").append(this.getJasminType(field.getFieldType())).append("\n");
+
+        return code.toString();
+    }
+
+    private String getJasminConstructorCode(String extendedClass) {
         return  "\n.method public <init>()V\n" +
                 "\taload_0\n" +
                 "\tinvokenonvirtual " + extendedClass + "/<init>()V\n" +
@@ -92,18 +100,17 @@ public class OllirToJasmin {
         StringBuilder code = new StringBuilder();
 
         // Method header
-        String accessAnnotation = method.getMethodAccessModifier().name().toLowerCase() + " ";
+        String accessAnnotation = method.getMethodAccessModifier() == AccessModifiers.DEFAULT ?
+                "" : method.getMethodAccessModifier().name().toLowerCase() + " ";
         String staticAnnotation = method.isStaticMethod() ? "static " : "";
         String finalAnnotation  = method.isFinalMethod() ? "final " : "";
 
         code.append("\n.method ").append(accessAnnotation).append(staticAnnotation).append(finalAnnotation)
-                .append(method.getMethodName()).append("(");
-
-        for (Element parameter : method.getParams()) {
-            code.append(this.getJasminType(parameter.getType()));
-        }
-
-        code.append(")").append(this.getJasminType(method.getReturnType())).append("\n");
+                .append(method.getMethodName()).append("(")
+                .append(method.getParams().stream()
+                        .map(parameter -> this.getJasminType(parameter.getType()))
+                        .collect(Collectors.joining()))
+                .append(")").append(this.getJasminType(method.getReturnType())).append("\n");
 
         // Method Limits
         code.append(this.getMethodLimitsCode(method));
@@ -120,8 +127,12 @@ public class OllirToJasmin {
     }
 
     private String getMethodLimitsCode(Method method) {
-        return "\t.limit locals " + 99 + "\n" +
-                "\t.limit stack " + 99 + "\n\n";
+        // limit stack - max length of the stack that we need to the method
+        // limit locals - max number of registers we need to use
+
+        return "\t.limit stack " + 99 + "\n" +
+                "\t.limit locals " + 99 + "\n\n";
+        // NOTE: Now we can use 99, but this will be changed for checkpoint 3
     }
 
     private String getMethodInstructionCode(Method method, Instruction instruction) {
@@ -133,22 +144,22 @@ public class OllirToJasmin {
                 ? ((ArrayType) type).getTypeOfElements() : type.getTypeOfElement();
         String jasminType = type.getTypeOfElement() == ElementType.ARRAYREF ? "[" : "";
 
+        // TODO consultar no site
         switch (elementType) {
             case VOID:
                 return "V";
-            case CLASS:
-                return "CLASS";
-            case THIS:
-                return "THIS"; // TODO check
             case INT32:
                 return jasminType + "I";
             case BOOLEAN:
                 return jasminType + "Z";
             case STRING:
                 return jasminType + "Ljava/lang/String;";
+            case CLASS:
             case OBJECTREF:
                 String className = ((ClassType) type).getName();
-                return jasminType + "L" + this.getFullyClassName(className) + ";";
+                return jasminType + "L" + this.getFullyQualifiedClassName(className) + ";";
+            case THIS:
+                return "THIS"; // TODO check
             default:
                 // TODO add to reports
                 throw new RuntimeException("There is not in jasmin match for the type " + type);
