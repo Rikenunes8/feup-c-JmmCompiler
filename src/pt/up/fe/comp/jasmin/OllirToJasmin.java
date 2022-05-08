@@ -218,6 +218,8 @@ public class OllirToJasmin {
     }
 
     public String getJasminCode(OpInstruction instruction) {
+        // UnaryOpInstruction
+        // BinaryOpInstruction
         throw new NotImplementedException(instruction.getInstType());
     }
 
@@ -230,11 +232,26 @@ public class OllirToJasmin {
     }
 
     public String getJasminCode(GotoInstruction instruction) {
-        throw new NotImplementedException(instruction.getInstType());
+        return "goto " + instruction.getLabel() + "\n";
     }
 
     public String getJasminCode(ReturnInstruction instruction) {
-        throw new NotImplementedException(instruction.getInstType());
+        if (!instruction.hasReturnValue()) {
+            return "return\n";
+        }
+
+        switch (instruction.getElementType()) {
+            case VOID:
+                return "return";
+            case INT32:
+            case BOOLEAN:
+                return this.loadElementCode(instruction.getOperand(), this.methodVarTable) + "ireturn\n";
+            case ARRAYREF:
+            case OBJECTREF:
+                return this.loadElementCode(instruction.getOperand(), this.methodVarTable) + "areturn\n";
+            default:
+                throw new NotImplementedException(instruction.getElementType());
+        }
     }
 
     private String getJasminType(Type type) {
