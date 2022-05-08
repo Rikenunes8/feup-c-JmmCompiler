@@ -120,6 +120,12 @@ public class OllirToJasmin {
             code.append(this.getJasminCode(instruction));
         }
 
+        // This may be improved in optimization STAGE by always adding an empty return instruction
+        // in the AST before parsing to ollir as a last child when a method is void
+        if (method.getReturnType().getTypeOfElement() == ElementType.VOID) {
+            code.append("\treturn\n");
+        }
+
         // Method End
         code.append(".end method\n");
 
@@ -152,7 +158,32 @@ public class OllirToJasmin {
     }
 
     public String getJasminCode(CallInstruction instruction) {
-        return "";
+        switch (instruction.getInvocationType()) {
+            case invokestatic:
+                return getCallInstInvokeStaticCode(instruction);
+            default:
+                throw new NotImplementedException(instruction.getInvocationType());
+        }
+    }
+
+    private String getCallInstInvokeStaticCode(CallInstruction instruction) {
+        StringBuilder code = new StringBuilder();
+
+        String methodClass = this.getFullyQualifiedClassName(((Operand) instruction.getFirstArg()).getName());
+        String methodCall = ((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "");
+
+        code.append("\tinvokestatic ")
+                .append(methodClass).append("/").append(methodCall).append("(")
+                .append(instruction.getListOfOperands().stream()
+                        .map(this::getArgumentCode)
+                        .collect(Collectors.joining()))
+                .append(")").append(this.getJasminType(instruction.getReturnType())).append("\n");
+
+        return code.toString();
+    }
+
+    private String getArgumentCode(Element operand) {
+        throw new NotImplementedException(this);
     }
 
     public String getJasminCode(GetFieldInstruction instruction) {

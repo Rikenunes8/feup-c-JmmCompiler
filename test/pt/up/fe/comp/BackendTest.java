@@ -15,6 +15,7 @@ public class BackendTest {
         TestUtils.noErrors(result.getReports());
         System.out.println(result.getJasminCode());
         result.compile();
+        //result.run();
     }
 
     private static void noErrors(String jmmCode) {
