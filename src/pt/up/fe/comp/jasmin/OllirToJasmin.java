@@ -29,6 +29,7 @@ public class OllirToJasmin {
         this.instructionMap.put(AssignInstruction.class, this::getJasminCode);
         this.instructionMap.put(CallInstruction.class, this::getJasminCode);
         this.instructionMap.put(GetFieldInstruction.class, this::getJasminCode);
+        this.instructionMap.put(PutFieldInstruction.class, this::getJasminCode);
         this.instructionMap.put(OpInstruction.class, this::getJasminCode);
         this.instructionMap.put(SingleOpInstruction.class, this::getJasminCode);
         this.instructionMap.put(CondBranchInstruction.class, this::getJasminCode);
@@ -214,7 +215,26 @@ public class OllirToJasmin {
     }
 
     public String getJasminCode(GetFieldInstruction instruction) {
-        throw new NotImplementedException(instruction.getInstType());
+        StringBuilder code = new StringBuilder();
+
+        code.append(this.loadElementCode(instruction.getFirstOperand(), this.methodVarTable));
+        code.append("getfield ").append(this.classUnit.getClassName()).append("/")
+                .append(((Operand) instruction.getSecondOperand()).getName()).append(" ")
+                .append(this.getJasminType(instruction.getSecondOperand().getType())).append("\n");
+
+        return code.toString();
+    }
+
+    public String getJasminCode(PutFieldInstruction instruction) {
+        StringBuilder code = new StringBuilder();
+
+        code.append(this.loadElementCode(instruction.getFirstOperand(), this.methodVarTable));
+        code.append(this.loadElementCode(instruction.getThirdOperand(), this.methodVarTable));
+        code.append("putfield ").append(this.classUnit.getClassName()).append("/")
+                .append(((Operand) instruction.getSecondOperand()).getName()).append(" ")
+                .append(this.getJasminType(instruction.getSecondOperand().getType())).append("\n");
+
+        return code.toString();
     }
 
     public String getJasminCode(OpInstruction instruction) {
