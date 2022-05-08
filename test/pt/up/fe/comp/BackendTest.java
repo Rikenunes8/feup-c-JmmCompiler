@@ -27,6 +27,11 @@ public class BackendTest {
      */
 
     @Test
+    public void testHelloWorldOllir() {
+        noErrors(new OllirResult(SpecsIo.getResource("fixtures/public/ollir/HelloWorld.ollir"), Collections.emptyMap()));
+    }
+
+    @Test
     public void testFac() {
         noErrors(new OllirResult(SpecsIo.getResource("fixtures/public/ollir/Fac.ollir"), Collections.emptyMap()));
     }

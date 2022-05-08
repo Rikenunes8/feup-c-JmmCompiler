@@ -69,7 +69,7 @@ public class OllirToJasmin {
 
     private String getFullyClassName(String className) {
         var extendImport = classUnit.getImports().stream()
-                .filter(importStr -> importStr.endsWith("." + className))
+                .filter(importStr -> importStr.substring(importStr.lastIndexOf('.') + 1).equals(className))
                 .collect(Collectors.toList());
 
         if (extendImport.size() != 1) {
