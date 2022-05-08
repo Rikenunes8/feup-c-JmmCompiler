@@ -35,7 +35,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         // AND_EXP,
         // NOT_EXP,
         // LESS_EXP,
-        // ARRAY_ACCESS_EXP,
         // NEW_INT_ARRAY,
 
         // NEW_OBJECT,
@@ -49,7 +48,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         addVisit(PROGRAM, this::visitProgram);
         addVisit(CLASS_DECLARATION, this::visitClassDeclaration);
         addVisit(METHOD_DECLARATION, this::visitMethodDeclaration);
-        //addVisit(VAR_DECLARATION, this::visitVarDeclaration);
         addVisit(RETURN_STATEMENT, this::visitReturnStatement);
         addVisit(DOT_EXP, this::visitDotExp);
         
@@ -58,6 +56,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         addVisit(FUNCTION_CALL, this::visitFunctionCall);
         addVisit(CONDITION, this::visitCondition);
         addVisit(WHILE_BLOCK, this::visitWhileBlock);
+        
         
         addVisit(IF_STATEMENT, this::visitIfStatement);
         addVisit(WHILE_STATEMENT, this::visitWhileStatement);
@@ -112,24 +111,20 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         }
         return 0;
     }
-    
-    /*
-    private Integer visitVarDeclaration(JmmNode varDeclaration, Integer dummy) {
-        return 0;
-    }*/
 
     private Integer visitReturnStatement(JmmNode returnStatement, Integer dummy) {
+        OllirExprPair result = visitExpression(returnStatement.getJmmChild(0));
         JmmNode methodDeclaration = returnStatement.getJmmParent();
         String methodSignature = methodDeclaration.get("name");
         
+        code.append(result.getTemps());
         code.append("\t\t").append("ret.");
         var returnType = OllirUtils.getCode(symbolTable.getReturnType(methodSignature));
         code.append(returnType);
         if( returnType != "V")
         {
             code.append(" ");
-            visit(returnStatement.getJmmChild(0));
-            code.append(".").append(returnType);
+            code.append(result.getExpression());
         }
 
         
@@ -228,52 +223,90 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private Integer visitIfStatement(JmmNode ifStatement, Integer dummy) {
-        // TODO
+        String number = Integer.toString(ifNumber);
+
+        JmmNode condition = ifStatement.getJmmChild(0);
+        visit(condition);
+
+        JmmNode ifBlock = ifStatement.getJmmChild(1);
+
+        for(JmmNode ifChild : ifBlock.getChildren()){
+            visit(ifChild);
+        }
+        
+        code.append("\t\t").append("goto EndIf" + number + ";\n");
+        code.append("\t").append("Else" + number +": \n");
+        
+        JmmNode elseBlock = ifStatement.getJmmChild(2);
+        for(JmmNode elseChild : elseBlock.getChildren()){
+            visit(elseChild);
+        }
+
+        code.append("\t").append("EndIf" + number + ":\n");
+        ifNumber++;
         return 0;
     }
 
     private Integer visitAssignmentStatement(JmmNode assignmentStatement, Integer dummy) {
-        // TODO
+        JmmNode left = assignmentStatement.getJmmChild(0); 
+        JmmNode right = assignmentStatement.getJmmChild(1); 
+
+        OllirExprPair resultLeft = visitExpression(left);
+        OllirExprPair resultRight = visitExpression(right);
+
+        String type = OllirUtils.getType(resultLeft.getExpression());
+        code.append(resultLeft.getTemps());
+        code.append(resultRight.getTemps());
+    
+        code.append("\t\t").append(resultLeft.getExpression());
+        code.append(" :=.").append(type);
+        code.append(" ").append(resultRight.getExpression()).append(";\n");
+       
         return 0;
     }
 
     private Integer visitExpressionStatement(JmmNode expressionStatement, Integer dummy) {
         this.visitExpression(expressionStatement);
-        code.append(";\n");
+        code.append("\t\t").append(";\n");
         return 0;
     }
 
     private Integer visitCondition(JmmNode condition, Integer dummy) {
         String number = ""; 
         
-        switch(condition.getJmmParent().getKind())
-        {
-            case "IfStatement":
-                number = Integer.toString(ifNumber);
-            case "WhileStatement":
-                number = Integer.toString(whileNumber);
-            default:
-        }
-        
         var child = condition.getJmmChild(0);
         OllirExprPair conditionCode = visitExpression(child);
-
+        
         String newAuxVariables = "", ollirCondition = "";
         newAuxVariables = conditionCode.getTemps();
         ollirCondition = conditionCode.getExpression();
-   
-
+        
+        
         if(child.getKind().equals("LessExp") || child.getKind().equals("AndExp") || child.getKind().equals("NotExp"))
         {
             ollirCondition += " &&.bool 1.bool";
         }
+        
+        switch(condition.getJmmParent().getKind())
+        {
+            case "IfStatement":
+                number = Integer.toString(ifNumber);
+                code.append(newAuxVariables).append("\n");
+                code.append("\t\t").append("if (" + ollirCondition + ") " + "goto Else" + number + ";\n");
+                break;
+            case "WhileStatement":
+                number = Integer.toString(whileNumber);
+                code.append(newAuxVariables).append("\n");
+                code.append("\t\t").append("if (");
+                code.append(ollirCondition);
+                code.append(") goto Body" + number + ";\n") ;
+                code.append("\t\t").append("goto EndLoop" + number + ";\n");
+                code.append("\t\t").append("Body" + number + ":\n");
+                break;
+            default:
+                break;
+        }
 
-        code.append(newAuxVariables).append("\n");
-        code.append("\t\t").append("if (");
-        code.append(ollirCondition);
-        code.append(") goto Body" + number + ";\n") ;
-        code.append("\t\t").append("goto EndLoop" + number + ";\n");
-        code.append("\t\t").append("Body" + number + ":\n");
 
 
         return 0;
@@ -285,7 +318,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         
         visit(whileBlock.getJmmChild(0));
 
-        code.append("goto Loop" + number + ";\n");
+        code.append("\t ").append("goto Loop" + number + ";\n");
 
         return 0;
     }

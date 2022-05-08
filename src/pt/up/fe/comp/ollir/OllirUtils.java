@@ -11,6 +11,10 @@ public class OllirUtils {
         return symbol.getName() + "." + getCode(symbol.getType());
     }
 
+    public static String getType(String code) {
+        return code.substring(code.lastIndexOf(".") + 1);
+    }
+
     public static String getCode(Type type) {
         StringBuilder code = new StringBuilder();
 
