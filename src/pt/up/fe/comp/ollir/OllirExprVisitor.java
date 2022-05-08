@@ -89,8 +89,24 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
         return new OllirExprPair(temps.toString(), expr.toString());
     }
 
-    private OllirExprPair visitDotExp(JmmNode jmmNode, Integer integer) {
-            throw new NotImplementedException(); // TODO
+    // t1.i32 :=.i32 arraylength($1.A.array.i32).i32;
+    private OllirExprPair visitDotExp(JmmNode dotExp, Integer integer) {
+        StringBuilder temps = new StringBuilder();
+        JmmNode left = dotExp.getJmmChild(0);
+        JmmNode right = dotExp.getJmmChild(1);
+        OllirExprPair leftPair = visit(left);
+        OllirExprPair rightPair = visit(right);
+        temps.append(leftPair.getTemps());
+        temps.append(rightPair.getTemps());
+        if (right.getKind().equals(PROPERTY_LENGTH.toString())) {
+            String exp = "t" + varAuxNumber++ + ".i32";
+            temps.append("\t\t").append(exp).append(" :=.i32").append("arraylength(").append(leftPair.getExpression()).append(").i32");
+            return new OllirExprPair(temps.toString(), exp);
+        }
+        else {
+            // TODO
+            return new OllirExprPair();
+        }
     }
 
     private OllirExprPair visitNotExp(JmmNode jmmNode, Integer integer) {
