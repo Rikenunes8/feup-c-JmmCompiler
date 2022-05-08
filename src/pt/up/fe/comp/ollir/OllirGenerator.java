@@ -1,4 +1,5 @@
 package pt.up.fe.comp.ollir;
+import pt.up.fe.comp.analysis.SymbolTableBuilder;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
@@ -14,13 +15,17 @@ import static pt.up.fe.comp.ast.AstNode.*;
 public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
     private final StringBuilder code;
-    private final SymbolTable symbolTable;
+    private final SymbolTableBuilder symbolTable;
+    private final ExprVisitor exprVisitor;
     private int whileNumber;
+    private int ifNumber;
 
-    public OllirGenerator(SymbolTable symbolTable) {
+    public OllirGenerator(SymbolTableBuilder symbolTable) {
+        this.exprVisitor = new ExprVisitor(symbolTable);
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
         this.whileNumber = 0;
+        this.ifNumber = 0;
 
         // THIS_LITERAL,
         // ADD_EXP,
@@ -31,31 +36,34 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         // NOT_EXP,
         // LESS_EXP,
         // ARRAY_ACCESS_EXP,
-        // ASSIGNMENT_STATEMENT,
         // NEW_INT_ARRAY,
 
         // NEW_OBJECT,
         // VAR_DECLARATION,
         // PROPERTY_LENGTH,
-        // CONDITION
-        // IF_STATEMENT,
         // IF_BLOCK,
         // ELSE_BLOCK,
-        // WHILE_STATEMENT,
-        // WHILE_BLOCK,
+        // ,
         // SCOPE
 
         addVisit(PROGRAM, this::visitProgram);
         addVisit(CLASS_DECLARATION, this::visitClassDeclaration);
         addVisit(METHOD_DECLARATION, this::visitMethodDeclaration);
-        addVisit(VAR_DECLARATION, this::visitVarDeclaration);
+        //addVisit(VAR_DECLARATION, this::visitVarDeclaration);
         addVisit(RETURN_STATEMENT, this::visitReturnStatement);
-        addVisit(WHILE_STATEMENT, this::visitWhileStatement);
         addVisit(DOT_EXP, this::visitDotExp);
-
+        
         addVisit(IDENTIFIER_LITERAL, this::visitIdentifierLiteral);
         addVisit(NEW_OBJECT, this::visitNewObject);
         addVisit(FUNCTION_CALL, this::visitFunctionCall);
+        addVisit(CONDITION, this::visitCondition);
+        addVisit(WHILE_BLOCK, this::visitWhileBlock);
+        
+        addVisit(IF_STATEMENT, this::visitIfStatement);
+        addVisit(WHILE_STATEMENT, this::visitWhileStatement);
+        addVisit(SCOPE, this::visitScope);
+        addVisit(ASSIGNMENT_STATEMENT, this::visitAssignmentStatement);
+        addVisit(EXPRESSION_STATEMENT, this::visitExpressionStatement);
     }
 
     public String getCode() {
@@ -86,7 +94,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         visitPrivateAttibutes();
         // JMM visitor conseguir controlar quando é que os filhos são visitados
         for (var child : classDeclaration.getChildren()) {
-            visit(child);
+            if (child.getKind().equals(METHOD_DECLARATION.toString()))
+                visit(child);
         }
         code.append("\n}\n");
 
@@ -96,16 +105,18 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     private Integer visitPrivateAttibutes() {
         for(Symbol field : symbolTable.getFields()){
             code.append("\t").append(".field private ");
-            code.append(field.getName());
-            code.append(".").append(OllirUtils.getCode(field.getType()));
+            code.append(OllirUtils.getCode(field));
+            //code.append(field.getName());
+            //code.append(".").append(OllirUtils.getCode(field.getType()));
             code.append(";\n");
         }
         return 0;
     }
-
+    
+    /*
     private Integer visitVarDeclaration(JmmNode varDeclaration, Integer dummy) {
         return 0;
-    }
+    }*/
 
     private Integer visitReturnStatement(JmmNode returnStatement, Integer dummy) {
         JmmNode methodDeclaration = returnStatement.getJmmParent();
@@ -148,14 +159,16 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         int lastParamIndex = -1;
         for (int i = 0; i< methodDeclaration.getNumChildren(); i++)
         {
-            if(methodDeclaration.getJmmChild(i).getKind().equals("MethodParameters"))
+            if(!methodDeclaration.getJmmChild(i).getKind().equals(METHOD_PARAMETERS.toString()) &&
+                !methodDeclaration.getJmmChild(i).getKind().equals(VAR_DECLARATION.toString()))
             {
                 lastParamIndex = i;
+                break;
             }
         }
 
-        var stmts = methodDeclaration.getChildren().subList(lastParamIndex + 1, methodDeclaration.getNumChildren());
-        //System.out.println("\nSTMTS :\n" + stmts);
+        var stmts = methodDeclaration.getChildren().subList(lastParamIndex, methodDeclaration.getNumChildren());
+        System.out.println("\nSTMTS :\n" + stmts);
 
         for (var stmt : stmts) {
             visit(stmt);
@@ -201,11 +214,95 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
     private Integer visitWhileStatement(JmmNode whileStatement, Integer dummy) {
         String number = Integer.toString(whileNumber);
-        // condition
-        visit(whileStatement.getJmmChild(0));
-        JmmNode whileBlock = whileStatement.getChildren().get(1);
-
         code.append("\t ").append("Loop" + number + ":\n");
+
+        JmmNode condition = whileStatement.getJmmChild(0);
+        visit(condition);
+
+        JmmNode whileBlock = whileStatement.getChildren().get(1);
+        visit(whileBlock);
+        
+        code.append("\t ").append("EndLoop" + number + ":\n");
+        whileNumber++;
         return 0;
+    }
+
+    private Integer visitIfStatement(JmmNode ifStatement, Integer dummy) {
+        // TODO
+        return 0;
+    }
+
+    private Integer visitAssignmentStatement(JmmNode assignmentStatement, Integer dummy) {
+        // TODO
+        return 0;
+    }
+
+    private Integer visitExpressionStatement(JmmNode expressionStatement, Integer dummy) {
+        this.visitExpression(expressionStatement);
+        code.append(";\n");
+        return 0;
+    }
+
+    private Integer visitCondition(JmmNode condition, Integer dummy) {
+        String number = ""; 
+        
+        switch(condition.getJmmParent().getKind())
+        {
+            case "IfStatement":
+                number = Integer.toString(ifNumber);
+            case "WhileStatement":
+                number = Integer.toString(whileNumber);
+            default:
+        }
+        
+        var child = condition.getJmmChild(0);
+        OllirExprPair conditionCode = visitExpression(child);
+
+        String newAuxVariables = "", ollirCondition = "";
+        newAuxVariables = conditionCode.getTemps();
+        ollirCondition = conditionCode.getExpression();
+   
+
+        if(child.getKind().equals("LessExp") || child.getKind().equals("AndExp") || child.getKind().equals("NotExp"))
+        {
+            ollirCondition += " &&.bool 1.bool";
+        }
+
+        code.append(newAuxVariables).append("\n");
+        code.append("\t\t").append("if (");
+        code.append(ollirCondition);
+        code.append(") goto Body" + number + ";\n") ;
+        code.append("\t\t").append("goto EndLoop" + number + ";\n");
+        code.append("\t\t").append("Body" + number + ":\n");
+
+
+        return 0;
+    }
+
+    private Integer visitWhileBlock(JmmNode whileBlock, Integer dummy) {
+        String number = Integer.toString(whileNumber);
+        code.append("\t ").append("Body" + number + ":\n");
+        
+        visit(whileBlock.getJmmChild(0));
+
+        code.append("goto Loop" + number + ";\n");
+
+        return 0;
+    }
+
+    private Integer visitScope(JmmNode scope, Integer dummy) {
+        
+        List<JmmNode> scopeChilds = scope.getChildren();
+
+        for(JmmNode scopeChild : scopeChilds)
+        {
+            visit(scopeChild);
+        }
+
+        return 0;
+    }
+
+    private OllirExprPair visitExpression(JmmNode expression) {
+        return exprVisitor.visit(expression);
     }
 }

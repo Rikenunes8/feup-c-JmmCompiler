@@ -2,6 +2,7 @@ package pt.up.fe.comp.ollir;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
+import pt.up.fe.comp.jmm.ast.JmmNode;
 
 
 // TODO Possible change things
@@ -31,6 +32,22 @@ public class OllirUtils {
                 return "bool";
             default:
                 return jmmType;
+        }
+    }
+
+    public static String getOllirExpression(JmmNode node) {
+       
+        switch(node.getKind()){
+            case "IdentifierLiteral":
+                return node.get("val") + ".i32";
+            case "TrueLiteral":
+                return "1.bool";
+            case "FalseLiteral":
+                return "0.bool";
+            case "IntegerLiteral":
+                return node.get("val") + ".i32";
+            default:
+                return "INVALID EXPRESSION";
         }
     }
 }

@@ -1,4 +1,5 @@
 package pt.up.fe.comp.ollir;
+import pt.up.fe.comp.analysis.SymbolTableBuilder;
 
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
@@ -14,7 +15,7 @@ public class JmmOptimizer implements JmmOptimization {
 
     @Override
     public OllirResult toOllir(JmmSemanticsResult semanticsResult) {
-        OllirGenerator ollirGenerator = new OllirGenerator(semanticsResult.getSymbolTable());
+        OllirGenerator ollirGenerator = new OllirGenerator((SymbolTableBuilder)semanticsResult.getSymbolTable());
         ollirGenerator.visit(semanticsResult.getRootNode());
 
         String ollirCode = ollirGenerator.getCode();

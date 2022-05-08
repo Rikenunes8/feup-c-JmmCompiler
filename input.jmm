@@ -19,12 +19,16 @@ class Classe {
             io.println(d[c]);
             c= c+1;
         }
+
+        while(c < d.length)
+            c= c+1;
+        
     }
 
     public boolean MoveRow(int[] row, int column) {
         boolean moved;
 
-        if(column < 0){
+        if(1){
             moved = false;
         }else if(2 < column){
             moved = false;

@@ -9,7 +9,10 @@ public enum AstNode {
     METHOD_PARAMETERS,
     RETURN_STATEMENT,
     IDENTIFIER_LITERAL,
+    INTEGER_LITERAL,
     THIS_LITERAL,
+    TRUE_LITERAL,
+    FALSE_LITERAL,
     ADD_EXP,
     SUB_EXP,
     MULT_EXP,
@@ -31,6 +34,7 @@ public enum AstNode {
     ELSE_BLOCK,
     WHILE_STATEMENT,
     WHILE_BLOCK,
+    EXPRESSION_STATEMENT,
     SCOPE
     ;
     private final String name;

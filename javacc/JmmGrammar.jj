@@ -115,7 +115,7 @@ Statement #void :
     |   IfStatement
     |   WhileStatement
     |   SCAN 2 AssignmentStatement
-    |   Expression < SEMICOLON >
+    |   (Expression < SEMICOLON >) #ExpressionStatement
 ;
 
 IfStatement: 
