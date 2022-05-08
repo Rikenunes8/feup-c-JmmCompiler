@@ -130,7 +130,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private Integer visitReturnStatement(JmmNode returnStatement, Integer dummy) {
-        OllirExprPair result = visitExpression(returnStatement.getJmmChild(0));
+        OllirExprGenerator result = visitExpression(returnStatement.getJmmChild(0));
         JmmNode methodDeclaration = returnStatement.getJmmParent();
         String methodSignature = methodDeclaration.get("name");
         
@@ -140,7 +140,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         code.append(returnType);
         if(!returnType.equals("V")) {
             code.append(" ");
-            code.append(result.getExpression());
+            code.append(result.getFullExp());
         }
 
         code.append(";\n");
@@ -149,9 +149,9 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private Integer visitExpressionStatement(JmmNode expressionStatement, Integer dummy) {
-        OllirExprPair exprPair = this.visitExpression(expressionStatement.getJmmChild(0));
+        OllirExprGenerator exprPair = this.visitExpression(expressionStatement.getJmmChild(0));
         code.append(exprPair.getTemps());
-        code.append(ident()).append(exprPair.getExpression()).append(";\n");
+        code.append(ident()).append(exprPair.getFullExp()).append(";\n");
         return 0;
     }
 
@@ -196,17 +196,17 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         JmmNode left = assignmentStatement.getJmmChild(0);
         JmmNode right = assignmentStatement.getJmmChild(1);
 
-        OllirExprPair resultLeft = visitExpression(left);
-        OllirExprPair resultRight = visitExpression(right);
+        OllirExprGenerator resultLeft = visitExpression(left);
+        OllirExprGenerator resultRight = visitExpression(right);
 
-        String type = OllirUtils.getType(resultLeft.getExpression());
+        String type = OllirUtils.getType(resultLeft.getFullExp());
         code.append(resultLeft.getTemps());
         code.append(resultRight.getTemps());
 
         code.append(ident())
-            .append(resultLeft.getExpression())
+            .append(resultLeft.getFullExp())
             .append(" :=.").append(type)
-            .append(" ").append(resultRight.getExpression()).append(";\n");
+            .append(" ").append(resultRight.getFullExp()).append(";\n");
 
         return 0;
     }
@@ -221,10 +221,10 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
     private Integer visitCondition(JmmNode condition, Integer dummy) {
         JmmNode child = condition.getJmmChild(0);
-        OllirExprPair conditionCode = visitExpression(child);
+        OllirExprGenerator conditionCode = visitExpression(child);
         
         String temps = conditionCode.getTemps();
-        String expre = conditionCode.getExpression();
+        String expre = conditionCode.getFullExp();
 
         switch (condition.getJmmParent().getKind()) {
             case "IfStatement" -> {
@@ -252,7 +252,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return 0;
     }
 
-    private OllirExprPair visitExpression(JmmNode expression) {
+    private OllirExprGenerator visitExpression(JmmNode expression) {
         return this.ollirExprVisitor.visit(expression);
     }
 
