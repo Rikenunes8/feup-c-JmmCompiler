@@ -4,17 +4,19 @@ import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.specs.util.exceptions.NotImplementedException;
+
 import static pt.up.fe.comp.Utils.*;
 import static pt.up.fe.comp.ast.AstNode.*;
 import static pt.up.fe.comp.ollir.OllirUtils.getCode;
 
 
-public class ExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
+public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
     private final StringBuilder code;
     private final SymbolTableBuilder symbolTable;
     private static int varAuxNumber = 0;
 
-    public ExprVisitor(SymbolTableBuilder symbolTable) {
+    public OllirExprVisitor(SymbolTableBuilder symbolTable) {
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
 
@@ -30,17 +32,26 @@ public class ExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
         addVisit(DIV_EXP, this::visitDivExp);
         addVisit(NOT_EXP, this::visitNotExp);
 
-        // THIS_LITERAL,
-        // ARRAY_ACCESS_EXP,
-        // NEW_INT_ARRAY,
-        // NEW_OBJECT,
-        // PROPERTY_LENGTH,
+        addVisit(DOT_EXP, this::visitDotExp);
+        addVisit(ARRAY_ACCESS_EXP, this::visitArrayAccessExp);
+        addVisit(NEW_INT_ARRAY, this::visitNewIntArray);
+        addVisit(NEW_OBJECT, this::visitNewObject);
+    }
 
+    private OllirExprPair visitNewObject(JmmNode jmmNode, Integer integer) {
+        throw new NotImplementedException(); // TODO
+    }
 
-        // addVisit(DOT_EXP, this::visitDotExp);
-        // addVisit(NEW_OBJECT, this::visitNewObject);
-        // addVisit(FUNCTION_CALL, this::visitFunctionCall);
+    private OllirExprPair visitNewIntArray(JmmNode jmmNode, Integer integer) {
+        throw new NotImplementedException(); // TODO
+    }
 
+    private OllirExprPair visitArrayAccessExp(JmmNode jmmNode, Integer integer) {
+        throw new NotImplementedException(); // TODO
+    }
+
+    private OllirExprPair visitDotExp(JmmNode jmmNode, Integer integer) {
+            throw new NotImplementedException(); // TODO
     }
 
     private OllirExprPair visitNotExp(JmmNode jmmNode, Integer integer) {

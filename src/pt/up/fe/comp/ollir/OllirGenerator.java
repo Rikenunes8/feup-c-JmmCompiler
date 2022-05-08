@@ -2,7 +2,6 @@ package pt.up.fe.comp.ollir;
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
-import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
@@ -16,12 +15,12 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
     private final StringBuilder code;
     private final SymbolTableBuilder symbolTable;
-    private final ExprVisitor exprVisitor;
+    private final OllirExprVisitor ollirExprVisitor;
     private int whileNumber;
     private int ifNumber;
 
     public OllirGenerator(SymbolTableBuilder symbolTable) {
-        this.exprVisitor = new ExprVisitor(symbolTable);
+        this.ollirExprVisitor = new OllirExprVisitor(symbolTable);
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
         this.whileNumber = 0;
@@ -338,6 +337,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private OllirExprPair visitExpression(JmmNode expression) {
-        return this.exprVisitor.visit(expression);
+        return this.ollirExprVisitor.visit(expression);
     }
 }
