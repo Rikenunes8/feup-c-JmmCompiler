@@ -9,6 +9,7 @@ import pt.up.fe.specs.util.exceptions.NotImplementedException;
 import static pt.up.fe.comp.Utils.*;
 import static pt.up.fe.comp.ast.AstNode.*;
 import static pt.up.fe.comp.ollir.OllirUtils.getCode;
+import static pt.up.fe.comp.ollir.OllirUtils.getOllirType;
 
 
 public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
@@ -38,16 +39,54 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
         addVisit(NEW_OBJECT, this::visitNewObject);
     }
 
-    private OllirExprPair visitNewObject(JmmNode jmmNode, Integer integer) {
-        throw new NotImplementedException(); // TODO
+    private OllirExprPair visitNewObject(JmmNode newObject, Integer integer) {
+        StringBuilder temps = new StringBuilder();
+        String type = newObject.get("name");
+
+        String expression = "t"+ (varAuxNumber++) + "."+type;
+        temps.append("\t\t")
+                .append(expression)
+                .append(" :=.").append(type).append(" ")
+                .append("new(").append(type).append(")")
+                .append(".").append(type)
+                .append(";\n");
+        temps.append("\t\t").append("invokespecial(").append(expression).append(",\"<init>\").V;\n");
+        return new OllirExprPair(temps.toString(), expression);
     }
 
-    private OllirExprPair visitNewIntArray(JmmNode jmmNode, Integer integer) {
-        throw new NotImplementedException(); // TODO
+    private OllirExprPair visitNewIntArray(JmmNode newIntArray, Integer integer) {
+        StringBuilder temps = new StringBuilder();
+        String type = "array";
+        JmmNode exp = newIntArray.getJmmChild(0);
+        OllirExprPair exprPair = visit(exp);
+        temps.append(exprPair.getTemps());
+
+
+        String expression = "t"+ (varAuxNumber++) + "."+type;
+        temps.append("\t\t")
+                .append(expression)
+                .append(" :=.").append(type).append(" ")
+                .append("new(").append(type).append(", ").append(exprPair.getExpression()).append(")")
+                .append(".").append(type)
+                .append(";\n");
+        return new OllirExprPair(temps.toString(), expression);
     }
 
-    private OllirExprPair visitArrayAccessExp(JmmNode jmmNode, Integer integer) {
-        throw new NotImplementedException(); // TODO
+    private OllirExprPair visitArrayAccessExp(JmmNode arrayAccessExp, Integer integer) {
+        StringBuilder temps = new StringBuilder();
+        StringBuilder expr = new StringBuilder();
+        JmmNode value = arrayAccessExp.getJmmChild(0);
+        JmmNode index = arrayAccessExp.getJmmChild(1);
+        OllirExprPair valuePair = visit(value);
+        OllirExprPair indexPair = visit(index);
+        temps.append(valuePair.getTemps());
+        temps.append(indexPair.getTemps());
+
+        Type type = getType(value, this.symbolTable);
+        String val = valuePair.getExpression().substring(0, valuePair.getExpression().indexOf("."));
+
+        expr.append(val).append("[").append(indexPair.getExpression()).append("].").append(getOllirType(type.getName()));
+        return new OllirExprPair(temps.toString(), expr.toString());
     }
 
     private OllirExprPair visitDotExp(JmmNode jmmNode, Integer integer) {
@@ -62,7 +101,8 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
         temps.append(exprPair.getTemps());
 
         String expression = "t"+ (varAuxNumber++) + ".bool";
-        temps.append(expression)
+        temps.append("\t\t")
+                .append(expression)
                 .append(" :=.bool ")
                 .append("!.bool ")
                 .append(exprPair.getExpression())
@@ -105,7 +145,8 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
         temps.append(rightPair.getTemps());
 
         String expression = "t"+ (varAuxNumber++) + "."+varType;
-        temps.append(expression)
+        temps.append("\t\t")
+                .append(expression)
                 .append(" :=.").append(varType).append(" ")
                 .append(leftPair.getExpression())
                 .append(" ").append(operator).append(" ")
@@ -120,29 +161,20 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
     }
 
     public OllirExprPair visitIntegerLiteral(JmmNode integer, Integer dummy) {
-        return new OllirExprPair(integer.get("val") + ".i32");
+        String exp = "t" + varAuxNumber++ + ".i32";
+        String temp = "\t\t" + exp + " :=.i32 " + integer.get("val") + ".i32;\n";
+        return new OllirExprPair(temp, exp);
     }
 
     public OllirExprPair visitTrueLiteral(JmmNode trueLiteral, Integer dummy) {
-        return new OllirExprPair("1.bool");
+        String exp = "t" + varAuxNumber++ + ".i32";
+        String temp = "\t\t" + exp + " :=.i32 1.bool;\n";
+        return new OllirExprPair(temp, exp);
     }
 
     public OllirExprPair visitFalseLiteral(JmmNode falseLiteral, Integer dummy) {
-        return new OllirExprPair("0.bool");
+        String exp = "t" + varAuxNumber++ + ".i32";
+        String temp = "\t\t" + exp + " :=.i32 0.bool;\n";
+        return new OllirExprPair(temp, exp);
     }
-
-     private String newVarAux(JmmNode node, String type){
-         String value;
-         if(node.getKind().equals("DotExp"))
-         {
-             // value = visit(node);
-             value = "template.i32";
-         }
-         else
-         {
-             value = OllirUtils.getOllirExpression(node);
-         }
-         varAuxNumber++;
-         return "\t\tt" + varAuxNumber + type + " :=" + type +" " + value + ";\n";
-     }
 }

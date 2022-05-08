@@ -26,7 +26,7 @@ public class OllirUtils {
         return code.toString();
     }
 
-    private static String getOllirType(String jmmType) {
+    public static String getOllirType(String jmmType) {
         switch (jmmType) {
             case "void":
                 return "V";
