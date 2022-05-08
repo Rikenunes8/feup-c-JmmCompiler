@@ -54,8 +54,12 @@ public class OllirToJasmin {
 
         if (!this.classUnit.getFields().isEmpty()) code.append("\n");
         for (Field field : this.classUnit.getFields()) {
-            code.append(".field '").append(field.getFieldName()).append("' ")
-                    .append(this.getJasminType(field.getFieldType())).append("\n");
+            String accessAnnotation = field.getFieldAccessModifier().name().toLowerCase() + " ";
+            String staticAnnotation = field.isStaticField() ? "static " : "";
+            String finalAnnotation  = field.isFinalField() ? "final " : "";
+
+            code.append(".field ").append(accessAnnotation).append(staticAnnotation).append(finalAnnotation)
+                    .append(field.getFieldName()).append(" ").append(this.getJasminType(field.getFieldType())).append("\n");
         }
 
         code.append(this.jasminConstructor(extendedClass));
@@ -78,9 +82,9 @@ public class OllirToJasmin {
 
     private String jasminConstructor(String extendedClass) {
         return  "\n.method public <init>()V\n" +
-                "    aload_0\n" +
-                "    invokenonvirtual " + extendedClass + "/<init>()V\n" +
-                "    return\n" +
+                "\taload_0\n" +
+                "\tinvokenonvirtual " + extendedClass + "/<init>()V\n" +
+                "\treturn\n" +
                 ".end method\n";
     }
 
@@ -116,8 +120,8 @@ public class OllirToJasmin {
     }
 
     private String getMethodLimitsCode(Method method) {
-        return "    .limit locals " + 99 + "\n" +
-                "    .limit stack " + 99 + "\n\n";
+        return "\t.limit locals " + 99 + "\n" +
+                "\t.limit stack " + 99 + "\n\n";
     }
 
     private String getMethodInstructionCode(Method method, Instruction instruction) {
