@@ -7,7 +7,6 @@ import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.Stage;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class JasminEmitter implements JasminBackend {
