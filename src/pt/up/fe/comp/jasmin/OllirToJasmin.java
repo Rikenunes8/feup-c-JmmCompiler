@@ -1,11 +1,13 @@
 package pt.up.fe.comp.jasmin;
 
 import org.specs.comp.ollir.*;
+import pt.up.fe.comp.ADD;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.specs.util.classmap.FunctionClassMap;
 import pt.up.fe.specs.util.exceptions.NotImplementedException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,23 +16,27 @@ public class OllirToJasmin {
 
     private final ClassUnit classUnit;
     private final List<Report> reports;
-    private HashMap<String, Descriptor> methodVarTable;
+
+    private HashMap<String, Descriptor> methodVarTable; // TODO improve solution
     private int stackCounter;
+    private int labelCounter;
 
     private final FunctionClassMap<Instruction, String> instructionMap;
 
     public OllirToJasmin(ClassUnit classUnit) {
         this.classUnit = classUnit;
         this.reports = new ArrayList<>();
+
         this.methodVarTable = new HashMap<>();
+        this.labelCounter = 0;
 
         this.instructionMap = new FunctionClassMap<>();
-
         this.instructionMap.put(AssignInstruction.class, this::getJasminCode);
         this.instructionMap.put(CallInstruction.class, this::getJasminCode);
         this.instructionMap.put(GetFieldInstruction.class, this::getJasminCode);
         this.instructionMap.put(PutFieldInstruction.class, this::getJasminCode);
-        this.instructionMap.put(OpInstruction.class, this::getJasminCode);
+        this.instructionMap.put(BinaryOpInstruction.class, this::getJasminCode);
+        this.instructionMap.put(UnaryOpInstruction.class, this::getJasminCode);
         this.instructionMap.put(SingleOpInstruction.class, this::getJasminCode);
         this.instructionMap.put(CondBranchInstruction.class, this::getJasminCode);
         this.instructionMap.put(GotoInstruction.class, this::getJasminCode);
@@ -249,9 +255,90 @@ public class OllirToJasmin {
         return code.toString();
     }
 
-    public String getJasminCode(OpInstruction instruction) {
-        // UnaryOpInstruction
-        // BinaryOpInstruction
+    public String getJasminCode(BinaryOpInstruction instruction) {
+        OperationType opType = instruction.getOperation().getOpType();
+
+        if (Arrays.asList(OperationType.ADD, OperationType.SUB, OperationType.MUL, OperationType.DIV).contains(opType))
+            return this.getBinaryIntOperationCode(instruction);
+        else if (Arrays.asList(OperationType.LTH, OperationType.GTE, OperationType.ANDB, OperationType.NOTB).contains(opType))
+            return this.getBinaryBooleanOperationCode(instruction);
+
+        throw new NotImplementedException(instruction.getOperation().getOpType());
+    }
+
+    private String getBinaryIntOperationCode(BinaryOpInstruction instruction) {
+        StringBuilder code = new StringBuilder();
+
+        code.append(this.loadElementCode(instruction.getLeftOperand(), this.methodVarTable));
+        code.append(this.loadElementCode(instruction.getRightOperand(), this.methodVarTable));
+
+        switch (instruction.getOperation().getOpType()) {
+            case ADD:
+                return code.append("iadd\n").toString();
+            case SUB:
+                return code.append("isub\n").toString();
+            case MUL:
+                return code.append("imul\n").toString();
+            case DIV:
+                return code.append("idiv\n").toString();
+            default:
+                throw new NotImplementedException(instruction.getOperation().getOpType());
+        }
+    }
+
+    private String getBinaryBooleanOperationCode(BinaryOpInstruction instruction) {
+        StringBuilder code = new StringBuilder();
+
+        String trueLabel = nextLabel();
+        String endIfLabel = nextLabel();
+
+        switch (instruction.getOperation().getOpType()) {
+            case LTH:
+                code.append(this.loadElementCode(instruction.getLeftOperand(), this.methodVarTable));
+                code.append(this.loadElementCode(instruction.getRightOperand(), this.methodVarTable));
+
+                code.append("if_icmpge ").append(trueLabel).append("\n")
+                        .append(this.getBinaryBooleanJumpsCode(trueLabel, endIfLabel));
+
+                break;
+            case GTE:
+                code.append(this.loadElementCode(instruction.getLeftOperand(), this.methodVarTable));
+                code.append(this.loadElementCode(instruction.getRightOperand(), this.methodVarTable));
+
+                code.append("if_icmplt ").append(trueLabel).append("\n")
+                        .append(this.getBinaryBooleanJumpsCode(trueLabel, endIfLabel));
+                break;
+            case ANDB:
+                code.append(this.loadElementCode(instruction.getLeftOperand(), this.methodVarTable))
+                        .append("ifeq ").append(trueLabel).append("\n");
+                code.append(this.loadElementCode(instruction.getRightOperand(), this.methodVarTable))
+                        .append("ifeq ").append(trueLabel).append("\n");
+
+                code.append(this.getBinaryBooleanJumpsCode(trueLabel, endIfLabel));
+                break;
+            case NOTB:
+                code.append(this.loadElementCode(instruction.getLeftOperand(), this.methodVarTable))
+                        .append("ifeq ").append(trueLabel).append("\n");
+
+                code.append(this.getBinaryBooleanJumpsCode(trueLabel, endIfLabel));
+                break;
+            default:
+                throw new NotImplementedException(instruction.getOperation().getOpType());
+        }
+
+        return code.toString();
+    }
+
+    private String getBinaryBooleanJumpsCode(String trueLabel, String endIfLabel) {
+
+        return "iconst_1\n" +
+                "goto " + endIfLabel + "\n" +
+                trueLabel + ":\n" +
+                "iconst_0\n" +
+                endIfLabel + ":\n";
+    }
+
+    public String getJasminCode(UnaryOpInstruction instruction) {
         throw new NotImplementedException(instruction.getInstType());
     }
 
@@ -390,5 +477,9 @@ public class OllirToJasmin {
 
     private void decrementStackCounter(int value) {
         this.stackCounter -= value;
+    }
+
+    private String nextLabel() {
+        return "label" + this.labelCounter++;
     }
 }
