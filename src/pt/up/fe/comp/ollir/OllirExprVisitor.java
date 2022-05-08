@@ -95,15 +95,18 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
         JmmNode left = dotExp.getJmmChild(0);
         JmmNode right = dotExp.getJmmChild(1);
         OllirExprPair leftPair = visit(left);
-        OllirExprPair rightPair = visit(right);
         temps.append(leftPair.getTemps());
-        temps.append(rightPair.getTemps());
         if (right.getKind().equals(PROPERTY_LENGTH.toString())) {
             String exp = "t" + varAuxNumber++ + ".i32";
-            temps.append("\t\t").append(exp).append(" :=.i32").append("arraylength(").append(leftPair.getExpression()).append(").i32");
+            temps.append("\t\t").append(exp).append(" :=.i32").append(" arraylength(").append(leftPair.getExpression()).append(").i32;\n");
             return new OllirExprPair(temps.toString(), exp);
         }
         else {
+            OllirExprPair rightPair = visit(right);
+            temps.append(rightPair.getTemps());
+
+
+
             // TODO
             return new OllirExprPair();
         }
