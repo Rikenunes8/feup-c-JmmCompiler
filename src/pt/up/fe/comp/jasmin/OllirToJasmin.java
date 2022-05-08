@@ -182,7 +182,7 @@ public class OllirToJasmin {
         if (instruction.getDest() instanceof ArrayOperand) {
             ArrayOperand arrayOperand = (ArrayOperand) instruction.getDest();
             // Load array
-            code.append("aload").append(this.getVariableVirtualRegister(arrayOperand.getName(), this.methodVarTable)).append("\n");
+            code.append("\taload").append(this.getVariableVirtualRegister(arrayOperand.getName(), this.methodVarTable)).append("\n");
             // Load index
             code.append(loadElementCode(arrayOperand.getIndexOperands().get(0), this.methodVarTable));
         }
@@ -219,16 +219,16 @@ public class OllirToJasmin {
                 return code.toString();
             case arraylength:
                 return code.append(this.loadElementCode(instruction.getFirstArg(), this.methodVarTable))
-                        .append("arraylength\n").toString();
+                        .append("\tarraylength\n").toString();
             case NEW:
                 if (instruction.getFirstArg().getType().getTypeOfElement() == ElementType.ARRAYREF) {
                     return code.append(this.loadElementCode(instruction.getListOfOperands().get(0), this.methodVarTable))
-                            .append("newarray int\n").toString();
+                            .append("\tnewarray int\n").toString();
                 }
                 if (instruction.getFirstArg().getType().getTypeOfElement() == ElementType.OBJECTREF) {
                     String qualifiedClassName = this.getFullyQualifiedClassName(((Operand) instruction.getFirstArg()).getName());
-                    return code.append("new ").append(qualifiedClassName).append("\n")
-                            .append("dup\n").toString();
+                    return code.append("\tnew ").append(qualifiedClassName).append("\n")
+                            .append("\tdup\n").toString();
                 }
                 throw new RuntimeException("A new function call must reference an array or object");
             // case ldc:
@@ -242,7 +242,7 @@ public class OllirToJasmin {
         StringBuilder code = new StringBuilder();
 
         code.append(this.loadElementCode(instruction.getFirstOperand(), this.methodVarTable));
-        code.append("getfield ").append(this.classUnit.getClassName()).append("/")
+        code.append("\tgetfield ").append(this.classUnit.getClassName()).append("/")
                 .append(((Operand) instruction.getSecondOperand()).getName()).append(" ")
                 .append(this.getJasminType(instruction.getSecondOperand().getType())).append("\n");
 
@@ -254,7 +254,7 @@ public class OllirToJasmin {
 
         code.append(this.loadElementCode(instruction.getFirstOperand(), this.methodVarTable));
         code.append(this.loadElementCode(instruction.getThirdOperand(), this.methodVarTable));
-        code.append("putfield ").append(this.classUnit.getClassName()).append("/")
+        code.append("\tputfield ").append(this.classUnit.getClassName()).append("/")
                 .append(((Operand) instruction.getSecondOperand()).getName()).append(" ")
                 .append(this.getJasminType(instruction.getSecondOperand().getType())).append("\n");
 
@@ -281,13 +281,13 @@ public class OllirToJasmin {
 
         switch (instruction.getOperation().getOpType()) {
             case ADD:
-                return code.append("iadd\n").toString();
+                return code.append("\tiadd\n").toString();
             case SUB:
-                return code.append("isub\n").toString();
+                return code.append("\tisub\n").toString();
             case MUL:
-                return code.append("imul\n").toString();
+                return code.append("\timul\n").toString();
             case DIV:
-                return code.append("idiv\n").toString();
+                return code.append("\tidiv\n").toString();
             default:
                 throw new NotImplementedException(instruction.getOperation().getOpType());
         }
@@ -310,20 +310,20 @@ public class OllirToJasmin {
                 code.append(this.loadElementCode(instruction.getRightOperand(), this.methodVarTable));
 
                 String compInst = this.getComparisonInstructionCode(instruction.getOperation().getOpType());
-                code.append(compInst).append(" ").append(trueLabel).append("\n")
+                code.append("\t").append(compInst).append(" ").append(trueLabel).append("\n")
                         .append(this.getBinaryBooleanJumpsCode(trueLabel, endIfLabel));
                 break;
             case ANDB:
                 code.append(this.loadElementCode(instruction.getLeftOperand(), this.methodVarTable))
-                        .append("ifeq ").append(trueLabel).append("\n");
+                        .append("\tifeq ").append(trueLabel).append("\n");
                 code.append(this.loadElementCode(instruction.getRightOperand(), this.methodVarTable))
-                        .append("ifeq ").append(trueLabel).append("\n");
+                        .append("\tifeq ").append(trueLabel).append("\n");
 
                 code.append(this.getBinaryBooleanJumpsCode(trueLabel, endIfLabel));
                 break;
             case NOTB:
                 code.append(this.loadElementCode(instruction.getLeftOperand(), this.methodVarTable))
-                        .append("ifeq ").append(trueLabel).append("\n");
+                        .append("\tifeq ").append(trueLabel).append("\n");
 
                 code.append(this.getBinaryBooleanJumpsCode(trueLabel, endIfLabel));
                 break;
@@ -348,11 +348,11 @@ public class OllirToJasmin {
 
     private String getBinaryBooleanJumpsCode(String trueLabel, String endIfLabel) {
 
-        return "iconst_1\n" +
-                "goto " + endIfLabel + "\n" +
-                trueLabel + ":\n" +
-                "iconst_0\n" +
-                endIfLabel + ":\n";
+        return "\ticonst_1\n" +
+                "\tgoto " + endIfLabel + "\n" +
+                "\t" + trueLabel + ":\n" +
+                "\ticonst_0\n" +
+                "\t" + endIfLabel + ":\n";
     }
 
     public String getJasminCode(UnaryOpInstruction instruction) {
@@ -367,29 +367,29 @@ public class OllirToJasmin {
         StringBuilder code = new StringBuilder();
 
         code.append(this.getJasminCode(instruction.getCondition(), new HashMap<>()));
-        code.append("ifeq ").append(instruction.getLabel()).append("\n");
+        code.append("\tifeq ").append(instruction.getLabel()).append("\n");
 
         return code.toString();
     }
 
     public String getJasminCode(GotoInstruction instruction) {
-        return "goto " + instruction.getLabel() + "\n";
+        return "\tgoto " + instruction.getLabel() + "\n";
     }
 
     public String getJasminCode(ReturnInstruction instruction) {
         if (!instruction.hasReturnValue()) {
-            return "return\n";
+            return "\treturn\n";
         }
 
         switch (instruction.getOperand().getType().getTypeOfElement()) {
             case VOID:
-                return "return";
+                return "\treturn\n";
             case INT32:
             case BOOLEAN:
-                return this.loadElementCode(instruction.getOperand(), this.methodVarTable) + "ireturn\n";
+                return this.loadElementCode(instruction.getOperand(), this.methodVarTable) + "\tireturn\n";
             case ARRAYREF:
             case OBJECTREF:
-                return this.loadElementCode(instruction.getOperand(), this.methodVarTable) + "areturn\n";
+                return this.loadElementCode(instruction.getOperand(), this.methodVarTable) + "\tareturn\n";
             default:
                 throw new NotImplementedException(instruction.getElementType());
         }
@@ -438,9 +438,9 @@ public class OllirToJasmin {
             ArrayOperand arrayOperand = (ArrayOperand) element;
 
             // Load array + Load index + Load value
-            return "aload" + this.getVariableVirtualRegister(arrayOperand.getName(), this.methodVarTable) + "\n" +
+            return "\taload" + this.getVariableVirtualRegister(arrayOperand.getName(), this.methodVarTable) + "\n" +
                     loadElementCode(arrayOperand.getIndexOperands().get(0), this.methodVarTable) +
-                    "iaload\n";
+                    "\tiaload\n";
         }
 
         if (element instanceof Operand) {
@@ -448,13 +448,13 @@ public class OllirToJasmin {
 
             switch (operand.getType().getTypeOfElement()) {
                 case THIS:
-                    return "aload_0\n";
+                    return "\taload_0\n";
                 case INT32:
                 case BOOLEAN:
-                    return "iload" + this.getVariableVirtualRegister(operand.getName(), this.methodVarTable) + "\n";
+                    return "\tiload" + this.getVariableVirtualRegister(operand.getName(), this.methodVarTable) + "\n";
                 case OBJECTREF:
                 case ARRAYREF:
-                    return "aload" + this.getVariableVirtualRegister(operand.getName(), this.methodVarTable) + "\n";
+                    return "\taload" + this.getVariableVirtualRegister(operand.getName(), this.methodVarTable) + "\n";
                 default:
                     throw new RuntimeException("Exception during load elements of type operand");
             }
@@ -467,27 +467,27 @@ public class OllirToJasmin {
         int number = Integer.parseInt(constantLiteral);
 
         if (number >= -1 && number <= 5)
-            return "iconst_" + constantLiteral;
+            return "\ticonst_" + constantLiteral;
         else if (number >= -128 && number <= 127)
-            return "bipush " + constantLiteral;
+            return "\tbipush " + constantLiteral;
         else if (number >= -32768 && number <= 32767)
-            return "sipush " + constantLiteral;
+            return "\tsipush " + constantLiteral;
         else
-            return "ldc " + constantLiteral;
+            return "\tldc " + constantLiteral;
     }
 
     private String storeElementCode(Operand operand, HashMap<String, Descriptor> methodVarTable) {
         if (operand instanceof ArrayOperand) {
-            return "iastore\n";
+            return "\tiastore\n";
         }
 
         switch (operand.getType().getTypeOfElement()) {
             case INT32:
             case BOOLEAN:
-                return "istore" + this.getVariableVirtualRegister(operand.getName(), this.methodVarTable) + "\n";
+                return "\tistore" + this.getVariableVirtualRegister(operand.getName(), this.methodVarTable) + "\n";
             case OBJECTREF:
             case ARRAYREF:
-                return "astore" + this.getVariableVirtualRegister(operand.getName(), this.methodVarTable) + "\n";
+                return "\tastore" + this.getVariableVirtualRegister(operand.getName(), this.methodVarTable) + "\n";
             default:
                 throw new RuntimeException("Exception during store elements");
         }
