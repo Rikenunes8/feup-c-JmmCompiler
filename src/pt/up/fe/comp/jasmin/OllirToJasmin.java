@@ -38,7 +38,8 @@ public class OllirToJasmin {
         this.instructionMap.put(BinaryOpInstruction.class, this::getJasminCode);
         this.instructionMap.put(UnaryOpInstruction.class, this::getJasminCode);
         this.instructionMap.put(SingleOpInstruction.class, this::getJasminCode);
-        this.instructionMap.put(CondBranchInstruction.class, this::getJasminCode);
+        this.instructionMap.put(OpCondInstruction.class, this::getJasminCode);
+        this.instructionMap.put(SingleOpCondInstruction.class, this::getJasminCode);
         this.instructionMap.put(GotoInstruction.class, this::getJasminCode);
         this.instructionMap.put(ReturnInstruction.class, this::getJasminCode);
     }
@@ -346,7 +347,11 @@ public class OllirToJasmin {
         return this.loadElementCode(instruction.getSingleOperand(), this.methodVarTable);
     }
 
-    public String getJasminCode(CondBranchInstruction instruction) {
+    public String getJasminCode(OpCondInstruction instruction) {
+        throw new NotImplementedException(instruction.getInstType());
+    }
+
+    public String getJasminCode(SingleOpCondInstruction instruction) {
         throw new NotImplementedException(instruction.getInstType());
     }
 
