@@ -1,7 +1,6 @@
 package pt.up.fe.comp.jasmin;
 
 import org.specs.comp.ollir.*;
-import pt.up.fe.comp.ADD;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.specs.util.classmap.FunctionClassMap;
 import pt.up.fe.specs.util.exceptions.NotImplementedException;
@@ -77,6 +76,10 @@ public class OllirToJasmin {
     }
 
     private String getFullyQualifiedClassName(String className) {
+        if (className.equals(this.classUnit.getClassName())) {
+            return className;
+        }
+
         var extendImport = classUnit.getImports().stream()
                 .filter(importStr -> importStr.substring(importStr.lastIndexOf('.') + 1).equals(className))
                 .collect(Collectors.toList());
@@ -228,6 +231,8 @@ public class OllirToJasmin {
                             .append("dup\n").toString();
                 }
                 throw new RuntimeException("A new function call must reference an array or object");
+            // case ldc:
+                // TODO
             default:
                 throw new NotImplementedException(instruction.getInvocationType());
         }
@@ -261,7 +266,8 @@ public class OllirToJasmin {
 
         if (Arrays.asList(OperationType.ADD, OperationType.SUB, OperationType.MUL, OperationType.DIV).contains(opType))
             return this.getBinaryIntOperationCode(instruction);
-        else if (Arrays.asList(OperationType.LTH, OperationType.GTE, OperationType.ANDB, OperationType.NOTB).contains(opType))
+        else if (Arrays.asList(OperationType.EQ, OperationType.GTE, OperationType.GTH, OperationType.LTE,
+                OperationType.LTH, OperationType.NEQ, OperationType.ANDB, OperationType.NOTB).contains(opType))
             return this.getBinaryBooleanOperationCode(instruction);
 
         throw new NotImplementedException(instruction.getOperation().getOpType());
@@ -294,19 +300,17 @@ public class OllirToJasmin {
         String endIfLabel = nextLabel();
 
         switch (instruction.getOperation().getOpType()) {
-            case LTH:
-                code.append(this.loadElementCode(instruction.getLeftOperand(), this.methodVarTable));
-                code.append(this.loadElementCode(instruction.getRightOperand(), this.methodVarTable));
-
-                code.append("if_icmpge ").append(trueLabel).append("\n")
-                        .append(this.getBinaryBooleanJumpsCode(trueLabel, endIfLabel));
-
-                break;
+            case EQ:
             case GTE:
+            case GTH:
+            case LTE:
+            case LTH:
+            case NEQ:
                 code.append(this.loadElementCode(instruction.getLeftOperand(), this.methodVarTable));
                 code.append(this.loadElementCode(instruction.getRightOperand(), this.methodVarTable));
 
-                code.append("if_icmplt ").append(trueLabel).append("\n")
+                String compInst = this.getComparisonInstructionCode(instruction.getOperation().getOpType());
+                code.append(compInst).append(" ").append(trueLabel).append("\n")
                         .append(this.getBinaryBooleanJumpsCode(trueLabel, endIfLabel));
                 break;
             case ANDB:
@@ -328,6 +332,18 @@ public class OllirToJasmin {
         }
 
         return code.toString();
+    }
+
+    private String getComparisonInstructionCode(OperationType operationType) {
+        switch (operationType) {
+            case EQ: return "if_icmpeq";
+            case GTE: return "if_icmpge";
+            case GTH: return "if_icmpgt";
+            case LTE: return "if_icmple";
+            case LTH: return "if_icmplt";
+            case NEQ: return "if_icmpne";
+            default: throw new NotImplementedException(operationType);
+        }
     }
 
     private String getBinaryBooleanJumpsCode(String trueLabel, String endIfLabel) {
@@ -365,7 +381,7 @@ public class OllirToJasmin {
             return "return\n";
         }
 
-        switch (instruction.getElementType()) {
+        switch (instruction.getOperand().getType().getTypeOfElement()) {
             case VOID:
                 return "return";
             case INT32:

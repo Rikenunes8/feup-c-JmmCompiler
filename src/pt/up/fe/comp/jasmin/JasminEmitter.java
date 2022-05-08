@@ -16,6 +16,10 @@ public class JasminEmitter implements JasminBackend {
         ClassUnit ollirClass = ollirResult.getOllirClass();
         
         try {
+            // check the use of labels in the OLLIR loaded
+            ollirClass.checkMethodLabels();
+            // build the table of variables for each method
+            ollirClass.buildVarTables();
             ollirClass.show(); // TO DEVELOPMENT PURPOSES
 
             OllirToJasmin translationResult = new OllirToJasmin(ollirClass);
