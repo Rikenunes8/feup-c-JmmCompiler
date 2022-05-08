@@ -9,6 +9,10 @@ public class OllirExprPair {
     this.temps = "";
     this.expression = "";
   }
+  public OllirExprPair(String expression) {
+    this.temps = "";
+    this.expression = expression;
+  }
   public OllirExprPair(String temps, String expression) {
     this.temps = temps;
     this.expression = expression;

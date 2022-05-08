@@ -107,10 +107,10 @@ public class Launcher {
         OllirResult optimizationResult = optimizer.toOllir(analysisResult);
         //JmmSemanticsResult optimizationResult = optimizer.optimize(analysisResult);
         // System.out.println(analysisResult.getSymbolTable().print());
-        // for (Report report : optimizationResult.getReports()) {
-        //     System.out.println(report);
-        // }
-        // TestUtils.noErrors(optimizationResult.getReports());
+        for (Report report : optimizationResult.getReports()) {
+            System.out.println(report);
+        }
+        //TestUtils.noErrors(optimizationResult.getReports());
 
         // ... add remaining stages
 

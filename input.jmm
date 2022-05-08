@@ -1,6 +1,13 @@
 import ioPlus;
 class HelloWorld {
 	public static void main(String[] args) {
-		ioPlus.printHelloWorld();
+	    boolean a;
+		a = true && false && true && false;
+		if (true && false) {
+		    a = false;
+		}
+		else {
+		    a = true;
+		}
 	}
 }

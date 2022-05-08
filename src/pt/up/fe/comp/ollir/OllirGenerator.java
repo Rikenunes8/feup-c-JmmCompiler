@@ -266,8 +266,10 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private Integer visitExpressionStatement(JmmNode expressionStatement, Integer dummy) {
-        this.visitExpression(expressionStatement);
-        code.append("\t\t").append(";\n");
+        OllirExprPair exprPair = this.visitExpression(expressionStatement.getJmmChild(0));
+        System.out.println(exprPair);
+        code.append(exprPair.getTemps());
+        code.append("\t\t").append(exprPair.getExpression()).append(";\n");
         return 0;
     }
 
@@ -336,6 +338,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private OllirExprPair visitExpression(JmmNode expression) {
-        return exprVisitor.visit(expression);
+        return this.exprVisitor.visit(expression);
     }
 }

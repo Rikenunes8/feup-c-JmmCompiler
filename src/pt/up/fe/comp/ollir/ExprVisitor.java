@@ -1,14 +1,12 @@
 package pt.up.fe.comp.ollir;
 
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
-import pt.up.fe.comp.jmm.analysis.table.Symbol;
-import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
-import static pt.up.fe.comp.jmm.ollir.OllirUtils.*;
 import static pt.up.fe.comp.Utils.*;
 import static pt.up.fe.comp.ast.AstNode.*;
+import static pt.up.fe.comp.ollir.OllirUtils.getCode;
 
 
 public class ExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
@@ -21,83 +19,119 @@ public class ExprVisitor extends AJmmVisitor<Integer, OllirExprPair> {
         this.symbolTable = symbolTable;
 
         addVisit(IDENTIFIER_LITERAL, this::visitIdentifierLiteral);
-        // addVisit(INTEGER_LITERAL, this::visitIntegerLiteral);
-        // addVisit(TRUE_LITERAL, this::visitTrueLiteral);
-        // addVisit(FALSE_LITERAL , this::visitFalseLiteral);
-
+        addVisit(INTEGER_LITERAL, this::visitIntegerLiteral);
+        addVisit(TRUE_LITERAL, this::visitTrueLiteral);
+        addVisit(FALSE_LITERAL , this::visitFalseLiteral);
+        addVisit(AND_EXP, this::visitAndExp);
+        addVisit(LESS_EXP, this::visitLessExp);
+        addVisit(ADD_EXP, this::visitAddExp);
+        addVisit(SUB_EXP, this::visitSubExp);
+        addVisit(MULT_EXP, this::visitMultExp);
+        addVisit(DIV_EXP, this::visitDivExp);
+        addVisit(NOT_EXP, this::visitNotExp);
 
         // THIS_LITERAL,
-        // ADD_EXP,
-        // SUB_EXP,
-        // MULT_EXP,
-        // DIV_EXP,
-        // AND_EXP,
-        // NOT_EXP,
-        // LESS_EXP,
         // ARRAY_ACCESS_EXP,
-        // ASSIGNMENT_STATEMENT,
         // NEW_INT_ARRAY,
-
         // NEW_OBJECT,
         // PROPERTY_LENGTH,
 
 
         // addVisit(DOT_EXP, this::visitDotExp);
-        
-        // addVisit(IDENTIFIER_LITERAL, this::visitIdentifierLiteral);
         // addVisit(NEW_OBJECT, this::visitNewObject);
         // addVisit(FUNCTION_CALL, this::visitFunctionCall);
-        // addVisit(WHILE_STATEMENT, this::visitWhileStatement);
-        // addVisit(CONDITION, this::visitCondition);
 
+    }
+
+    private OllirExprPair visitNotExp(JmmNode jmmNode, Integer integer) {
+        StringBuilder temps = new StringBuilder();
+        JmmNode exp = jmmNode.getJmmChild(0);
+
+        OllirExprPair exprPair = visit(exp);
+        temps.append(exprPair.getTemps());
+
+        String expression = "t"+ (varAuxNumber++) + ".bool";
+        temps.append(expression)
+                .append(" :=.bool ")
+                .append("!.bool ")
+                .append(exprPair.getExpression())
+                .append(";\n");
+        return new OllirExprPair(temps.toString(), expression);
+    }
+
+    private OllirExprPair visitDivExp(JmmNode divExp, Integer integer) {
+        return this.visitBiOpExp(divExp, "i32", "/.i32");
+    }
+
+    private OllirExprPair visitMultExp(JmmNode multExp, Integer integer) {
+        return this.visitBiOpExp(multExp, "i32", "*.i32");
+    }
+
+    private OllirExprPair visitSubExp(JmmNode subExp, Integer integer) {
+        return this.visitBiOpExp(subExp, "i32", "-.i32");
+    }
+
+    private OllirExprPair visitAddExp(JmmNode addExp, Integer integer) {
+        return this.visitBiOpExp(addExp, "i32", "+.i32");
+    }
+
+    private OllirExprPair visitLessExp(JmmNode lessExp, Integer integer) {
+        return this.visitBiOpExp(lessExp, "bool", "<.i32");
+    }
+
+    private OllirExprPair visitAndExp(JmmNode andExp, Integer integer) {
+        return this.visitBiOpExp(andExp, "bool", "&.bool");
+    }
+
+    private OllirExprPair visitBiOpExp(JmmNode jmmNode, String varType, String operator) {
+        StringBuilder temps = new StringBuilder();
+        JmmNode left = jmmNode.getJmmChild(0);
+        JmmNode right = jmmNode.getJmmChild(1);
+
+        OllirExprPair leftPair = visit(left);
+        OllirExprPair rightPair = visit(right);
+        temps.append(leftPair.getTemps());
+        temps.append(rightPair.getTemps());
+
+        String expression = "t"+ (varAuxNumber++) + "."+varType;
+        temps.append(expression)
+                .append(" :=.").append(varType).append(" ")
+                .append(leftPair.getExpression())
+                .append(" ").append(operator).append(" ")
+                .append(rightPair.getExpression())
+                .append(";\n");
+        return new OllirExprPair(temps.toString(), expression);
     }
 
     public OllirExprPair visitIdentifierLiteral(JmmNode identifier, Integer dummy) {
         Type type = getType(identifier, this.symbolTable);
-        // getCode(type);
-        return new OllirExprPair();
+        return new OllirExprPair(identifier.get("val") +"."+ getCode(type)); // TODO
     }
 
-    // public OllirExprPair visitIntegerLiteral(JmmNode identifier, Integer dummy) {
-    // }
+    public OllirExprPair visitIntegerLiteral(JmmNode integer, Integer dummy) {
+        return new OllirExprPair(integer.get("val") + ".i32");
+    }
 
-    // public OllirExprPair visitTrueLiteral(JmmNode identifier, Integer dummy) {
-    // }
+    public OllirExprPair visitTrueLiteral(JmmNode trueLiteral, Integer dummy) {
+        return new OllirExprPair("1.bool");
+    }
 
-    // public OllirExprPair visitFalseLiteral(JmmNode identifier, Integer dummy) {
-    // }
+    public OllirExprPair visitFalseLiteral(JmmNode falseLiteral, Integer dummy) {
+        return new OllirExprPair("0.bool");
+    }
 
-    // private OllirExprPair visitLessExp(JmmNode lessExp) {
-    //     OllirExprPair result = new ArrayList<>();
-    //     String variables = "";
-    //     String expression = "";
-
-    //     JmmNode leftNode = lessExp.getJmmChild(0);
-    //     JmmNode rightNode = lessExp.getJmmChild(1);
-
-    //     String left = newVarAux(leftNode, ".i32");
-    //     String right = newVarAux(rightNode, ".i32");
-
-    //     variables += (left + right);
-
-    //     result.add(variables);
-    //     result.add(expression);
-
-    //     return result;
-    // }
-
-    // private String newVarAux(JmmNode node, String type){
-    //     String value; 
-    //     if(node.getKind().equals("DotExp"))
-    //     {
-    //         // value = visit(node);
-    //         value = "template.i32";
-    //     }
-    //     else 
-    //     {
-    //         value = OllirUtils.getOllirExpression(node);
-    //     }
-    //     varAuxNumber++;
-    //     return "\t\tt" + varAuxNumber + type + " :=" + type +" " + value + ";\n";
-    // }
+     private String newVarAux(JmmNode node, String type){
+         String value;
+         if(node.getKind().equals("DotExp"))
+         {
+             // value = visit(node);
+             value = "template.i32";
+         }
+         else
+         {
+             value = OllirUtils.getOllirExpression(node);
+         }
+         varAuxNumber++;
+         return "\t\tt" + varAuxNumber + type + " :=" + type +" " + value + ";\n";
+     }
 }
