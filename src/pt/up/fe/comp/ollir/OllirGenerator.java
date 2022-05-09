@@ -64,7 +64,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private Integer visitClassDeclaration(JmmNode classDeclaration, Integer dummy) {
-
         code.append("public ").append(symbolTable.getClassName());
         String extendedClass = symbolTable.getSuper();
         if (extendedClass != null) {
@@ -73,8 +72,10 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         code.append(" {\n");
         identention++;
+
         visitPrivateAttibutes();
-        // JMM visitor conseguir controlar quando é que os filhos são visitados
+        visitConstructor();
+
         for (var child : classDeclaration.getChildren()) {
             if (child.getKind().equals(METHOD_DECLARATION.toString()))
                 visit(child);
@@ -92,7 +93,14 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
                     .append(";\n");
         }
     }
-
+    private void visitConstructor() {
+        code.append(ident()).append(".construct ").append(symbolTable.getClassName()).append("().V {\n");
+        identention++;
+        code.append(ident()).append("invokespecial(this, \"<init>\").V;\n");
+        identention--;
+        code.append(ident()).append("}\n");
+    }
+    
     private Integer visitMethodDeclaration(JmmNode methodDeclaration, Integer dummy) {
 
         String methodSignature = methodDeclaration.get("name");
