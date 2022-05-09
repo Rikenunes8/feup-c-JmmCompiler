@@ -31,14 +31,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         addVisit(METHOD_DECLARATION, this::visitMethodDeclaration);
         addVisit(RETURN_STATEMENT, this::visitReturnStatement);
 
-        addVisit(DOT_EXP, this::visitDotExp);                       // TODO is this being used?
-        addVisit(IDENTIFIER_LITERAL, this::visitIdentifierLiteral); // TODO is this being used?
-        addVisit(NEW_OBJECT, this::visitNewObject);                 // TODO is this being used?
-        addVisit(FUNCTION_CALL, this::visitFunctionCall);           // TODO is this being used?
-
         addVisit(CONDITION, this::visitCondition);
         addVisit(WHILE_BLOCK, this::visitWhileBlock);
-
 
         addVisit(EXPRESSION_STATEMENT, this::visitExpressionStatement);
         addVisit(IF_STATEMENT, this::visitIfStatement);
@@ -264,26 +258,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return this.ollirExprVisitor.visit(expression);
     }
 
-
-
-    // TODO is this being used?
-    private Integer visitDotExp(JmmNode dotExp, Integer dummy) {
-        code.append("\t\t").append("invokestatic(");
-        visit(dotExp.getJmmChild(0));
-        // code.append( dotExp.getJmmChild(0).get("val"));
-        code.append(", \"");
-        // code.append( dotExp.getJmmChild(1).get("name"));
-        visit(dotExp.getJmmChild(1));
-        code.append("\"");
-        if(dotExp.getNumChildren() > 2)
-        {
-            visit(dotExp.getJmmChild(2));
-        }
-        code.append(").").append("V;\n");
-
-        return 0;
-    }
-
     static String ident() {
         return "\t".repeat(Math.max(0, identention));
     }
@@ -291,19 +265,4 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return "\t".repeat(Math.max(0, identention - 1)) + "  ";
     }
 
-    // TODO is this being used?
-    private Integer visitNewObject(JmmNode newObject, Integer dummy) {
-        // TODO
-        return 0;
-    }
-    // TODO is this being used?
-    private Integer visitIdentifierLiteral(JmmNode identifierLiteral, Integer dummy) {
-        code.append(identifierLiteral.get("val"));
-        return 0;
-    }
-    // TODO is this being used?
-    private Integer visitFunctionCall(JmmNode functionCall, Integer dummy) {
-        code.append(functionCall.get("name"));
-        return 0;
-    }
 }
