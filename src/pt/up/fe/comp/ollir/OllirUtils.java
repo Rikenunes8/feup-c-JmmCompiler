@@ -39,6 +39,7 @@ public class OllirUtils {
         }
     }
 
+    // TODO is this being used?
     public static String getOllirExpression(JmmNode node) {
        
         switch(node.getKind()){
