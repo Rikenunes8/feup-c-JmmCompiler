@@ -2,10 +2,12 @@ class Child {
     int a;
     boolean b;
 
-    public static void main(String[] args) {
+    public int f(int[] args) {
         int c;
         a = this.f1();
         c = a;
+
+        return 0;
     }
 
     public int f1() {

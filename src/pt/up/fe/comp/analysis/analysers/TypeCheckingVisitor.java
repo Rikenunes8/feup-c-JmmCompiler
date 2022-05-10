@@ -215,7 +215,7 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
         String superClassName = symbolTable.getSuper();
 
         if (!(assignedType.getName().equals(assigneeType.getName()) || (superClassName != null
-                && (assignedType.getName().equals(className) && assigneeType.getName().equals(superClassName)))
+                && (assignedType.getName().equals(superClassName) && assigneeType.getName().equals(className)))
                 || (isImported(assignedType.getName(), symbolTable) && isImported(assigneeType.getName(), symbolTable)))) {
             this.addReport(assignmentStatement, "Type of the assignee must be compatible with the assigned.");
             return false;

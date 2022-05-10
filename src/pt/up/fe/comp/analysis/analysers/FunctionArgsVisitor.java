@@ -26,8 +26,13 @@ public class FunctionArgsVisitor extends SemanticAnalyserVisitor {
 
         if (left.getKind().equals(THIS_LITERAL.toString())
                 || (leftType != null && !leftType.isArray() && leftType.getName().equals(symbolTable.getClassName()))) {
-            if (symbolTable.getSuper() != null)
+            if (left.getKind().equals(THIS_LITERAL.toString()) && methodCall.getAncestor(METHOD_DECLARATION.toString()).get().get("static").equals("true")) {
+                this.addReport(methodCall, "Cannot call this object in a static method");
                 return true;
+            }
+            if (symbolTable.getSuper() != null) {
+                return true;
+            }
             if (!symbolTable.hasMethod(methodName)) {
                 this.addReport(methodCall, "Method "+methodName+" does not exist in class "+symbolTable.getClassName());
                 return true;
