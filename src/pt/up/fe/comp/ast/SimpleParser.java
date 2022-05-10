@@ -1,8 +1,9 @@
-package pt.up.fe.comp;
+package pt.up.fe.comp.ast;
 
 import java.util.Collections;
 import java.util.Map;
 
+import pt.up.fe.comp.*;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.parser.JmmParser;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
@@ -35,6 +36,7 @@ public class SimpleParser implements JmmParser {
             //parser.Program();
             SpecsSystem.invoke(parser, startingRule);
 
+
             Node root = parser.rootNode();
             // root.dump("");
 
@@ -42,6 +44,8 @@ public class SimpleParser implements JmmParser {
                 return JmmParserResult.newError(new Report(ReportType.WARNING, Stage.SYNTATIC, -1,
                         "JmmNode interface not yet implemented, returning null root node"));
             }
+
+            new LineColAnnotator().visit((JmmNode) root);
 
             JmmNode jmmRoot = ((JmmNode) root).sanitize();
             System.out.println(jmmRoot.toTree());
