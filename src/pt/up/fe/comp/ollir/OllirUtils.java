@@ -16,8 +16,8 @@ public class OllirUtils {
     }
 
     public static String getCode(Type type) {
+        if (type == null) return "";
         StringBuilder code = new StringBuilder();
-
         if (type.isArray()) {
             code.append("array.");
         }
@@ -27,32 +27,11 @@ public class OllirUtils {
     }
 
     public static String getOllirType(String jmmType) {
-        switch (jmmType) {
-            case "void":
-                return "V";
-            case "int":
-                return "i32";
-            case "boolean":
-                return "bool";
-            default:
-                return jmmType;
-        }
-    }
-
-    // TODO is this being used?
-    public static String getOllirExpression(JmmNode node) {
-       
-        switch(node.getKind()){
-            case "IdentifierLiteral":
-                return node.get("val") + ".i32";
-            case "TrueLiteral":
-                return "1.bool";
-            case "FalseLiteral":
-                return "0.bool";
-            case "IntegerLiteral":
-                return node.get("val") + ".i32";
-            default:
-                return "INVALID EXPRESSION";
-        }
+        return switch (jmmType) {
+            case "void" -> "V";
+            case "int" -> "i32";
+            case "boolean" -> "bool";
+            default -> jmmType;
+        };
     }
 }

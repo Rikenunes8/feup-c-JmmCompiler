@@ -8,6 +8,8 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import java.util.List;
 import java.util.stream.Collectors;
 import static pt.up.fe.comp.ast.AstNode.*;
+import static pt.up.fe.comp.ollir.OllirExprVisitor.newVar;
+import static pt.up.fe.comp.ollir.OllirExprVisitor.newVarInstr;
 
 
 public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
@@ -195,20 +197,16 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private Integer visitAssignmentStatement(JmmNode assignmentStatement, Integer dummy) {
-        JmmNode left = assignmentStatement.getJmmChild(0);
-        JmmNode right = assignmentStatement.getJmmChild(1);
+        OllirExprGenerator left = visitExpression(assignmentStatement.getJmmChild(0));
+        OllirExprGenerator right = visitExpression(assignmentStatement.getJmmChild(1));
 
-        OllirExprGenerator resultLeft = visitExpression(left);
-        OllirExprGenerator resultRight = visitExpression(right);
-
-        String type = OllirUtils.getType(resultLeft.getFullExp());
-        code.append(resultLeft.getTemps());
-        code.append(resultRight.getTemps());
+        code.append(left.getTemps());
+        code.append(right.getTemps());
 
         code.append(ident())
-            .append(resultLeft.getFullExp())
-            .append(" :=.").append(type)
-            .append(" ").append(resultRight.getFullExp()).append(";\n");
+            .append(left.getFullExp())
+            .append(" :=.").append(left.getType())
+            .append(" ").append(right.getFullExp()).append(";\n");
 
         return 0;
     }
@@ -222,21 +220,22 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private Integer visitCondition(JmmNode condition, Integer dummy) {
-        JmmNode child = condition.getJmmChild(0);
-        OllirExprGenerator conditionCode = visitExpression(child);
-        
-        String temps = conditionCode.getTemps();
-        String expre = conditionCode.getFullExp();
+        StringBuilder temps = new StringBuilder();
+        OllirExprGenerator cond = visitExpression(condition.getJmmChild(0));
+
+        String t1 = newVar(cond.getType());
+        temps.append(cond.getTemps());
+        temps.append(ident()).append(newVarInstr(t1, cond.getType(), cond.getFullExp()));
 
         switch (condition.getJmmParent().getKind()) {
             case "IfStatement" -> {
                 code.append(temps);
-                code.append(ident()).append("if (").append(expre).append(") goto Then").append(ifNumber).append(";\n")
+                code.append(ident()).append("if (").append(t1).append(") goto Then").append(ifNumber).append(";\n")
                     .append(ident()).append("goto Else").append(ifNumber).append(";\n");
             }
             case "WhileStatement" -> {
                 code.append(temps);
-                code.append(ident()).append("if (").append(expre).append(") goto Body").append(whileNumber).append(";\n")
+                code.append(ident()).append("if (").append(t1).append(") goto Body").append(whileNumber).append(";\n")
                     .append(ident()).append("goto EndLoop").append(whileNumber).append(";\n");
             }
             default -> {

@@ -7,6 +7,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import static pt.up.fe.comp.Utils.*;
 import static pt.up.fe.comp.ast.AstNode.*;
+import static pt.up.fe.comp.ollir.OllirGenerator.ident;
 import static pt.up.fe.comp.ollir.OllirUtils.getCode;
 import static pt.up.fe.comp.ollir.OllirUtils.getOllirType;
 
@@ -24,6 +25,7 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprGenerator> {
         addVisit(INTEGER_LITERAL, this::visitIntegerLiteral);
         addVisit(TRUE_LITERAL, this::visitTrueLiteral);
         addVisit(FALSE_LITERAL , this::visitFalseLiteral);
+        addVisit(THIS_LITERAL, this::visitThisLiteral);
         addVisit(AND_EXP, this::visitAndExp);
         addVisit(LESS_EXP, this::visitLessExp);
         addVisit(ADD_EXP, this::visitAddExp);
@@ -39,28 +41,26 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprGenerator> {
         addVisit(FUNCTION_CALL, this::visitFunctionCall);
     }
 
+    private OllirExprGenerator visitThisLiteral(JmmNode jmmNode, Integer integer) {
+        return new OllirExprGenerator();
+    }
+
     private OllirExprGenerator visitIdentifierLiteral(JmmNode identifier, Integer dummy) {
         String identifierName = identifier.get("val");
         Type type = !Utils.isImported(identifierName, symbolTable) && !identifierName.equals(symbolTable.getClassName())
                 ? getType(identifier, this.symbolTable)
                 : new Type("void", false);
-
-        return new OllirExprGenerator(identifierName + "." + getCode(type)); // TODO
+        String typeCode = getCode(type);
+        return new OllirExprGenerator(identifierName + "." + typeCode, typeCode );
     }
     private OllirExprGenerator visitIntegerLiteral(JmmNode integer, Integer dummy) {
-        String exp = newVar("i32");
-        String temp = "\t\t" + exp + " :=.i32 " + integer.get("val") + ".i32;\n";
-        return new OllirExprGenerator(exp, temp);
+        return new OllirExprGenerator(integer.get("val") + ".i32", "i32");
     }
     private OllirExprGenerator visitTrueLiteral(JmmNode trueLiteral, Integer dummy) {
-        String exp = newVar("bool");
-        String temp = "\t\t" + exp + " :=.bool 1.bool;\n";
-        return new OllirExprGenerator(exp, temp);
+        return new OllirExprGenerator("1.bool", "bool");
     }
     private OllirExprGenerator visitFalseLiteral(JmmNode falseLiteral, Integer dummy) {
-        String exp = newVar("bool");
-        String temp = "\t\t" + exp + " :=.bool 0.bool;\n";
-        return new OllirExprGenerator(exp, temp);
+        return new OllirExprGenerator("0.bool", "bool");
     }
 
     private OllirExprGenerator visitAndExp(JmmNode andExp, Integer integer) {
@@ -82,110 +82,105 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprGenerator> {
         return this.visitBiOpExp(divExp, "i32", "/.i32");
     }
     private OllirExprGenerator visitBiOpExp(JmmNode jmmNode, String varType, String operator) {
+        StringBuilder expr = new StringBuilder();
         StringBuilder temps = new StringBuilder();
+
         OllirExprGenerator left = visit(jmmNode.getJmmChild(0));
         OllirExprGenerator right = visit(jmmNode.getJmmChild(1));
 
         temps.append(left.getTemps());
         temps.append(right.getTemps());
 
-        String expr = newVar(varType);
-        temps.append("\t\t")
-                .append(expr)
-                .append(" :=.").append(varType).append(" ")
-                .append(left.getFullExp())
-                .append(" ").append(operator).append(" ")
-                .append(right.getFullExp())
-                .append(";\n");
-        return new OllirExprGenerator(expr, temps.toString());
+        String t1 = newVar(left.getType());
+        String t2 = newVar(right.getType());
+
+        temps.append(ident()).append(newVarInstr(t1, left.getType(), left.getFullExp()));
+        temps.append(ident()).append(newVarInstr(t2, right.getType(), right.getFullExp()));
+
+        expr.append(t1).append(" ").append(operator).append(" ").append(t2);
+        return new OllirExprGenerator(expr.toString(), varType, temps.toString());
     }
     private OllirExprGenerator visitNotExp(JmmNode jmmNode, Integer integer) {
+        StringBuilder expr = new StringBuilder();
         StringBuilder temps = new StringBuilder();
-        JmmNode exp = jmmNode.getJmmChild(0);
 
-        OllirExprGenerator exprPair = visit(exp);
-        temps.append(exprPair.getTemps());
+        OllirExprGenerator right = visit(jmmNode.getJmmChild(0));
+        temps.append(right.getTemps());
+        String t1 = newVar(right.getType());
+        temps.append(ident()).append(newVarInstr(t1, right.getType(), right.getFullExp()));
 
-        String expr = newVar("bool");
-        temps.append("\t\t")
-            .append(expr)
-            .append(" :=.bool ")
-            .append("!.bool ")
-            .append(exprPair.getFullExp())
-            .append(";\n");
-        return new OllirExprGenerator(expr, temps.toString());
+        expr.append("!.bool").append(" ").append(t1);
+        return new OllirExprGenerator(expr.toString(), "bool", temps.toString());
     }
 
     private OllirExprGenerator visitNewObject(JmmNode newObject, Integer integer) {
         StringBuilder temps = new StringBuilder();
         String type = newObject.get("name");
 
-        String expr = newVar(type);
-        temps.append("\t\t")
-            .append(expr)
-            .append(" :=.").append(type).append(" ")
-            .append("new(").append(type).append(")")
-            .append(".").append(type)
-            .append(";\n");
-        temps.append("\t\t").append("invokespecial(").append(expr).append(",\"<init>\").V;\n");
-        return new OllirExprGenerator(expr, temps.toString());
+        String t1 = newVar(type);
+        temps.append(ident()).append(newVarInstr(t1, type, "new(" + type + ")." + type));
+        temps.append(ident()).append("invokespecial(").append(t1).append(",\"<init>\").V;\n");
+
+        return new OllirExprGenerator(t1, type, temps.toString());
     }
     private OllirExprGenerator visitNewIntArray(JmmNode newIntArray, Integer integer) {
         StringBuilder temps = new StringBuilder();
-        String type = "array";
-        JmmNode exp = newIntArray.getJmmChild(0);
-        OllirExprGenerator exprPair = visit(exp);
-        temps.append(exprPair.getTemps());
+        String type = "array.i32";
+        OllirExprGenerator size = visit(newIntArray.getJmmChild(0));
+        temps.append(size.getTemps());
 
-        String expr = newVar(type);
-        temps.append("\t\t")
-                .append(expr)
-                .append(" :=.").append(type).append(" ")
-                .append("new(").append(type).append(", ").append(exprPair.getFullExp()).append(")")
-                .append(".").append(type)
-                .append(";\n");
-        return new OllirExprGenerator(expr, temps.toString());
+        String t1 = newVar(size.getType());
+        temps.append(ident()).append(newVarInstr(t1, size.getType(), size.getFullExp()));
+
+        String expr = "new(array, " + t1 + ")." + type;
+        return new OllirExprGenerator(expr, type, temps.toString());
     }
     private OllirExprGenerator visitArrayAccessExp(JmmNode arrayAccessExp, Integer integer) {
-        StringBuilder temps = new StringBuilder();
         StringBuilder expr = new StringBuilder();
-        JmmNode value = arrayAccessExp.getJmmChild(0);
-        JmmNode index = arrayAccessExp.getJmmChild(1);
-        OllirExprGenerator valuePair = visit(value);
-        OllirExprGenerator indexPair = visit(index);
-        temps.append(valuePair.getTemps());
-        temps.append(indexPair.getTemps());
+        StringBuilder temps = new StringBuilder();
+        JmmNode jmmValue = arrayAccessExp.getJmmChild(0);
+        JmmNode jmmIndex = arrayAccessExp.getJmmChild(1);
+        OllirExprGenerator value = visit(jmmValue);
+        OllirExprGenerator index = visit(jmmIndex);
+        temps.append(value.getTemps());
+        temps.append(index.getTemps());
 
-        Type type = getType(value, this.symbolTable);
-        String val = valuePair.getFullExp().substring(0, valuePair.getFullExp().indexOf("."));
+        String t1 = newVar(index.getType());
+        temps.append(ident()).append(newVarInstr(t1, index.getType(), index.getFullExp()));
 
-        expr.append(val).append("[").append(indexPair.getFullExp()).append("].").append(getOllirType(type.getName()));
-        return new OllirExprGenerator(expr.toString(), temps.toString());
+        String val = value.getFullExp().substring(0, value.getFullExp().indexOf("."));
+        String type = getOllirType(getType(jmmValue, this.symbolTable).getName());
+        expr.append(val).append("[").append(t1).append("].").append(type);
+
+        return new OllirExprGenerator(expr.toString(), type, temps.toString());
     }
 
     private OllirExprGenerator visitDotExp(JmmNode dotExp, Integer integer) {
         StringBuilder temps = new StringBuilder();
-        JmmNode left = dotExp.getJmmChild(0);
-        JmmNode right = dotExp.getJmmChild(1);
-        OllirExprGenerator leftPair = visit(left);
-        temps.append(leftPair.getTemps());
+        JmmNode jmmLeft = dotExp.getJmmChild(0);
+        JmmNode jmmRight = dotExp.getJmmChild(1);
+        OllirExprGenerator left = visit(jmmLeft);
+        temps.append(left.getTemps());
 
-        if (right.getKind().equals(PROPERTY_LENGTH.toString())) {
-            String exp = newVar("i32");
-            temps.append("\t\t").append(exp).append(" :=.i32").append(" arraylength(").append(leftPair.getFullExp()).append(").i32;\n");
-            return new OllirExprGenerator(exp, temps.toString());
+        if (jmmRight.getKind().equals(PROPERTY_LENGTH.toString())) {
+            String aux = left.getFullExp();
+            if (jmmLeft.getKind().equals(NEW_INT_ARRAY.toString())) {
+                aux = newVar(left.getType());
+                temps.append(ident()).append(newVarInstr(aux, left.getType(), left.getFullExp()));
+            }
+            String exp = "arraylength(" + aux + ").i32";
+            return new OllirExprGenerator(exp, "i32", temps.toString());
         }
         else {
-            OllirExprGenerator rightPair = visit(right);
-            temps.append(rightPair.getTemps());
-            String exp = rightPair.getFullExp();
-            return new OllirExprGenerator(exp, temps.toString());
+            OllirExprGenerator right = visit(jmmRight);
+            temps.append(right.getTemps());
+            String exp = right.getFullExp();
+            return new OllirExprGenerator(exp, right.getType(), temps.toString());
         }
     }
     private OllirExprGenerator visitFunctionCall(JmmNode jmmNode, Integer integer) {
         StringBuilder temps = new StringBuilder();
         StringBuilder fullExp = new StringBuilder();
-        StringBuilder aux = new StringBuilder();
 
         JmmNode caller = jmmNode.getJmmParent().getJmmChild(0);
         
@@ -199,37 +194,36 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprGenerator> {
         String callInstruction = isImported(identifierName, symbolTable) || identifierName.equals(symbolTable.getClassName())
                 ? "invokestatic" : "invokevirtual";
 
-        fullExp.append(callInstruction).append("(").append(identifierName)
+        String x = getCode(getType(caller, this.symbolTable));
+        fullExp.append(callInstruction).append("(").append(identifierName).append(x.isEmpty() ? "" : "." + x)
                 .append(", \"").append(jmmNode.get("name")).append("\"");
 
-        if(jmmNode.getNumChildren()!=0) {
-            for(JmmNode child : jmmNode.getChildren()) {
-                fullExp.append(", ");
-                OllirExprGenerator exprGenerator = visit(child);
-                temps.append(exprGenerator.getTemps());
-                fullExp.append(exprGenerator.getFullExp());
-            }
+        for(JmmNode child : jmmNode.getChildren()) {
+            OllirExprGenerator exprGenerator = visit(child);
+            temps.append(exprGenerator.getTemps());
+
+            String t = newVar(exprGenerator.getType());
+            temps.append(ident()).append(newVarInstr(t, exprGenerator.getType(), exprGenerator.getFullExp()));
+
+            fullExp.append(", ");
+            fullExp.append(t);
         }
         fullExp.append(").");
 
         Type type = this.symbolTable.hasMethod(jmmNode.get("name"))
                 ? this.symbolTable.getReturnType(jmmNode.get("name"))
                 : new Type("void", false);
+        String typeCode = getCode(type);
+        fullExp.append(typeCode);
 
-        String exp = newVar(getCode(type));
-
-        fullExp.append(getCode(type));
-
-        aux.append("\t\t")
-            .append(exp).append(" :=.").append(getCode(type)).append(" ")
-            .append(fullExp).append(";\n");
-
-        temps.append(aux);
-
-        return new OllirExprGenerator(exp,temps.toString());
+        return new OllirExprGenerator(fullExp.toString(), typeCode, temps.toString());
     }
 
-    private String newVar(String varType) {
+    public static String newVar(String varType) {
         return "t" + (varAuxNumber++) + "." + varType;
+    }
+
+    public static String newVarInstr(String newVar, String newVarType, String expression) {
+        return newVar + " :=." + newVarType + " " + expression + ";\n";
     }
 }
