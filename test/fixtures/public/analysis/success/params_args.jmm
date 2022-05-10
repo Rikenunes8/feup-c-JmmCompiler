@@ -4,7 +4,7 @@ class Child {
     int a;
     boolean b;
 
-    public static void main(String[] args) {
+    public int f() {
         T c;
         int[] d;
         a = 1;
@@ -13,6 +13,8 @@ class Child {
         d = new int[10];
         this.call1(a, b);
         this.call2(c, d);
+
+        return 0;
     }
 
     public int call1(int x, boolean y) {
