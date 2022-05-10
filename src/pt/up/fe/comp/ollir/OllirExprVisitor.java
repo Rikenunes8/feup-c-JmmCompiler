@@ -49,7 +49,7 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprGenerator> {
 
         String paramPrefix = "";
         var localVars = symbolTable.getLocalVariables(methodSignature).stream()
-                .filter(symbol -> symbol.getName().equals(identifierName)).toList();
+                .filter(symbol -> symbol.getName().equals(identifierName)).collect(Collectors.toList());
         if (localVars.isEmpty()) {
             var parameters = symbolTable.getParameters(methodSignature);
             for (int i = 0; i < parameters.size(); i++) {
