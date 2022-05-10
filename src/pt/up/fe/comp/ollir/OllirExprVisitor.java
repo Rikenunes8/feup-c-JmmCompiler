@@ -42,7 +42,7 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprGenerator> {
     }
 
     private OllirExprGenerator visitThisLiteral(JmmNode jmmNode, Integer integer) {
-        return new OllirExprGenerator();
+        return new OllirExprGenerator("this", "");
     }
 
     private OllirExprGenerator visitIdentifierLiteral(JmmNode identifier, Integer dummy) {
@@ -174,29 +174,34 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprGenerator> {
         else {
             OllirExprGenerator right = visit(jmmRight);
             temps.append(right.getTemps());
-            String exp = right.getFullExp();
-            return new OllirExprGenerator(exp, right.getType(), temps.toString());
+
+            StringBuilder fullExp = new StringBuilder();
+
+
+            String callInstr = "invokevirtual";
+            String firstArg = left.getFullExp();
+            if (jmmLeft.getKind().equals(IDENTIFIER_LITERAL.toString())
+                    && (isImported(jmmLeft.get("val"), symbolTable) || jmmLeft.get("val").equals(symbolTable.getClassName()))) {
+                callInstr = "invokestatic";
+                firstArg = jmmLeft.get("val");
+            }
+
+            fullExp.append(callInstr).append("(").append(firstArg)
+                    .append(", \"").append(jmmRight.get("name")).append("\"");
+            fullExp.append(right.getFullExp());
+            fullExp.append(").");
+            Type type = this.symbolTable.hasMethod(jmmRight.get("name"))
+                    ? this.symbolTable.getReturnType(jmmRight.get("name"))
+                    : new Type("void", false);
+            String typeCode = getCode(type);
+            fullExp.append(typeCode);
+
+            return new OllirExprGenerator(fullExp.toString(), typeCode, temps.toString());
         }
     }
     private OllirExprGenerator visitFunctionCall(JmmNode jmmNode, Integer integer) {
         StringBuilder temps = new StringBuilder();
         StringBuilder fullExp = new StringBuilder();
-
-        JmmNode caller = jmmNode.getJmmParent().getJmmChild(0);
-        
-        String identifierName = switch (caller.getKind()) {
-            case "ThisLiteral" -> "this";
-            case "IdentifierLiteral" -> caller.get("val");
-            case "NewObject" -> caller.get("name");
-            default -> "";
-        };
-
-        String callInstruction = isImported(identifierName, symbolTable) || identifierName.equals(symbolTable.getClassName())
-                ? "invokestatic" : "invokevirtual";
-
-        String x = getCode(getType(caller, this.symbolTable));
-        fullExp.append(callInstruction).append("(").append(identifierName).append(x.isEmpty() ? "" : "." + x)
-                .append(", \"").append(jmmNode.get("name")).append("\"");
 
         for(JmmNode child : jmmNode.getChildren()) {
             OllirExprGenerator exprGenerator = visit(child);
@@ -208,15 +213,8 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprGenerator> {
             fullExp.append(", ");
             fullExp.append(t);
         }
-        fullExp.append(").");
 
-        Type type = this.symbolTable.hasMethod(jmmNode.get("name"))
-                ? this.symbolTable.getReturnType(jmmNode.get("name"))
-                : new Type("void", false);
-        String typeCode = getCode(type);
-        fullExp.append(typeCode);
-
-        return new OllirExprGenerator(fullExp.toString(), typeCode, temps.toString());
+        return new OllirExprGenerator(fullExp.toString(), "", temps.toString());
     }
 
     public static String newVar(String varType) {

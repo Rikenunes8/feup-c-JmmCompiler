@@ -10,6 +10,7 @@ class HelloWorld extends Parent {
         a = new int[4];
         b = a.length;
         ioPlus.test(a,b,ioPlus.tester(1,2,3));
+
         while (c.f2(b)) {
             a[1] = 1;
             if (false && true)
@@ -20,7 +21,7 @@ class HelloWorld extends Parent {
         b = new int[3].length;
         this.f();
         Parent.hello();
-        b = new HelloWorld().f(1); // TODO fix in ollir
+        b = new HelloWorld().f(1);
 	}
 
 	public int f(int j) {
