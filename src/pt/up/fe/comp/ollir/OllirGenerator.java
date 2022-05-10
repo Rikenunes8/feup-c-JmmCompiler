@@ -136,18 +136,13 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
     private Integer visitReturnStatement(JmmNode returnStatement, Integer dummy) {
         OllirExprGenerator result = visitExpression(returnStatement.getJmmChild(0));
-        JmmNode methodDeclaration = returnStatement.getJmmParent();
-        String methodSignature = methodDeclaration.get("name");
-        
-        code.append(result.getTemps());
-        code.append(ident()).append("ret.");
-        String returnType = OllirUtils.getCode(symbolTable.getReturnType(methodSignature));
-        code.append(returnType);
-        if(!returnType.equals("V")) {
-            code.append(" ");
-            code.append(result.getFullExp());
-        }
 
+        String t1 = newVar(result.getType());
+        code.append(result.getTemps());
+        code.append(ident()).append(newVarInstr(t1, result.getType(), result.getFullExp()));
+
+        code.append(ident()).append("ret.").append(result.getType());
+        code.append(" ").append(t1);
         code.append(";\n");
         
         return 0;
