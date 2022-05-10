@@ -195,7 +195,7 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
         return true;
     }
 
-    private Boolean visitAssignmentStatement(JmmNode assignmentStatement, SymbolTableBuilder symbolTable) {
+    private Boolean visitAssignmentStatement(JmmNode assignmentStatement, SymbolTableBuilder symbolTable) {        
         JmmNode assigned = assignmentStatement.getJmmChild(0);
         JmmNode assignee = assignmentStatement.getJmmChild(1);
 
@@ -210,7 +210,10 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
         if (!isIdentifierDeclared(assignedIdentifier, symbolTable)) //assigned is not declared
             return false;
 
-        if (!assignedType.getName().equals(assigneeType.getName())){
+        String className = assignmentStatement.getAncestor("ClassDeclaration").get().get("name");
+        String superClassName = assignmentStatement.getAncestor("ClassDeclaration").get().get("extends");
+        
+        if (!assignedType.getName().equals(assigneeType.getName()) && !(assignedType.getName().equals(className) && assigneeType.getName().equals(superClassName))){
             this.addReport(assignmentStatement, "Type of the assignee must be compatible with the assigned.");
             return false;
         }
