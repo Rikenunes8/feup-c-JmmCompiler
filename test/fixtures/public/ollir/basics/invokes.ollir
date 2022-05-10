@@ -1,0 +1,12 @@
+import ExMain;
+
+myClass {
+    .method public static main(args.array.String).V {
+        invokevirtual(c1.myClass,"put",2.i32).V;
+        invokestatic(ExMain,"mult",a1.i32,a2.i32).i32;
+    }
+
+    .method public check().V {
+        invokespecial(this,"<init>").V;
+    }
+}

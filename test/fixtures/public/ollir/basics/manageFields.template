@@ -1,0 +1,21 @@
+.class public myClass
+.super java/lang/Object
+
+.method public <init>()V
+	aload_0
+	invokenonvirtual java/lang/Object/<init>()V
+	return
+.end method
+
+.method public check()V
+	.limit stack 99
+	.limit locals 99
+
+	aload_0
+	getfield I a
+	istore_2
+    aload_1
+    getfield I a
+    istore_2
+	return
+.end method
