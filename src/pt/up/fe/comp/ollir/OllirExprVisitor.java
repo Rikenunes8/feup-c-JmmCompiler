@@ -13,6 +13,8 @@ import static pt.up.fe.comp.ollir.OllirUtils.getOllirType;
 
 import pt.up.fe.comp.Utils;
 
+import java.util.stream.Collectors;
+
 
 public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprGenerator> {
     private final SymbolTableBuilder symbolTable;
@@ -41,17 +43,38 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprGenerator> {
         addVisit(FUNCTION_CALL, this::visitFunctionCall);
     }
 
+    private String getParameterPrefix(JmmNode identifier) {
+        String identifierName = identifier.get("val");
+        String methodSignature = identifier.getAncestor(METHOD_DECLARATION.toString()).get().get("name");
+
+        String paramPrefix = "";
+        var localVars = symbolTable.getLocalVariables(methodSignature).stream()
+                .filter(symbol -> symbol.getName().equals(identifierName)).toList();
+        if (localVars.isEmpty()) {
+            var parameters = symbolTable.getParameters(methodSignature);
+            for (int i = 0; i < parameters.size(); i++) {
+                if (parameters.get(i).getName().equals(identifierName)) {
+                    paramPrefix = "$"+(i+1)+".";
+                    break;
+                }
+            }
+        }
+        return paramPrefix;
+    }
+
     private OllirExprGenerator visitThisLiteral(JmmNode jmmNode, Integer integer) {
         return new OllirExprGenerator("this", "");
     }
 
     private OllirExprGenerator visitIdentifierLiteral(JmmNode identifier, Integer dummy) {
         String identifierName = identifier.get("val");
+        String paramPrefix = getParameterPrefix(identifier);
+
         Type type = !Utils.isImported(identifierName, symbolTable) && !identifierName.equals(symbolTable.getClassName())
                 ? getType(identifier, this.symbolTable)
                 : new Type("void", false);
         String typeCode = getCode(type);
-        return new OllirExprGenerator(identifierName + "." + typeCode, typeCode );
+        return new OllirExprGenerator(paramPrefix + identifierName + "." + typeCode, typeCode );
     }
     private OllirExprGenerator visitIntegerLiteral(JmmNode integer, Integer dummy) {
         return new OllirExprGenerator(integer.get("val") + ".i32", "i32");
@@ -147,8 +170,7 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprGenerator> {
 
         String t1 = newVar(index.getType());
         temps.append(ident()).append(newVarInstr(t1, index.getType(), index.getFullExp()));
-
-        String val = value.getFullExp().substring(0, value.getFullExp().indexOf("."));
+        String val = value.getFullExp().replace("." + value.getType(), "");
         String type = getOllirType(getType(jmmValue, this.symbolTable).getName());
         expr.append(val).append("[").append(t1).append("].").append(type);
 
