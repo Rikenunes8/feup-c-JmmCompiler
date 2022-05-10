@@ -1,3 +1,5 @@
+package pt.up.fe.comp;
+
 import org.junit.Test;
 
 import pt.up.fe.comp.TestUtils;

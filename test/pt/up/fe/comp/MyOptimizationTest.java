@@ -1,4 +1,4 @@
-
+package pt.up.fe.comp;
 /**
  * Copyright 2021 SPeCS.
  * 
@@ -13,31 +13,30 @@
  */
 
 import org.junit.Test;
-import pt.up.fe.comp.TestUtils;
 import pt.up.fe.specs.util.SpecsIo;
 
-public class OptimizeTest {
+public class MyOptimizationTest {
 
     @Test
     public void testHelloWorld() {
-        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/HelloWorld.jmm"));
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/general/HelloWorld.jmm"));
         TestUtils.noErrors(result.getReports());
     }
     @Test
     public void testFunctionAsArgument() {
-        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/functionArgs.jmm"));
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/general/FunctionArgs.jmm"));
         TestUtils.noErrors(result.getReports());
     }
 
     @Test
     public void testIfStmt() {
-        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/ifStmt.jmm"));
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/general/IfStmt.jmm"));
         TestUtils.noErrors(result.getReports());
     }
 
     @Test
     public void testWhileAndIf() {
-        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/WhileAndIf.jmm"));
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/general/WhileAndIf.jmm"));
         TestUtils.noErrors(result.getReports());
     }
 

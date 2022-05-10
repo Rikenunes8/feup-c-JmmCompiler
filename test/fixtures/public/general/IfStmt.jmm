@@ -1,4 +1,3 @@
-
 class IfStmt {
 	public static void main(String[] args) {
         int b;
@@ -10,5 +9,4 @@ class IfStmt {
         else
             b = 5;
 	}
-
 }
