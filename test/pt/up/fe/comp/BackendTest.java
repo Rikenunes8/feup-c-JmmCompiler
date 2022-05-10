@@ -26,20 +26,48 @@ public class BackendTest {
     }
 
     /*
+     * Test instruction parsing from ollir to jasmin
+     */
+
+    private static void generatedJasminCodeEqualsTemplate(String filename) {
+        var ollirResult = new OllirResult(SpecsIo.getResource("fixtures/public/ollir/basics/" + filename + ".ollir"), Collections.emptyMap());
+        var result = TestUtils.backend(ollirResult);
+        result.compile();
+
+       assertEquals(SpecsStrings.normalizeFileContents(SpecsIo.getResource("fixtures/public/ollir/basics/" + filename + ".template")),
+                result.getJasminCode());
+    }
+
+    @Test
+    public void testOllirToJasminClass() {
+        generatedJasminCodeEqualsTemplate("class");
+    }
+
+    @Test
+    public void testOllirToJasminFields() {
+        generatedJasminCodeEqualsTemplate("fields");
+    }
+
+    @Test
+    public void testOllirToJasminTypes() {
+        noErrors(new OllirResult(SpecsIo.getResource("fixtures/public/ollir/basics/types.ollir"), Collections.emptyMap()));
+    }
+
+
+    /*
      * Code example tests that must be successfully parsed
      */
 
     private static void noErrors(OllirResult ollirResult) {
         var result = TestUtils.backend(ollirResult);
-        TestUtils.noErrors(result.getReports());
         System.out.println(result.getJasminCode());
         result.compile();
-        //result.run();
+        // result.run();
     }
 
     private static void noErrors(String jmmCode) {
         var result = TestUtils.backend(jmmCode);
-        TestUtils.noErrors(result.getReports());
+        result.compile();
     }
 
     /*

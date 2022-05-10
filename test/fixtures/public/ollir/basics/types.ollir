@@ -1,0 +1,16 @@
+import abc.Class1;
+
+MyTypes {
+    .field private s.String;
+    .field private z.boolean;
+    .field private a.i32;
+    .field private b.array.i32;
+    .field private c.array.array.i32;
+    .field private l.Class1;
+    .field private a1.array.MyTypes;
+    .field private a2.array.Class1;
+
+    .method public static main(args.array.String).V {
+
+    }
+}
