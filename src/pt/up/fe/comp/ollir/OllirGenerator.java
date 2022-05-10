@@ -116,8 +116,9 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
 
         int firstExpressionIndex = 0;
-        while (methodDeclaration.getJmmChild(firstExpressionIndex).getKind().equals(METHOD_PARAMETERS.toString())
-                || methodDeclaration.getJmmChild(firstExpressionIndex).getKind().equals(VAR_DECLARATION.toString())) {
+        while (firstExpressionIndex < methodDeclaration.getNumChildren() &&
+                (methodDeclaration.getJmmChild(firstExpressionIndex).getKind().equals(METHOD_PARAMETERS.toString())
+                || methodDeclaration.getJmmChild(firstExpressionIndex).getKind().equals(VAR_DECLARATION.toString()))) {
             firstExpressionIndex++;
         }
 
