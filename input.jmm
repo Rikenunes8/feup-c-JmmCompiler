@@ -1,32 +1,21 @@
-import abc;
-import abc.dfg.gfd;
+import ioPlus;
+import Parent;
+class HelloWorld extends Parent {
+	public static void main(String[] args) {
+        int[] b;
+        int[] c;
 
-class Classe extends Parent {
-    int a;
-    int[] b;
-    boolean c;
-    Other d;
-    public static void main(String[] args) {
-        int e;
-        boolean j;
-        e = 0;
-        b[0] = 1;
-        if (true)
-            d.call(e);
-        else {
-            e = 1;
-            this.set(e);
-        }
-    }
-    public boolean set(int i, int j) {
-        boolean g;
-        while (true && !false) {
-            g = false;
-            abc.f();
-            f.length;
-        }
-        b = new int[5+2];
+        b = new int[4];
+        c = new int[4];
 
-        return new Other();
-    }
+        HelloWorld.f(b, c);
+	}
+
+	public int f(int[] b, int[] c) {
+	    int[] a;
+	    a = new int[4];
+	    a[1] = b[2] + c[3];
+	    return a[1];
+	}
+
 }

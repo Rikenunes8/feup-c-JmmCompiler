@@ -8,11 +8,15 @@ import java.util.Collections;
 import java.util.Objects;
 
 import pt.up.fe.comp.jasmin.JasminEmitter;
+import pt.up.fe.comp.analysis.JmmAnalyser;
+import pt.up.fe.comp.ast.SimpleParser;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.ollir.JmmOptimizer;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -81,46 +85,49 @@ public class Launcher {
         config.put("registerAllocation", registerAllocation);
         config.put("debug", debug);
 
+        // ---
         // JmmParse stage
         SimpleParser parser = new SimpleParser();
         JmmParserResult parserResult = parser.parse(input, config);
-
         for (Report report : parserResult.getReports()) {
             System.out.println(report);
         }
         TestUtils.noErrors(parserResult.getReports());
 
+        // ---
         // JmmAnalysis stage
         JmmAnalyser analyser = new JmmAnalyser();
         JmmSemanticsResult semanticsResult = analyser.semanticAnalysis(parserResult);
-        System.out.println("Symbol table:\n" + semanticsResult.getSymbolTable().print());
+        // System.out.println("Symbol table:\n" + semanticsResult.getSymbolTable().print());
 
         for (Report report : semanticsResult.getReports()) {
             System.out.println(report);
         }
         TestUtils.noErrors(semanticsResult.getReports());
 
+        // ---
         // JmmOptimization stage
         JmmOptimizer optimizer = new JmmOptimizer();
 
-        /*
         // FINAL VERSION WITH OPTIMIZATION STEPS
+        /*
         JmmSemanticsResult optimizationResultStep1 = optimizer.optimize(semanticsResult);
         OllirResult optimizationResultStep2 = optimizer.toOllir(optimizationResultStep1);
-        OllirResult ollirResult = optimizer.optimize(optimizationResultStep2);
+        OllirResult optimizationResult = optimizer.optimize(optimizationResultStep2);
         */
 
         // VERSION WITHOUT OPTIMIZATION STEPS
-        OllirResult ollirResult = optimizer.toOllir(semanticsResult);
+        OllirResult optimizationResult = optimizer.toOllir(semanticsResult);
 
-        for (Report report : ollirResult.getReports()) {
+        for (Report report : optimizationResult.getReports()) {
             System.out.println(report);
         }
-        TestUtils.noErrors(ollirResult.getReports());
+        TestUtils.noErrors(optimizationResult.getReports());
 
+        // ---
         // JasminBackend stage
         JasminEmitter jasminEmitter = new JasminEmitter();
-        JasminResult jasminResult = jasminEmitter.toJasmin(ollirResult);
+        JasminResult jasminResult = jasminEmitter.toJasmin(optimizationResult);
         System.out.println(jasminResult.getJasminCode());
 
         for (Report report : jasminResult.getReports()) {
@@ -128,6 +135,7 @@ public class Launcher {
         }
         TestUtils.noErrors(jasminResult.getReports());
 
+        // ---
         // TODO
         // Save Jasmin Result in file
         // String filePath = "generated/jasmin/" + jasminResult.getClassName() + ".j";

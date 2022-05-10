@@ -1,0 +1,26 @@
+import T;
+
+class Child {
+    int a;
+    boolean b;
+
+    public int f() {
+        T c;
+        int[] d;
+        a = 1;
+        b = true;
+        c = new T();
+        d = new int[10];
+        this.call1(a, b);
+        this.call2(c, d);
+
+        return 0;
+    }
+
+    public int call1(int x, boolean y) {
+        return 1;
+    }
+    public boolean call2(T w, int[] z) {
+        return false;
+    }
+}

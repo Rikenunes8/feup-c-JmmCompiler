@@ -80,7 +80,6 @@ public class OllirToJasmin {
                 .collect(Collectors.toList());
 
         if (extendImport.size() != 1) {
-            // TODO saved in the reports?
             throw new RuntimeException("There is not a exact match for the import of the class " + className);
         }
 
@@ -198,10 +197,15 @@ public class OllirToJasmin {
             case invokestatic:
             case invokevirtual:
             case invokespecial:
+                String methodCall = ((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "");
+                if (methodCall.equals("<init>")) {
+                    code.append("\t").append(instruction.getInvocationType().toString()).append(" ")
+                            .append("java/lang/Object/<init>()V\n");
+                }
+
                 String methodClass = instruction.getFirstArg().getType().getTypeOfElement() == ElementType.CLASS
                         ? this.getFullyQualifiedClassName(((Operand) instruction.getFirstArg()).getName())
                         : this.getFullyQualifiedClassName(((ClassType) instruction.getFirstArg().getType()).getName());
-                String methodCall = ((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "");
 
                 code.append("\t").append(instruction.getInvocationType().toString()).append(" ")
                         .append(methodClass).append("/").append(methodCall).append("(")
