@@ -128,6 +128,12 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         for (JmmNode stmt : stmts) {
             visit(stmt);
         }
+
+        if(this.symbolTable.getReturnType(methodSignature).getName().equals("void"))
+        {
+            code.append(ident()).append("ret.V;\n");
+        }
+
         identention--;
         code.append(ident()).append("}\n");
 

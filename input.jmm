@@ -18,10 +18,6 @@ class HelloWorld extends Parent {
             else
                 b = 3;
         }
-        b = new int[3].length;
-        this.f();
-        Parent.hello();
-        b = new HelloWorld().f(1);
 	}
 
 	public int f(int j) {
