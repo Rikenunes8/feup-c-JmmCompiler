@@ -102,9 +102,16 @@ public class Launcher {
 
         // JmmOptimization stage
         JmmOptimizer optimizer = new JmmOptimizer();
+
+        /*
+        // FINAL VERSION WITH OPTIMIZATION STEPS
         JmmSemanticsResult optimizationResultStep1 = optimizer.optimize(semanticsResult);
         OllirResult optimizationResultStep2 = optimizer.toOllir(optimizationResultStep1);
         OllirResult ollirResult = optimizer.optimize(optimizationResultStep2);
+        */
+
+        // VERSION WITHOUT OPTIMIZATION STEPS
+        OllirResult ollirResult = optimizer.toOllir(semanticsResult);
 
         for (Report report : ollirResult.getReports()) {
             System.out.println(report);

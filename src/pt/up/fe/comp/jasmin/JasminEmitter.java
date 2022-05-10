@@ -7,6 +7,7 @@ import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.Stage;
 
+import java.util.Collections;
 import java.util.List;
 
 public class JasminEmitter implements JasminBackend {
@@ -24,9 +25,8 @@ public class JasminEmitter implements JasminBackend {
 
             OllirToJasmin translationResult = new OllirToJasmin(ollirClass);
             String jasminCode = translationResult.getJasminCode();
-            List<Report> reports = translationResult.getReports();
 
-            return new JasminResult(ollirResult, jasminCode, reports);
+            return new JasminResult(ollirResult, jasminCode, Collections.emptyList());
         } catch (Exception e) {
             return new JasminResult(ollirClass.getClassName(), null,
                     List.of(Report.newError(Stage.GENERATION, -1, -1, "Exception during Jasmin generation", e)));

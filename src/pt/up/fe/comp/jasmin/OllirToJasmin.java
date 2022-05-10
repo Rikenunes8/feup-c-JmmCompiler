@@ -1,22 +1,18 @@
 package pt.up.fe.comp.jasmin;
 
 import org.specs.comp.ollir.*;
-import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.specs.util.classmap.FunctionClassMap;
 import pt.up.fe.specs.util.exceptions.NotImplementedException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class OllirToJasmin {
 
     private final ClassUnit classUnit;
-    private final List<Report> reports;
+    private HashMap<String, Descriptor> methodVarTable;
 
-    private HashMap<String, Descriptor> methodVarTable; // TODO improve solution
     private int stackCounter;
     private int labelCounter;
 
@@ -24,7 +20,6 @@ public class OllirToJasmin {
 
     public OllirToJasmin(ClassUnit classUnit) {
         this.classUnit = classUnit;
-        this.reports = new ArrayList<>();
 
         this.methodVarTable = new HashMap<>();
         this.labelCounter = 0;
@@ -42,8 +37,8 @@ public class OllirToJasmin {
         this.instructionMap.put(ReturnInstruction.class, this::getJasminCode);
     }
 
-    public List<Report> getReports() {
-        return this.reports;
+    public void setMethodVarTable(HashMap<String, Descriptor> methodVarTable) {
+        this.methodVarTable = methodVarTable;
     }
 
     public String getJasminCode() {
@@ -161,11 +156,10 @@ public class OllirToJasmin {
 
 
     // construct jasmin code for:
-    // 1. function calls*
+    // 1. function calls
     // 2. arithmetic expression
-    // 3. if the else commands
-    // 4. assignments*
-    // 5. command sequences*
+    // 3. assignments
+    // 4. conditional instructions (if and if-else)
 
     public String getJasminCode(Instruction instruction, HashMap<String, Instruction> methodLabels) {
         String instructionLabels = methodLabels.entrySet().stream()
@@ -187,7 +181,7 @@ public class OllirToJasmin {
             code.append(loadElementCode(arrayOperand.getIndexOperands().get(0), this.methodVarTable));
         }
 
-        code.append(getJasminCode(instruction.getRhs(), new HashMap<String, Instruction>()));
+        code.append(getJasminCode(instruction.getRhs(), new HashMap<>()));
 
         // In case that on the right side of the assignment there is a call instruction for a new object - do not store yet
         if (!(instruction.getRhs() instanceof CallInstruction && instruction.getDest().getType().getTypeOfElement().equals(ElementType.OBJECTREF))) {
@@ -231,8 +225,11 @@ public class OllirToJasmin {
                             .append("\tdup\n").toString();
                 }
                 throw new RuntimeException("A new function call must reference an array or object");
-            // case ldc:
-                // TODO
+            case ldc: // TODO
+                System.out.println("---------");
+                System.out.println(instruction);
+                System.out.println("---------");
+                return "";
             default:
                 throw new NotImplementedException(instruction.getInvocationType());
         }
@@ -438,8 +435,8 @@ public class OllirToJasmin {
             ArrayOperand arrayOperand = (ArrayOperand) element;
 
             // Load array + Load index + Load value
-            return "\taload" + this.getVariableVirtualRegister(arrayOperand.getName(), this.methodVarTable) + "\n" +
-                    loadElementCode(arrayOperand.getIndexOperands().get(0), this.methodVarTable) +
+            return "\taload" + this.getVariableVirtualRegister(arrayOperand.getName(), methodVarTable) + "\n" +
+                    loadElementCode(arrayOperand.getIndexOperands().get(0), methodVarTable) +
                     "\tiaload\n";
         }
 
@@ -484,15 +481,18 @@ public class OllirToJasmin {
         switch (operand.getType().getTypeOfElement()) {
             case INT32:
             case BOOLEAN:
-                return "\tistore" + this.getVariableVirtualRegister(operand.getName(), this.methodVarTable) + "\n";
+                return "\tistore" + this.getVariableVirtualRegister(operand.getName(), methodVarTable) + "\n";
             case OBJECTREF:
             case ARRAYREF:
-                return "\tastore" + this.getVariableVirtualRegister(operand.getName(), this.methodVarTable) + "\n";
+                return "\tastore" + this.getVariableVirtualRegister(operand.getName(), methodVarTable) + "\n";
+            case STRING: // TODO
+                return "\tldc " + operand.getName() + "\n";
             default:
-                throw new RuntimeException("Exception during store elements");
+                throw new RuntimeException("Exception during store elements  type" + operand.getType().getTypeOfElement());
         }
     }
 
+    /*
     private void incrementStackCounter(int value) {
         this.stackCounter += value;
     }
@@ -500,6 +500,7 @@ public class OllirToJasmin {
     private void decrementStackCounter(int value) {
         this.stackCounter -= value;
     }
+    */
 
     private String nextLabel() {
         return "label" + this.labelCounter++;
