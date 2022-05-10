@@ -1,0 +1,9 @@
+class A {
+    public int bar() {
+        this.foo();
+        return 1;
+    }
+    public int foo() {
+        return 0;
+    }
+}

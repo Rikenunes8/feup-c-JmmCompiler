@@ -2,30 +2,20 @@ import ioPlus;
 import Parent;
 class HelloWorld extends Parent {
 	public static void main(String[] args) {
-        int[] a;
-        int b;
-        HelloWorld c;
-        c = new HelloWorld();
+        int[] b;
+        int[] c;
 
-        a = new int[4];
-        b = a.length;
-        ioPlus.test(a,b,ioPlus.tester(1,2,3));
+        b = new int[4];
+        c = new int[4];
 
-        while (c.f2(b)) {
-            a[1] = 1;
-            if (false && true)
-                b = 4;
-            else
-                b = 3;
-        }
+        HelloWorld.f(b, c);
 	}
 
-	public int f(int j) {
-	    return j;
-	}
-
-	public boolean f2(int i) {
-	    return false;
+	public int f(int[] b, int[] c) {
+	    int[] a;
+	    a = new int[4];
+	    a[1] = b[2] + c[3];
+	    return a[1];
 	}
 
 }

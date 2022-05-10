@@ -24,8 +24,6 @@ public class ReturnCheckingVisitor extends SemanticAnalyserVisitor {
         String typeStr = methodDeclarationOpt.get().get("type");
         Type methodType = buildType(typeStr);
         Type returnType = getType(returnExp, symbolTable);
-        System.out.println(methodType);
-        System.out.println(returnType);
 
         if (returnType == null || methodType.equals(returnType))
             return true;

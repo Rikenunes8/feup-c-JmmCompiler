@@ -73,7 +73,14 @@ public class MyAnalysisTest {
     public void call_class_object_method() {
         noErrors(SpecsIo.getResource("fixtures/public/analysis/success/call_class_object_method.jmm"));
     }
-
+    @Test
+    public void method_this() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/method_this.jmm"));
+    }
+    @Test
+    public void call_non_static_method_from_parent() {
+        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/call_non_static_method_from_parent.jmm"));
+    }
 
     /*
      * Code that must fail
@@ -131,5 +138,13 @@ public class MyAnalysisTest {
     @Test
     public void true_call_f() {
         mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/true_call.jmm"));
+    }
+    @Test
+    public void main_this_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/main_this.jmm"));
+    }
+    @Test
+    public void call_non_static_method_from_class_f() {
+        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/call_non_static_method_from_class.jmm"));
     }
 }
