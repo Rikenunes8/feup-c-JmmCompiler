@@ -1,17 +1,35 @@
-import Other;
+import ioPlus;
+import Parent;
+class HelloWorld extends Parent {
+	public static void main(String[] args) {
+        int[] a;
+        int b;
+        HelloWorld c;
+        c = new HelloWorld();
 
-class Classe  {
-    public static void main(String[] args) {
-        Other t;
-        Other.call();
-        new Other();
-    }
+        a = new int[4];
+        b = a.length;
+        ioPlus.test(a,b,ioPlus.tester(1,2,3));
 
-    public int set() {
-        return 1;
-    }
+        while (c.f2(b)) {
+            a[1] = 1;
+            if (false && true)
+                b = 4;
+            else
+                b = 3;
+        }
+        b = new int[3].length;
+        this.f();
+        Parent.hello();
+        b = new HelloWorld().f(1);
+	}
 
-    public Other call() {
-        return new Other();
-    }
+	public int f(int j) {
+	    return j;
+	}
+
+	public boolean f2(int i) {
+	    return false;
+	}
+
 }

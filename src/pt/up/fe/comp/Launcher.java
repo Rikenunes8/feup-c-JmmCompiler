@@ -10,11 +10,15 @@ import java.util.Objects;
 import pt.up.fe.comp.analysis.JmmAnalyser;
 import pt.up.fe.comp.ast.SimpleParser;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.ollir.JmmOptimizer;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
+import pt.up.fe.comp.jmm.ollir.JmmOptimization;
+import pt.up.fe.comp.jmm.ollir.OllirResult;
 
 public class Launcher {
 
@@ -96,7 +100,17 @@ public class Launcher {
         for (Report report : analysisResult.getReports()) {
             System.out.println(report);
         }
-        TestUtils.noErrors(parserResult.getReports());
+        TestUtils.noErrors(analysisResult.getReports());
+
+        // Optimization stage
+        JmmOptimizer optimizer = new JmmOptimizer();
+        OllirResult optimizationResult = optimizer.toOllir(analysisResult);
+        //JmmSemanticsResult optimizationResult = optimizer.optimize(analysisResult);
+        // System.out.println(analysisResult.getSymbolTable().print());
+        for (Report report : optimizationResult.getReports()) {
+            System.out.println(report);
+        }
+        //TestUtils.noErrors(optimizationResult.getReports());
 
         // ... add remaining stages
 

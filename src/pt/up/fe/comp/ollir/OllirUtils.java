@@ -2,6 +2,7 @@ package pt.up.fe.comp.ollir;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
+import pt.up.fe.comp.jmm.ast.JmmNode;
 
 
 // TODO Possible change things
@@ -10,9 +11,13 @@ public class OllirUtils {
         return symbol.getName() + "." + getCode(symbol.getType());
     }
 
-    public static String getCode(Type type) {
-        StringBuilder code = new StringBuilder();
+    public static String getType(String code) {
+        return code.substring(code.lastIndexOf(".") + 1);
+    }
 
+    public static String getCode(Type type) {
+        if (type == null) return "";
+        StringBuilder code = new StringBuilder();
         if (type.isArray()) {
             code.append("array.");
         }
@@ -21,12 +26,12 @@ public class OllirUtils {
         return code.toString();
     }
 
-    private static String getOllirType(String jmmType) {
+    public static String getOllirType(String jmmType) {
         switch (jmmType) {
-            case "void":
-                return "V";
-            default:
-                return jmmType;
+            case "void": return "V";
+            case "int": return "i32";
+            case "boolean": return "bool";
+            default: return jmmType;
         }
     }
 }
