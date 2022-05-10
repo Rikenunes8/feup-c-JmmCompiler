@@ -215,7 +215,8 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
         String superClassName = symbolTable.getSuper();
 
         if (!(assignedType.getName().equals(assigneeType.getName()) || (superClassName != null
-                && (assignedType.getName().equals(className) && assigneeType.getName().equals(superClassName))))) {
+                && (assignedType.getName().equals(className) && assigneeType.getName().equals(superClassName)))
+                || (isImported(assignedType.getName(), symbolTable) && isImported(assigneeType.getName(), symbolTable)))) {
             this.addReport(assignmentStatement, "Type of the assignee must be compatible with the assigned.");
             return false;
         }
@@ -224,7 +225,9 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
     }
 
     private Boolean visitCondition(JmmNode conditionExp, SymbolTableBuilder symbolTable) {
-        Type conditionExpType = getType(conditionExp, symbolTable);
+        Type conditionExpType = getType(conditionExp.getJmmChild(0), symbolTable);
+
+        System.out.println(conditionExpType.getName());
 
         if (conditionExpType == null)
             return true;
@@ -236,7 +239,7 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
             this.addReport(conditionExp, "Expression in a condition must return a boolean.");
             return false;
         }
-        
+
         return true;
     }
 }
