@@ -23,4 +23,22 @@ public class OptimizeTest {
         var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/HelloWorld.jmm"));
         TestUtils.noErrors(result.getReports());
     }
+    @Test
+    public void testFunctionAsArgument() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/functionArgs.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+
+    @Test
+    public void testIfStmt() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/ifStmt.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+
+    @Test
+    public void testWhileAndIf() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/WhileAndIf.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+
 }

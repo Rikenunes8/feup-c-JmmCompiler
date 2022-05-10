@@ -1,0 +1,14 @@
+
+class IfStmt {
+	public static void main(String[] args) {
+        int b;
+
+        if (false && true)
+            b = 4;
+        else if (true)
+            b = 3;
+        else
+            b = 5;
+	}
+
+}
