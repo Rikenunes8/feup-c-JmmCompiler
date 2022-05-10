@@ -229,18 +229,18 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         temps.append(ident()).append(newVarInstr(t1, cond.getType(), cond.getFullExp()));
 
         switch (condition.getJmmParent().getKind()) {
-            case "IfStatement" -> {
+            case "IfStatement":
                 code.append(temps);
                 code.append(ident()).append("if (").append(t1).append(") goto Then").append(ifNumber).append(";\n")
                     .append(ident()).append("goto Else").append(ifNumber).append(";\n");
-            }
-            case "WhileStatement" -> {
+                break;
+            case "WhileStatement":
                 code.append(temps);
                 code.append(ident()).append("if (").append(t1).append(") goto Body").append(whileNumber).append(";\n")
                     .append(ident()).append("goto EndLoop").append(whileNumber).append(";\n");
-            }
-            default -> {
-            }
+                break;
+            default:
+                break;
         }
 
         return 0;

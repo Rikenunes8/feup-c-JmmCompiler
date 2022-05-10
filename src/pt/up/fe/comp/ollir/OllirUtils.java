@@ -27,11 +27,11 @@ public class OllirUtils {
     }
 
     public static String getOllirType(String jmmType) {
-        return switch (jmmType) {
-            case "void" -> "V";
-            case "int" -> "i32";
-            case "boolean" -> "bool";
-            default -> jmmType;
-        };
+        switch (jmmType) {
+            case "void": return "V";
+            case "int": return "i32";
+            case "boolean": return "bool";
+            default: return jmmType;
+        }
     }
 }
