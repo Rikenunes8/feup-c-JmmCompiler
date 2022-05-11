@@ -134,7 +134,8 @@ public class OllirToJasmin {
 
         // This may be improved in optimization STAGE by always adding an empty return instruction
         // in the AST before parsing to ollir as a last child when a method is void
-        if (method.getReturnType().getTypeOfElement() == ElementType.VOID) {
+        if (method.getReturnType().getTypeOfElement() == ElementType.VOID
+                && method.getInstructions().stream().noneMatch(instruction -> instruction.getInstType() == InstructionType.RETURN)) {
             code.append("\treturn\n");
         }
 
@@ -194,27 +195,12 @@ public class OllirToJasmin {
         StringBuilder code = new StringBuilder();
 
         switch (instruction.getInvocationType()) {
-            case invokestatic:
-            case invokevirtual:
             case invokespecial:
-                String methodCall = ((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "");
-                if (methodCall.equals("<init>")) {
-                    code.append("\t").append(instruction.getInvocationType().toString()).append(" ")
-                            .append("java/lang/Object/<init>()V\n");
-                }
-
-                String methodClass = instruction.getFirstArg().getType().getTypeOfElement() == ElementType.CLASS
-                        ? this.getFullyQualifiedClassName(((Operand) instruction.getFirstArg()).getName())
-                        : this.getFullyQualifiedClassName(((ClassType) instruction.getFirstArg().getType()).getName());
-
-                code.append("\t").append(instruction.getInvocationType().toString()).append(" ")
-                        .append(methodClass).append("/").append(methodCall).append("(")
-                        .append(instruction.getListOfOperands().stream()
-                                .map(operand -> this.getJasminType(operand.getType()))
-                                .collect(Collectors.joining()))
-                        .append(")").append(this.getJasminType(instruction.getReturnType())).append("\n");
-
-                return code.toString();
+                return this.getCallInvokeSpecialCode(instruction);
+            case invokestatic:
+                return this.getCallInvokeStaticCode(instruction);
+            case invokevirtual:
+                return this.getCallInvokeVirtualCode(instruction);
             case arraylength:
                 return code.append(this.loadElementCode(instruction.getFirstArg(), this.methodVarTable))
                         .append("\tarraylength\n").toString();
@@ -229,14 +215,82 @@ public class OllirToJasmin {
                             .append("\tdup\n").toString();
                 }
                 throw new RuntimeException("A new function call must reference an array or object");
-            case ldc: // TODO
-                System.out.println("---------");
-                System.out.println(instruction);
-                System.out.println("---------");
-                return "";
+            case ldc: // TODO check
+                return code.append("\tldc ").append(((LiteralElement) instruction.getFirstArg()).getLiteral()).toString();
             default:
                 throw new NotImplementedException(instruction.getInvocationType());
         }
+    }
+
+    private String getCallInvokeParametersCode(CallInstruction instruction) {
+
+        return "(" +
+                instruction.getListOfOperands().stream()
+                        .map(operand -> this.getJasminType(operand.getType()))
+                        .collect(Collectors.joining()) +
+                ")" + this.getJasminType(instruction.getReturnType()) + "\n";
+    }
+
+    private String getCallInvokeOperandsLoadCode(CallInstruction instruction) {
+
+        return instruction.getListOfOperands().stream()
+                .map(operand -> this.loadElementCode(operand, this.methodVarTable))
+                .collect(Collectors.joining());
+    }
+
+    private String getCallInvokeStaticCode(CallInstruction instruction) {
+        StringBuilder code = new StringBuilder();
+
+        // Load operands involved in the invocation
+        code.append(this.getCallInvokeOperandsLoadCode(instruction));
+
+        String staticMethodCall = ((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "");
+
+        // Call invocation instruction
+        code.append("\tinvokestatic ").append(((Operand) instruction.getFirstArg()).getName())
+                .append("/").append(staticMethodCall).append(this.getCallInvokeParametersCode(instruction));
+
+        return code.toString();
+    }
+
+    private String getCallInvokeVirtualCode(CallInstruction instruction) {
+        StringBuilder code = new StringBuilder();
+
+        // Load arguments and operands involved in the invocation
+        code.append(this.loadElementCode(instruction.getFirstArg(), this.methodVarTable));
+        code.append(this.getCallInvokeOperandsLoadCode(instruction));
+
+        // Call invocation instruction
+        String methodClass = this.getFullyQualifiedClassName(((ClassType) instruction.getFirstArg().getType()).getName());
+        String virtualMethodCall = ((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "");
+
+        code.append("\tinvokevirtual ").append(methodClass)
+                .append("/").append(virtualMethodCall).append(this.getCallInvokeParametersCode(instruction));
+
+        return code.toString();
+    }
+
+    private String getCallInvokeSpecialCode(CallInstruction instruction) {
+        StringBuilder code = new StringBuilder();
+
+        if (instruction.getFirstArg().getType().getTypeOfElement() == ElementType.THIS) {
+            // Load arguments and operands involved in the invocation
+            code.append(this.loadElementCode(instruction.getFirstArg(), this.methodVarTable));
+            code.append(this.getCallInvokeOperandsLoadCode(instruction));
+
+            code.append("\tinvokespecial java/lang/Object/<init>")
+                    .append(this.getCallInvokeParametersCode(instruction));
+        } else {
+            // Load operands involved in the invocation
+            code.append(this.getCallInvokeOperandsLoadCode(instruction));
+
+            String methodClass =this.getFullyQualifiedClassName(((ClassType) instruction.getFirstArg().getType()).getName());
+            code.append("\tinvokespecial ").append(methodClass)
+                    .append("/<init>").append(this.getCallInvokeParametersCode(instruction));
+            code.append(this.storeElementCode((Operand) instruction.getFirstArg(), this.methodVarTable));
+        }
+
+        return code.toString();
     }
 
     public String getJasminCode(GetFieldInstruction instruction) {
@@ -364,6 +418,7 @@ public class OllirToJasmin {
         return this.loadElementCode(instruction.getSingleOperand(), this.methodVarTable);
     }
 
+    // TODO CHECK
     public String getJasminCode(CondBranchInstruction instruction) {
         StringBuilder code = new StringBuilder();
 
@@ -396,6 +451,7 @@ public class OllirToJasmin {
         }
     }
 
+    // TODO error when array of object reference or array of array
     private String getJasminType(Type type) {
         if (type instanceof ArrayType) {
             return "[" + this.getJasminType(((ArrayType) type).getTypeOfElements());

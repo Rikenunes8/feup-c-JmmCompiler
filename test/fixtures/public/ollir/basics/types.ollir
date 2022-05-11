@@ -2,7 +2,7 @@ import abc.Class1;
 
 MyTypes {
     .field private s.String;
-    .field private z.boolean;
+    .field private z.bool;
     .field private a.i32;
     .field private b.array.i32;
     .field private c.array.array.i32;

@@ -13,6 +13,16 @@ import java.util.Collections;
 
 public class BackendTest {
 
+    // TODO CORRECT:
+    // -> testFac (something in ollir to jasmin makes everything crash: see which instruction and resolve)
+    // -> testOllirToJasminInvokes (resolve in template i guess)
+    // -> testOllirToJasminManageFields (correct ollir and missing tests)
+    // -> testMyClass3 (something in ollir to jasmin makes everything crash: see which instruction and resolve)
+    // -> testOllirToJasminTypes (something in ollir to jasmin makes everything crash: see which instruction and resolve)
+    // -> add more tests examples from table in teams
+
+    // the other give all syntatic error -> see why
+
      @Test
      public void testHelloWorldRunFromJmmFile() {
          var result = TestUtils.backend(SpecsIo.getResource("fixtures/public/HelloWorld.jmm"));

@@ -21,7 +21,7 @@ public class JasminEmitter implements JasminBackend {
             ollirClass.checkMethodLabels();
             // build the table of variables for each method
             ollirClass.buildVarTables();
-            ollirClass.show(); // TO DEVELOPMENT PURPOSES
+            // ollirClass.show(); // TO DEVELOPMENT PURPOSES
 
             OllirToJasmin translationResult = new OllirToJasmin(ollirClass);
             String jasminCode = translationResult.getJasminCode();
