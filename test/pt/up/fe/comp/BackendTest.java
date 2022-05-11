@@ -1,9 +1,6 @@
 package pt.up.fe.comp;
 
 import org.junit.Test;
-import org.specs.comp.ollir.CallInstruction;
-import org.specs.comp.ollir.CallType;
-import org.specs.comp.ollir.ClassUnit;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsStrings;
