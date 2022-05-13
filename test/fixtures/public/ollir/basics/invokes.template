@@ -13,10 +13,10 @@
 
 	aload_1
 	iconst_2
-	invokevirtual myClass.put(I)V
+	invokevirtual myClass/put(I)V
 	iload_2
 	iload_3
-	invokestatic ExMain.mult(II)I
+	invokestatic ExMain/mult(II)I
 	return
 .end method
 
@@ -25,6 +25,6 @@
 	.limit locals 99
 
 	aload_0
-	invokespecial java/lang/Object.<init>()V
+	invokespecial java/lang/Object/<init>()V
 	return
 .end method

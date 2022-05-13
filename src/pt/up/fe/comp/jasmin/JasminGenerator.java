@@ -165,10 +165,16 @@ public class JasminGenerator {
     public String getJasminCode(GetFieldInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder code = new StringBuilder();
 
+        String classField = ((Operand) instruction.getFirstOperand()).getName();
+        String className = (classField.equals("this"))
+                ? this.classUnit.getClassName()
+                : JasminUtils.getFullyQualifiedClassName(this.classUnit, classField);
+
         code.append(JasminUtils.loadElementCode(instruction.getFirstOperand(), varTable));
-        code.append("\tgetfield ").append(this.classUnit.getClassName()).append("/")
+        code.append("\tgetfield ").append(className).append("/")
                 .append(((Operand) instruction.getSecondOperand()).getName()).append(" ")
                 .append(JasminUtils.getJasminType(this.classUnit, instruction.getSecondOperand().getType())).append("\n");
+        System.out.println(code.toString());
 
         return code.toString();
     }
@@ -176,12 +182,17 @@ public class JasminGenerator {
     public String getJasminCode(PutFieldInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder code = new StringBuilder();
 
+        String classField = ((Operand) instruction.getFirstOperand()).getName();
+        String className = (classField.equals("this"))
+                ? this.classUnit.getClassName()
+                : JasminUtils.getFullyQualifiedClassName(this.classUnit, classField);
+
         code.append(JasminUtils.loadElementCode(instruction.getFirstOperand(), varTable));
         code.append(JasminUtils.loadElementCode(instruction.getThirdOperand(), varTable));
-        code.append("\tputfield ").append(this.classUnit.getClassName()).append("/")
+        code.append("\tputfield ").append(className).append("/")
                 .append(((Operand) instruction.getSecondOperand()).getName()).append(" ")
                 .append(JasminUtils.getJasminType(this.classUnit, instruction.getSecondOperand().getType())).append("\n");
-
+        System.out.println(code.toString());
         return code.toString();
     }
 
