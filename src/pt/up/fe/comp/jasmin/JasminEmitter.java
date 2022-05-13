@@ -23,7 +23,7 @@ public class JasminEmitter implements JasminBackend {
             ollirClass.buildVarTables();
             // ollirClass.show(); // TO DEVELOPMENT PURPOSES
 
-            OllirToJasmin translationResult = new OllirToJasmin(ollirClass);
+            JasminGenerator translationResult = new JasminGenerator(ollirClass);
             String jasminCode = translationResult.getJasminCode();
 
             return new JasminResult(ollirResult, jasminCode, Collections.emptyList());
