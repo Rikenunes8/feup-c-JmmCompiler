@@ -115,7 +115,7 @@ public class JasminInstrCallGenerator {
         if (this.instruction.getFirstArg().getType().getTypeOfElement() == ElementType.ARRAYREF) {
             return JasminUtils.loadElementCode(this.instruction.getListOfOperands().get(0), this.varTable) +
                     "\tnewarray int\n"; // TODO in our grammar true, but not for all
-        }
+        } // TODO for multiarray too
         if (this.instruction.getFirstArg().getType().getTypeOfElement() == ElementType.OBJECTREF) {
             String qualifiedClassName = JasminUtils.getFullyQualifiedClassName(this.classUnit, ((Operand) this.instruction.getFirstArg()).getName());
             return "\tnew " + qualifiedClassName + "\n" +

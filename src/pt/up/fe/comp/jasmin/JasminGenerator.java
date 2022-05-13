@@ -210,7 +210,7 @@ public class JasminGenerator {
         return JasminUtils.loadElementCode(instruction.getSingleOperand(), varTable);
     }
 
-    // TODO CHECK
+    // TODO NotImplementedException
     public String getJasminCode(CondBranchInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder code = new StringBuilder();
 

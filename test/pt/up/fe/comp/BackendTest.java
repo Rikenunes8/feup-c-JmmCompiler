@@ -22,7 +22,7 @@ public class BackendTest {
 
      @Test
      public void testHelloWorldRunFromJmmFile() {
-         var result = TestUtils.backend(SpecsIo.getResource("fixtures/public/HelloWorld.jmm"));
+         var result = TestUtils.backend(SpecsIo.getResource("fixtures/public/general/HelloWorld.jmm"));
          TestUtils.noErrors(result.getReports());
          var output = result.run();
          assertEquals("Hello, World!", output.trim());
@@ -129,46 +129,56 @@ public class BackendTest {
 
     @Test
     public void testFindMaximum() {
-        noErrors(SpecsIo.getResource("fixtures/public/FindMaximum.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/FindMaximum.jmm"));
+    }
+
+    @Test
+    public void testFunctionArgs() {
+        noErrors(SpecsIo.getResource("fixtures/public/general/FunctionArgs.jmm"));
     }
 
     @Test
     public void testHelloWorld() {
-        noErrors(SpecsIo.getResource("fixtures/public/FindMaximum.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/HelloWorld.jmm"));
+    }
+
+    @Test
+    public void testIfStmt() {
+        noErrors(SpecsIo.getResource("fixtures/public/general/IfStmt.jmm"));
     }
 
     @Test
     public void testLazySort() {
-        noErrors(SpecsIo.getResource("fixtures/public/FindMaximum.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/Lazysort.jmm"));
     }
 
     @Test
     public void testLife() {
-        noErrors(SpecsIo.getResource("fixtures/public/FindMaximum.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/Life.jmm"));
     }
 
     @Test
     public void testMonteCarloPi() {
-        noErrors(SpecsIo.getResource("fixtures/public/FindMaximum.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/MonteCarloPI.jmm"));
     }
 
     @Test
     public void testQuickSort() {
-        noErrors(SpecsIo.getResource("fixtures/public/FindMaximum.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/QuickSort.jmm"));
     }
 
     @Test
     public void testSimple() {
-        noErrors(SpecsIo.getResource("fixtures/public/FindMaximum.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/Simple.jmm"));
     }
 
     @Test
     public void testTicTacToe() {
-        noErrors(SpecsIo.getResource("fixtures/public/FindMaximum.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/TicTacToe.jmm"));
     }
 
     @Test
     public void testWhileAndIf() {
-        noErrors(SpecsIo.getResource("fixtures/public/FindMaximum.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/WhileAndIf.jmm"));
     }
 }
