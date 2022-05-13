@@ -1,4 +1,4 @@
-import abc.Class1;
+import org.Class1;
 
 MyTypes {
     .field private s.String;

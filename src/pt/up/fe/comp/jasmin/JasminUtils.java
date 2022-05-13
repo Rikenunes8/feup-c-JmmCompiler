@@ -45,7 +45,9 @@ public class JasminUtils {
             case STRING:
                 return code.append("Ljava/lang/String;").toString();
             case OBJECTREF:
-                String className = ((ClassType) type).getName();
+                String className = (type instanceof ArrayType)
+                        ? ((ArrayType) type).getElementClass()
+                        : ((ClassType) type).getName();
                 return code.append("L").append(JasminUtils.getFullyQualifiedClassName(classUnit, className)).append(";").toString();
             default:
                 throw new NotImplementedException(type);
