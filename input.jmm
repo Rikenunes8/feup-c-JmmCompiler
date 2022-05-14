@@ -2,10 +2,16 @@ import ioPlus;
 import Parent;
 class HelloWorld extends Parent {
     int[] a;
+    int e;
 	public static void main(String[] args) {
         int[] b;
+        int c;
         a = new int[5];
+        e = 2;
         a[1] = 5;
+        c = a[1];
+        c = e;
         b = a;
 	}
 }
+
