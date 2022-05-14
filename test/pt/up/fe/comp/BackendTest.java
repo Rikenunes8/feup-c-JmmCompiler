@@ -74,8 +74,13 @@ public class BackendTest {
     }
 
     @Test
-    public void testOllirToJasminNewCallInstruction() {
+    public void testOllirToJasminNewObjectCallInstruction() {
         generatedJasminCodeEqualsTemplate("newObject");
+    }
+
+    @Test
+    public void testOllirToJasminNewArrayCallInstruction() {
+        generatedJasminCodeEqualsTemplate("newArray");
     }
 
     @Test

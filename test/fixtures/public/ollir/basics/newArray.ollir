@@ -1,0 +1,11 @@
+Fac {
+
+    .method public check().V {
+
+        a3.array.array.array.i32 :=.array.array.array.i32 new(array, 5.i32, 4.i32, 3.i32).array.array.array.i32;
+        a3.array.array.String :=.array.array.String new(array, 5.i32, 4.i32).array.array.String;
+        a3.array.i32 :=.array.i32 new(array, 4.i32).array.i32;
+
+        a3.array.Fac :=.array.Fac new(array, 4.i32).array.Fac;
+    }
+}

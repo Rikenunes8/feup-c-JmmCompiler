@@ -113,9 +113,27 @@ public class JasminInstrCallGenerator {
 
     private String getCallNewObjectCode() {
         if (this.instruction.getFirstArg().getType().getTypeOfElement() == ElementType.ARRAYREF) {
-            return JasminUtils.loadElementCode(this.instruction.getListOfOperands().get(0), this.varTable) +
-                    "\tnewarray int\n"; // TODO in our grammar true, but not for all
-        } // TODO for multiarray too
+            StringBuilder code = new StringBuilder();
+
+            for (Element operand : this.instruction.getListOfOperands()) {
+                code.append(JasminUtils.loadElementCode(operand, this.varTable));
+            }
+
+            int arrayDimensions = this.instruction.getNumOperands() - 1;
+            if (arrayDimensions > 1) {
+                String arrayType = JasminUtils.getJasminType(this.classUnit, this.instruction.getReturnType());
+                code.append("\tmultianewarray ").append(arrayType).append(" ").append(arrayDimensions).append("\n");
+            } else {
+                System.out.println(((ArrayType) this.instruction.getReturnType()).getElementClass());
+                if (this.instruction.getReturnType().getTypeOfElement() == ElementType.CLASS) {
+                    code.append("\tanewarray ").append(((ArrayType) this.instruction.getReturnType()).getElementClass()).append("\n");
+                } else {
+                    code.append("\tnewarray int\n");
+                }
+            }
+
+            return code.toString();
+        }
         if (this.instruction.getFirstArg().getType().getTypeOfElement() == ElementType.OBJECTREF) {
             String qualifiedClassName = JasminUtils.getFullyQualifiedClassName(this.classUnit, ((Operand) this.instruction.getFirstArg()).getName());
             return "\tnew " + qualifiedClassName + "\n" +

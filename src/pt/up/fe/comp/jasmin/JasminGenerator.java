@@ -67,7 +67,7 @@ public class JasminGenerator {
         StringBuilder code = new StringBuilder();
 
         String accessAnnotation = field.getFieldAccessModifier() == AccessModifiers.DEFAULT ?
-                "" : field.getFieldAccessModifier().name().toLowerCase() + " ";
+                "private " : field.getFieldAccessModifier().name().toLowerCase() + " ";
         String staticAnnotation = field.isStaticField() ? "static " : "";
         String finalAnnotation  = field.isFinalField() ? "final " : "";
 
@@ -90,7 +90,7 @@ public class JasminGenerator {
 
         // Method header
         String accessAnnotation = method.getMethodAccessModifier() == AccessModifiers.DEFAULT ?
-                "" : method.getMethodAccessModifier().name().toLowerCase() + " ";
+                "public " : method.getMethodAccessModifier().name().toLowerCase() + " ";
         String staticAnnotation = method.isStaticMethod() ? "static " : "";
         String finalAnnotation  = method.isFinalMethod() ? "final " : "";
 
