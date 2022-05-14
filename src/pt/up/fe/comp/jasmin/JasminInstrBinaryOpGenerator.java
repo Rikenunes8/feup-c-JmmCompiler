@@ -35,6 +35,10 @@ public class JasminInstrBinaryOpGenerator {
         this.varTable = varTable;
     }
 
+    public void resetLabelCounter() {
+        this.labelCounter = 0;
+    }
+
     public String getJasminCode() {
         OperationType opType = this.instruction.getOperation().getOpType();
 
@@ -67,6 +71,7 @@ public class JasminInstrBinaryOpGenerator {
         }
     }
 
+    // TODO CHECK MORE POSSIBLE CASES
     private String getBinaryBooleanOperationCode() {
         StringBuilder code = new StringBuilder();
 

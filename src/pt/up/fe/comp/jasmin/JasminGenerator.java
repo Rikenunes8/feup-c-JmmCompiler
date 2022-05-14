@@ -54,6 +54,8 @@ public class JasminGenerator {
         for (Method method : this.classUnit.getMethods()) {
             if (!method.isConstructMethod()) {
                 // this.stackCounter = 0;
+                this.instrBinaryOpGenerator.resetLabelCounter();
+
                 jasminCode.append(this.getJasminCode(method));
             }
         }
@@ -165,16 +167,12 @@ public class JasminGenerator {
     public String getJasminCode(GetFieldInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder code = new StringBuilder();
 
-        String classField = ((Operand) instruction.getFirstOperand()).getName();
-        String className = (classField.equals("this"))
-                ? this.classUnit.getClassName()
-                : JasminUtils.getFullyQualifiedClassName(this.classUnit, classField);
+        String className = this.classUnit.getClassName();
+        String classField = ((Operand) instruction.getSecondOperand()).getName();
 
         code.append(JasminUtils.loadElementCode(instruction.getFirstOperand(), varTable));
-        code.append("\tgetfield ").append(className).append("/")
-                .append(((Operand) instruction.getSecondOperand()).getName()).append(" ")
+        code.append("\tgetfield ").append(className).append("/").append(classField).append(" ")
                 .append(JasminUtils.getJasminType(this.classUnit, instruction.getSecondOperand().getType())).append("\n");
-        System.out.println(code.toString());
 
         return code.toString();
     }
@@ -182,15 +180,12 @@ public class JasminGenerator {
     public String getJasminCode(PutFieldInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder code = new StringBuilder();
 
-        String classField = ((Operand) instruction.getFirstOperand()).getName();
-        String className = (classField.equals("this"))
-                ? this.classUnit.getClassName()
-                : JasminUtils.getFullyQualifiedClassName(this.classUnit, classField);
+        String className = this.classUnit.getClassName();
+        String classField = ((Operand) instruction.getSecondOperand()).getName();
 
         code.append(JasminUtils.loadElementCode(instruction.getFirstOperand(), varTable));
         code.append(JasminUtils.loadElementCode(instruction.getThirdOperand(), varTable));
-        code.append("\tputfield ").append(className).append("/")
-                .append(((Operand) instruction.getSecondOperand()).getName()).append(" ")
+        code.append("\tputfield ").append(className).append("/").append(classField).append(" ")
                 .append(JasminUtils.getJasminType(this.classUnit, instruction.getSecondOperand().getType())).append("\n");
         System.out.println(code.toString());
         return code.toString();
@@ -202,6 +197,7 @@ public class JasminGenerator {
         return instrBinaryOpGenerator.getJasminCode();
     }
 
+    // TODO
     public String getJasminCode(UnaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
         throw new NotImplementedException(instruction.getInstType());
     }
@@ -210,12 +206,15 @@ public class JasminGenerator {
         return JasminUtils.loadElementCode(instruction.getSingleOperand(), varTable);
     }
 
-    // TODO NotImplementedException
+    // TODO
     public String getJasminCode(CondBranchInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder code = new StringBuilder();
 
-        code.append(this.getJasminCode(instruction.getCondition(), new HashMap<>(), varTable));
-        code.append("\tifeq ").append(instruction.getLabel()).append("\n");
+        Instruction condition = instruction.getCondition();
+        String label = instruction.getLabel();
+
+        code.append(this.getJasminCode(condition, new HashMap<>(), varTable));
+        code.append("\tifeq ").append(label).append("\n");
 
         return code.toString();
     }
