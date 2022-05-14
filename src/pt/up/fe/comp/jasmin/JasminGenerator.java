@@ -67,7 +67,7 @@ public class JasminGenerator {
         StringBuilder code = new StringBuilder();
 
         String accessAnnotation = field.getFieldAccessModifier() == AccessModifiers.DEFAULT ?
-                "private " : field.getFieldAccessModifier().name().toLowerCase() + " ";
+                "" : field.getFieldAccessModifier().name().toLowerCase() + " ";
         String staticAnnotation = field.isStaticField() ? "static " : "";
         String finalAnnotation  = field.isFinalField() ? "final " : "";
 
@@ -90,7 +90,7 @@ public class JasminGenerator {
 
         // Method header
         String accessAnnotation = method.getMethodAccessModifier() == AccessModifiers.DEFAULT ?
-                "public " : method.getMethodAccessModifier().name().toLowerCase() + " ";
+                "" : method.getMethodAccessModifier().name().toLowerCase() + " ";
         String staticAnnotation = method.isStaticMethod() ? "static " : "";
         String finalAnnotation  = method.isFinalMethod() ? "final " : "";
 
@@ -215,8 +215,23 @@ public class JasminGenerator {
         Instruction condition = instruction.getCondition();
         String label = instruction.getLabel();
 
-        code.append(this.getJasminCode(condition, new HashMap<>(), varTable));
-        code.append("\tifeq ").append(label).append("\n");
+        if (condition instanceof BinaryOpInstruction) {
+            BinaryOpInstruction binaryInstruction = (BinaryOpInstruction) condition;
+            OperationType opType = binaryInstruction.getOperation().getOpType();
+
+            switch (opType) {
+                case GTE:
+                    code.append(JasminUtils.loadElementCode(binaryInstruction.getLeftOperand(), varTable));
+                    code.append(JasminUtils.loadElementCode(binaryInstruction.getRightOperand(), varTable));
+
+                    code.append("\tif_icmpge ").append(label).append("\n");
+                    break;
+                default:
+                    throw new NotImplementedException(opType);
+            }
+        } else {
+            throw new NotImplementedException(condition.getInstType());
+        }
 
         return code.toString();
     }

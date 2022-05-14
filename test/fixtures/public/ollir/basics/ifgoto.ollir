@@ -1,0 +1,7 @@
+Fac {
+    .method public check(num.i32).V {
+        if (num.i32 >=.bool 1.i32) goto else;
+        else:
+            ret.V;
+    }
+}
