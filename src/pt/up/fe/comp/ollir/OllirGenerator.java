@@ -204,12 +204,21 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         code.append(left.getTemps());
         code.append(right.getTemps());
+        var leftFullExp = left.getFullExp();
+        if (leftFullExp.startsWith("getfield")) {
+            String aux = leftFullExp.substring(leftFullExp.indexOf(",")+1, leftFullExp.indexOf(")"));
+            System.out.println(aux);
+            String t2 = newVar(right.getType());
+            code.append(ident()).append(newVarInstr(t2, right.getType(), right.getFullExp()));
+            code.append(ident()).append("putfield(this,").append(aux).append(", ").append(t2).append(").V;\n");
+        }
+        else {
+            code.append(ident())
+                    .append(left.getFullExp())
+                    .append(" :=.").append(left.getType())
+                    .append(" ").append(right.getFullExp()).append(";\n");
 
-        code.append(ident())
-            .append(left.getFullExp())
-            .append(" :=.").append(left.getType())
-            .append(" ").append(right.getFullExp()).append(";\n");
-
+        }
         return 0;
     }
 

@@ -62,6 +62,21 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprGenerator> {
         return paramPrefix;
     }
 
+    private boolean isClassField(JmmNode identifier) {
+        String identifierName = identifier.get("val");
+        String methodSignature = identifier.getAncestor(METHOD_DECLARATION.toString()).get().get("name");
+
+        var localVars = symbolTable.getLocalVariables(methodSignature).stream()
+                .filter(symbol -> symbol.getName().equals(identifierName)).collect(Collectors.toList());
+        var parms = symbolTable.getParameters(methodSignature).stream()
+                .filter(symbol -> symbol.getName().equals(identifierName)).collect(Collectors.toList());
+        var fields = symbolTable.getFields().stream()
+                .filter(symbol -> symbol.getName().equals(identifierName)).collect(Collectors.toList());
+
+        return localVars.isEmpty() && parms.isEmpty() && !fields.isEmpty();
+
+    }
+
     private OllirExprGenerator visitThisLiteral(JmmNode jmmNode, Integer integer) {
         return new OllirExprGenerator("this", "");
     }
@@ -74,6 +89,11 @@ public class OllirExprVisitor extends AJmmVisitor<Integer, OllirExprGenerator> {
                 ? getType(identifier, this.symbolTable)
                 : new Type("void", false);
         String typeCode = getCode(type);
+
+        if (isClassField(identifier)) {
+            return new OllirExprGenerator("getfield(this, " + identifierName + "." + typeCode + ")." + typeCode, typeCode );
+        }
+
         return new OllirExprGenerator(paramPrefix + identifierName + "." + typeCode, typeCode );
     }
     private OllirExprGenerator visitIntegerLiteral(JmmNode integer, Integer dummy) {
