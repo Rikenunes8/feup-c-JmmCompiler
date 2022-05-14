@@ -19,5 +19,15 @@
 	aload_0
 	iconst_3
 	putfield myClass/a I
+	new myClass
+	dup
+	invokespecial myClass/<init>()V
+	astore_3
+	aload_3
+	getfield o1/a I
+	istore_2
+	aload_3
+	iconst_3
+	putfield o1/a I
 	return
 .end method

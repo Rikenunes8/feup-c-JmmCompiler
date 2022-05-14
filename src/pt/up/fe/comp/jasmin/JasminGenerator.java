@@ -167,11 +167,12 @@ public class JasminGenerator {
     public String getJasminCode(GetFieldInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder code = new StringBuilder();
 
-        String className = this.classUnit.getClassName();
-        String classField = ((Operand) instruction.getSecondOperand()).getName();
+        String classField = ((Operand) instruction.getFirstOperand()).getName();
+        String className = classField.equals("this") ? this.classUnit.getClassName() : classField ;
+        String field = ((Operand) instruction.getSecondOperand()).getName();
 
         code.append(JasminUtils.loadElementCode(instruction.getFirstOperand(), varTable));
-        code.append("\tgetfield ").append(className).append("/").append(classField).append(" ")
+        code.append("\tgetfield ").append(className).append("/").append(field).append(" ")
                 .append(JasminUtils.getJasminType(this.classUnit, instruction.getSecondOperand().getType())).append("\n");
 
         return code.toString();
@@ -180,12 +181,13 @@ public class JasminGenerator {
     public String getJasminCode(PutFieldInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder code = new StringBuilder();
 
-        String className = this.classUnit.getClassName();
-        String classField = ((Operand) instruction.getSecondOperand()).getName();
+        String classField = ((Operand) instruction.getFirstOperand()).getName();
+        String className = classField.equals("this") ? this.classUnit.getClassName() : classField ;
+        String field = ((Operand) instruction.getSecondOperand()).getName();
 
         code.append(JasminUtils.loadElementCode(instruction.getFirstOperand(), varTable));
         code.append(JasminUtils.loadElementCode(instruction.getThirdOperand(), varTable));
-        code.append("\tputfield ").append(className).append("/").append(classField).append(" ")
+        code.append("\tputfield ").append(className).append("/").append(field).append(" ")
                 .append(JasminUtils.getJasminType(this.classUnit, instruction.getSecondOperand().getType())).append("\n");
         System.out.println(code.toString());
         return code.toString();
