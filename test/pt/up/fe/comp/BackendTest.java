@@ -78,6 +78,10 @@ public class BackendTest {
         generatedJasminCodeEqualsTemplate("newObject");
     }
 
+    @Test
+    public void testOllirToJasminArrayLength() {
+        generatedJasminCodeEqualsTemplate("arrayLength");
+    }
 
     @Test
     public void testOllirToJasminReturn() {
