@@ -124,9 +124,9 @@ public class JasminInstrCallGenerator {
                 String arrayType = JasminUtils.getJasminType(this.classUnit, this.instruction.getReturnType());
                 code.append("\tmultianewarray ").append(arrayType).append(" ").append(arrayDimensions).append("\n");
             } else {
-                System.out.println(((ArrayType) this.instruction.getReturnType()).getElementClass());
-                if (this.instruction.getReturnType().getTypeOfElement() == ElementType.CLASS) {
-                    code.append("\tanewarray ").append(((ArrayType) this.instruction.getReturnType()).getElementClass()).append("\n");
+                ArrayType returnType = (ArrayType) this.instruction.getReturnType();
+                if (returnType.getArrayType() == ElementType.OBJECTREF) {
+                    code.append("\tanewarray ").append(returnType.getElementClass()).append("\n");
                 } else {
                     code.append("\tnewarray int\n");
                 }
