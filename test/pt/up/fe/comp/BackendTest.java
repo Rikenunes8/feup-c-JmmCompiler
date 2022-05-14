@@ -84,6 +84,10 @@ public class BackendTest {
         generatedJasminCodeEqualsTemplate("return");
     }
 
+    @Test
+    public void testOllirToJasminGotoAndLabel() {
+        generatedJasminCodeEqualsTemplate("gotoAndLabel");
+    }
 
     /*
      * Code example tests that must be successfully parsed
