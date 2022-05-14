@@ -1,0 +1,26 @@
+.class public Fac
+.super java/lang/Object
+
+.field private a I
+
+.method public <init>()V
+	aload_0
+	invokenonvirtual java/lang/Object/<init>()V
+	return
+.end method
+
+.method public check(I)V
+	.limit stack 99
+	.limit locals 99
+
+	new Fac
+	dup
+	invokespecial Fac/<init>()V
+	astore_2
+	new Fac
+	dup
+	iconst_2
+	invokespecial Fac/<init>(I)V
+	astore_2
+	return
+.end method

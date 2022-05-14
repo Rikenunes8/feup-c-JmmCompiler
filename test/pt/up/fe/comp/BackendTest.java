@@ -72,6 +72,11 @@ public class BackendTest {
     public void testOllirToJasminManageFields() {
         generatedJasminCodeEqualsTemplate("manageFields");
     }
+
+    @Test
+    public void testOllirToJasminNewCallInstruction() {
+        generatedJasminCodeEqualsTemplate("newObject");
+    }
     
     /*
      * Code example tests that must be successfully parsed
