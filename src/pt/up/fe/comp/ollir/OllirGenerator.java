@@ -8,21 +8,21 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import java.util.List;
 import java.util.stream.Collectors;
 import static pt.up.fe.comp.ast.AstNode.*;
-import static pt.up.fe.comp.ollir.OllirExprVisitor.newVar;
-import static pt.up.fe.comp.ollir.OllirExprVisitor.newVarInstr;
+import static pt.up.fe.comp.ollir.OllirExprGenerator.newVar;
+import static pt.up.fe.comp.ollir.OllirExprGenerator.newVarInstr;
 
 
 public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
     private final StringBuilder code;
     private final SymbolTableBuilder symbolTable;
-    private final OllirExprVisitor ollirExprVisitor;
+    private final OllirExprGenerator ollirExprGenerator;
     public static int identention = 0;
     private int whileNumber;
     private int ifNumber;
 
     public OllirGenerator(SymbolTableBuilder symbolTable) {
-        this.ollirExprVisitor = new OllirExprVisitor(symbolTable);
+        this.ollirExprGenerator = new OllirExprGenerator(symbolTable);
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
         this.whileNumber = 0;
@@ -69,8 +69,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         code.append(" {\n");
         identention++;
 
-        visitPrivateAttibutes();
-        visitConstructor();
+        buildPrivateAttibutes();
+        buildConstructor();
 
         for (var child : classDeclaration.getChildren()) {
             if (child.getKind().equals(METHOD_DECLARATION.toString()))
@@ -82,14 +82,14 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return 0;
     }
 
-    private void visitPrivateAttibutes() {
+    private void buildPrivateAttibutes() {
         for(Symbol field : symbolTable.getFields()){
             code.append(ident()).append(".field private ")
                     .append(OllirUtils.getCode(field))
                     .append(";\n");
         }
     }
-    private void visitConstructor() {
+    private void buildConstructor() {
         code.append(ident()).append(".construct ").append(symbolTable.getClassName()).append("().V {\n");
         identention++;
         code.append(ident()).append("invokespecial(this, \"<init>\").V;\n");
@@ -98,7 +98,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
     
     private Integer visitMethodDeclaration(JmmNode methodDeclaration, Integer dummy) {
-
         String methodSignature = methodDeclaration.get("name");
         boolean isStatic = Boolean.parseBoolean(methodDeclaration.get("static"));
         code.append(ident()).append(".method public ");
@@ -123,14 +122,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         }
 
         List<JmmNode> stmts = methodDeclaration.getChildren().subList(firstExpressionIndex, methodDeclaration.getNumChildren());
-        System.out.println("\nSTMTS :\n" + stmts);
-
         for (JmmNode stmt : stmts) {
             visit(stmt);
         }
 
-        if(this.symbolTable.getReturnType(methodSignature).getName().equals("void"))
-        {
+        if(this.symbolTable.getReturnType(methodSignature).getName().equals("void")) {
             code.append(ident()).append("ret.V;\n");
         }
 
@@ -141,7 +137,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private Integer visitReturnStatement(JmmNode returnStatement, Integer dummy) {
-        OllirExprGenerator result = visitExpression(returnStatement.getJmmChild(0));
+        OllirExprCode result = visitExpression(returnStatement.getJmmChild(0));
 
         String t1 = newVar(result.getType());
         code.append(result.getTemps());
@@ -155,7 +151,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private Integer visitExpressionStatement(JmmNode expressionStatement, Integer dummy) {
-        OllirExprGenerator exprPair = this.visitExpression(expressionStatement.getJmmChild(0));
+        OllirExprCode exprPair = this.visitExpression(expressionStatement.getJmmChild(0));
         code.append(exprPair.getTemps());
         code.append(ident()).append(exprPair.getFullExp()).append(";\n");
         return 0;
@@ -199,17 +195,26 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private Integer visitAssignmentStatement(JmmNode assignmentStatement, Integer dummy) {
-        OllirExprGenerator left = visitExpression(assignmentStatement.getJmmChild(0));
-        OllirExprGenerator right = visitExpression(assignmentStatement.getJmmChild(1));
+        OllirExprCode left = visitExpression(assignmentStatement.getJmmChild(0));
+        OllirExprCode right = visitExpression(assignmentStatement.getJmmChild(1));
 
         code.append(left.getTemps());
         code.append(right.getTemps());
+        var leftFullExp = left.getFullExp();
+        if (leftFullExp.startsWith("getfield")) {
+            String aux = leftFullExp.substring(leftFullExp.indexOf(",")+1, leftFullExp.indexOf(")"));
+            System.out.println(aux);
+            String t2 = newVar(right.getType());
+            code.append(ident()).append(newVarInstr(t2, right.getType(), right.getFullExp()));
+            code.append(ident()).append("putfield(this,").append(aux).append(", ").append(t2).append(").V;\n");
+        }
+        else {
+            code.append(ident())
+                    .append(left.getFullExp())
+                    .append(" :=.").append(left.getType())
+                    .append(" ").append(right.getFullExp()).append(";\n");
 
-        code.append(ident())
-            .append(left.getFullExp())
-            .append(" :=.").append(left.getType())
-            .append(" ").append(right.getFullExp()).append(";\n");
-
+        }
         return 0;
     }
 
@@ -223,7 +228,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
     private Integer visitCondition(JmmNode condition, Integer dummy) {
         StringBuilder temps = new StringBuilder();
-        OllirExprGenerator cond = visitExpression(condition.getJmmChild(0));
+        OllirExprCode cond = visitExpression(condition.getJmmChild(0));
 
         String t1 = newVar(cond.getType());
         temps.append(cond.getTemps());
@@ -255,8 +260,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return 0;
     }
 
-    private OllirExprGenerator visitExpression(JmmNode expression) {
-        return this.ollirExprVisitor.visit(expression);
+    private OllirExprCode visitExpression(JmmNode expression) {
+        return this.ollirExprGenerator.visit(expression);
     }
 
     static String ident() {
