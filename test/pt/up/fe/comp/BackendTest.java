@@ -77,7 +77,14 @@ public class BackendTest {
     public void testOllirToJasminNewCallInstruction() {
         generatedJasminCodeEqualsTemplate("newObject");
     }
-    
+
+
+    @Test
+    public void testOllirToJasminReturn() {
+        generatedJasminCodeEqualsTemplate("return");
+    }
+
+
     /*
      * Code example tests that must be successfully parsed
      */
