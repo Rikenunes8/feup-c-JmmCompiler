@@ -30,7 +30,8 @@ public class JasminGenerator {
         this.instructionMap.put(BinaryOpInstruction.class, this::getJasminCode);
         this.instructionMap.put(UnaryOpInstruction.class, this::getJasminCode);
         this.instructionMap.put(SingleOpInstruction.class, this::getJasminCode);
-        this.instructionMap.put(CondBranchInstruction.class, this::getJasminCode);
+        this.instructionMap.put(OpCondInstruction.class, this::getJasminCode);
+        this.instructionMap.put(SingleOpCondInstruction.class, this::getJasminCode);
         this.instructionMap.put(GotoInstruction.class, this::getJasminCode);
         this.instructionMap.put(ReturnInstruction.class, this::getJasminCode);
     }
@@ -209,31 +210,29 @@ public class JasminGenerator {
     }
 
     // TODO
-    public String getJasminCode(CondBranchInstruction instruction, HashMap<String, Descriptor> varTable) {
+    public String getJasminCode(OpCondInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder code = new StringBuilder();
 
-        Instruction condition = instruction.getCondition();
+        BinaryOpInstruction condition = (BinaryOpInstruction) instruction.getCondition();
         String label = instruction.getLabel();
 
-        if (condition instanceof BinaryOpInstruction) {
-            BinaryOpInstruction binaryInstruction = (BinaryOpInstruction) condition;
-            OperationType opType = binaryInstruction.getOperation().getOpType();
+        code.append(JasminUtils.loadElementCode(condition.getLeftOperand(), varTable));
+        code.append(JasminUtils.loadElementCode(condition.getRightOperand(), varTable));
 
-            switch (opType) {
-                case GTE:
-                    code.append(JasminUtils.loadElementCode(binaryInstruction.getLeftOperand(), varTable));
-                    code.append(JasminUtils.loadElementCode(binaryInstruction.getRightOperand(), varTable));
-
-                    code.append("\tif_icmpge ").append(label).append("\n");
-                    break;
-                default:
-                    throw new NotImplementedException(opType);
-            }
-        } else {
-            throw new NotImplementedException(condition.getInstType());
+        switch (condition.getOperation().getOpType()) {
+            case EQ : return code.append("\tif_icmpeq ").append(label).append("\n").toString();
+            case GTE: return code.append("\tif_icmpge ").append(label).append("\n").toString();
+            case GTH: return code.append("\tif_icmpgt ").append(label).append("\n").toString();
+            case LTE: return code.append("\tif_icmple ").append(label).append("\n").toString();
+            case LTH: return code.append("\tif_icmplt ").append(label).append("\n").toString();
+            case NEQ: return code.append("\tif_icmpne ").append(label).append("\n").toString();
         }
 
         return code.toString();
+    }
+
+    public String getJasminCode(SingleOpCondInstruction instruction, HashMap<String, Descriptor> varTable) {
+        throw new NotImplementedException(instruction.getInstType());
     }
 
     public String getJasminCode(GotoInstruction instruction, HashMap<String, Descriptor> varTable) {
