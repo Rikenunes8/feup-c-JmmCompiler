@@ -22,8 +22,42 @@ public class MyCompilerTest {
     }
 
     @Test
-    public void testFunctionCall() {
-        noErrors(SpecsIo.getResource("fixtures/public/run/FunctionCall.jmm"), "3");
+    public void testIfStmtLogic2() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/IfStmtLogic2.jmm"), "1");
+    }
+
+    @Test
+    public void testIfStmtLogic3() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/IfStmtLogic3.jmm"), "3");
+    }
+
+    @Test
+    public void testIfStmtLogic4() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/IfStmtLogic4.jmm"), "1");
+    }
+
+    @Test
+    public void testIfStmtLogic5() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/IfStmtLogic5.jmm"), "1");
+    }
+
+    @Test
+    public void testFunctionCall1() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/FunctionCall1.jmm"), "3");
+    }
+
+    @Test
+    public void testFunctionCall2() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/FunctionCall2.jmm"), "3");
+    }
+
+    @Test
+    public void testArithmeticExpressionMul() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/ArithmeticExpressionMul.jmm"), "2");
+    }
+    @Test
+    public void testArithmeticExpressionDiv() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/ArithmeticExpressionDiv.jmm"), "2");
     }
 
     @Test
@@ -31,13 +65,11 @@ public class MyCompilerTest {
         noErrors(SpecsIo.getResource("fixtures/public/run/LocalVar.jmm"), "5");
     }
 
-    //TODO ifstmt
+    @Test
+    public void testWhileStmt() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/WhileStmt.jmm"), "10");
+    }
 
-    //TODO whileloop
-
-    //TODO chamadas a this.funções
-
-    //TODO expressões aritmeticas
 
 
 
