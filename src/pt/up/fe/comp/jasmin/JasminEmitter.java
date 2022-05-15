@@ -15,12 +15,11 @@ public class JasminEmitter implements JasminBackend {
     @Override
     public JasminResult toJasmin(OllirResult ollirResult) {
         ClassUnit ollirClass = ollirResult.getOllirClass();
+        // Table of variables for each method is automatically build
         
         try {
             // check the use of labels in the OLLIR loaded
             ollirClass.checkMethodLabels();
-            // build the table of variables for each method
-            ollirClass.buildVarTables();
             // ollirClass.show(); // TO DEVELOPMENT PURPOSES
 
             JasminGenerator translationResult = new JasminGenerator(ollirClass);
