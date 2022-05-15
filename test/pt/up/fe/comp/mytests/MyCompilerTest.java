@@ -7,18 +7,20 @@ import pt.up.fe.specs.util.SpecsIo;
 
 import java.util.Collections;
 
+import static org.junit.Assert.assertEquals;
+
 public class MyCompilerTest {
 
-    private static void noErrors(String jmmCode) {
+    private static void noErrors(String jmmCode, String expected) {
         var result = TestUtils.backend(jmmCode);
         System.out.println(result.getJasminCode());
         result.compile();
-        var outPut = result.run();
-        System.out.println(outPut);
+        var output = result.run();
+        assertEquals(expected, output.trim());
     }
 
     @Test
-    public void testWhileAndIf() {
-        noErrors(SpecsIo.getResource("fixtures/public/run/IfStmt.jmm"));
+    public void testIfStmtLogic1() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/IfStmt.jmm"), "Result: 3");
     }
 }
