@@ -1,4 +1,4 @@
-package pt.up.fe.comp;
+package pt.up.fe.comp.mytests;
 /**
  * Copyright 2021 SPeCS.
  * 
@@ -13,6 +13,7 @@ package pt.up.fe.comp;
  */
 
 import org.junit.Test;
+import pt.up.fe.comp.TestUtils;
 import pt.up.fe.specs.util.SpecsIo;
 
 public class MyOptimizationTest {
