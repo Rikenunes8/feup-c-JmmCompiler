@@ -107,6 +107,7 @@ public class JasminUtils {
             case INT32:
             case BOOLEAN:
                 return "\tiload" + JasminUtils.getVariableVirtualRegister(element.getName(), varTable) + "\n";
+            case STRING:
             case OBJECTREF:
             case ARRAYREF:
                 return "\taload" + JasminUtils.getVariableVirtualRegister(element.getName(), varTable) + "\n";
@@ -125,11 +126,10 @@ public class JasminUtils {
             case INT32:
             case BOOLEAN:
                 return "\tistore" + JasminUtils.getVariableVirtualRegister(operand.getName(), varTable) + "\n";
+            case STRING:
             case OBJECTREF:
             case ARRAYREF:
                 return "\tastore" + JasminUtils.getVariableVirtualRegister(operand.getName(), varTable) + "\n";
-            case STRING:
-                return "\tldc " + operand.getName() + "\n";
             default:
                 throw new RuntimeException("Exception during store elements  type" + operand.getType().getTypeOfElement());
         }
