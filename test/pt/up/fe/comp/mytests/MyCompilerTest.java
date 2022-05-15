@@ -61,6 +61,11 @@ public class MyCompilerTest {
     }
 
     @Test
+    public void testArithmeticExpressionAll() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/ArithmeticExpressionAll.jmm"), "2");
+    }
+
+    @Test
     public void testLocalVar() {
         noErrors(SpecsIo.getResource("fixtures/public/run/LocalVar.jmm"), "5");
     }
