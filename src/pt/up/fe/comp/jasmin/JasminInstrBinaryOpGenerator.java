@@ -45,7 +45,7 @@ public class JasminInstrBinaryOpGenerator {
         if (Arrays.asList(OperationType.ADD, OperationType.SUB, OperationType.MUL, OperationType.DIV).contains(opType))
             return this.getBinaryIntOperationCode();
         else if (Arrays.asList(OperationType.EQ, OperationType.GTE, OperationType.GTH, OperationType.LTE,
-                OperationType.LTH, OperationType.NEQ, OperationType.ANDB, OperationType.NOTB).contains(opType))
+                OperationType.LTH, OperationType.NEQ, OperationType.ANDB, OperationType.ORB, OperationType.NOTB).contains(opType))
             return this.getBinaryBooleanOperationCode();
 
         throw new NotImplementedException(this.instruction.getOperation().getOpType());
@@ -71,12 +71,8 @@ public class JasminInstrBinaryOpGenerator {
         }
     }
 
-    // TODO CHECK MORE POSSIBLE CASES
     private String getBinaryBooleanOperationCode() {
         StringBuilder code = new StringBuilder();
-
-        String trueLabel = nextLabel();
-        String endIfLabel = nextLabel();
 
         switch (this.instruction.getOperation().getOpType()) {
             case EQ:
@@ -85,26 +81,27 @@ public class JasminInstrBinaryOpGenerator {
             case LTE:
             case LTH:
             case NEQ:
+                String comparison = this.getComparisonInstructionCode(this.instruction.getOperation().getOpType());
+                String trueLabel = nextLabel();
+                String falseLabel = nextLabel();
+
                 code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
                 code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
-
-                String compInst = this.getComparisonInstructionCode(this.instruction.getOperation().getOpType());
-                code.append("\t").append(compInst).append(" ").append(trueLabel).append("\n")
-                        .append(this.getBinaryBooleanJumpsCode(trueLabel, endIfLabel));
+                code.append(this.getBinaryBooleanJumpsCode(comparison, trueLabel, falseLabel));
                 break;
             case ANDB:
-                code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable))
-                        .append("\tifeq ").append(trueLabel).append("\n");
-                code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable))
-                        .append("\tifeq ").append(trueLabel).append("\n");
-
-                code.append(this.getBinaryBooleanJumpsCode(trueLabel, endIfLabel));
+                code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
+                code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
+                code.append("\tiand\n");
+                break;
+            case ORB:
+                code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
+                code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
+                code.append("\tior\n");
                 break;
             case NOTB:
-                code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable))
-                        .append("\tifeq ").append(trueLabel).append("\n");
-
-                code.append(this.getBinaryBooleanJumpsCode(trueLabel, endIfLabel));
+                code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
+                code.append("\tineg\n");
                 break;
             default:
                 throw new NotImplementedException(this.instruction.getOperation().getOpType());
@@ -125,12 +122,13 @@ public class JasminInstrBinaryOpGenerator {
         }
     }
 
-    private String getBinaryBooleanJumpsCode(String trueLabel, String endIfLabel) {
+    private String getBinaryBooleanJumpsCode(String comparison, String trueLabel, String falseLabel) {
 
-        return "\ticonst_1\n" +
-                "\tgoto " + endIfLabel + "\n" +
+        return  "\t" + comparison + " " + trueLabel + "\n" +
+                "\ticonst_1\n" +
+                "\tgoto " + falseLabel + "\n" +
                 "\t" + trueLabel + ":\n" +
                 "\ticonst_0\n" +
-                "\t" + endIfLabel + ":\n";
+                "\t" + falseLabel + ":\n";
     }
 }

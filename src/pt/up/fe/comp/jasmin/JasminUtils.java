@@ -126,7 +126,7 @@ public class JasminUtils {
             case OBJECTREF:
             case ARRAYREF:
                 return "\tastore" + JasminUtils.getVariableVirtualRegister(operand.getName(), varTable) + "\n";
-            case STRING: // TODO CHECK
+            case STRING:
                 return "\tldc " + operand.getName() + "\n";
             default:
                 throw new RuntimeException("Exception during store elements  type" + operand.getType().getTypeOfElement());

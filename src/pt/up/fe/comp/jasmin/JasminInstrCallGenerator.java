@@ -143,7 +143,6 @@ public class JasminInstrCallGenerator {
     }
 
     private String getCallLdcCode() {
-        // TODO CHECK
         return "\tldc " + ((LiteralElement) this.instruction.getFirstArg()).getLiteral() + "\n";
     }
 }

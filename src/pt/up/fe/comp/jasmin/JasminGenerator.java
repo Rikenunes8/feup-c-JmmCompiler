@@ -20,8 +20,6 @@ public class JasminGenerator {
         this.classUnit = classUnit;
         this.instrBinaryOpGenerator = new JasminInstrBinaryOpGenerator();
 
-        // this.labelCounter = 0;
-
         this.instructionMap = new BiFunctionClassMap<>();
         this.instructionMap.put(AssignInstruction.class, this::getJasminCode);
         this.instructionMap.put(CallInstruction.class, this::getJasminCode);
@@ -30,8 +28,7 @@ public class JasminGenerator {
         this.instructionMap.put(BinaryOpInstruction.class, this::getJasminCode);
         this.instructionMap.put(UnaryOpInstruction.class, this::getJasminCode);
         this.instructionMap.put(SingleOpInstruction.class, this::getJasminCode);
-        this.instructionMap.put(OpCondInstruction.class, this::getJasminCode);
-        this.instructionMap.put(SingleOpCondInstruction.class, this::getJasminCode);
+        this.instructionMap.put(CondBranchInstruction.class, this::getJasminCode);
         this.instructionMap.put(GotoInstruction.class, this::getJasminCode);
         this.instructionMap.put(ReturnInstruction.class, this::getJasminCode);
     }
@@ -190,7 +187,7 @@ public class JasminGenerator {
         code.append(JasminUtils.loadElementCode(instruction.getThirdOperand(), varTable));
         code.append("\tputfield ").append(className).append("/").append(field).append(" ")
                 .append(JasminUtils.getJasminType(this.classUnit, instruction.getSecondOperand().getType())).append("\n");
-        System.out.println(code.toString());
+
         return code.toString();
     }
 
@@ -200,39 +197,18 @@ public class JasminGenerator {
         return instrBinaryOpGenerator.getJasminCode();
     }
 
-    // TODO
     public String getJasminCode(UnaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
-        throw new NotImplementedException(instruction.getInstType());
+        return JasminUtils.loadElementCode(instruction.getOperand(), varTable)
+                + "\tineg\n";
     }
 
     public String getJasminCode(SingleOpInstruction instruction, HashMap<String, Descriptor> varTable) {
         return JasminUtils.loadElementCode(instruction.getSingleOperand(), varTable);
     }
 
-    // TODO
-    public String getJasminCode(OpCondInstruction instruction, HashMap<String, Descriptor> varTable) {
-        StringBuilder code = new StringBuilder();
-
-        BinaryOpInstruction condition = (BinaryOpInstruction) instruction.getCondition();
-        String label = instruction.getLabel();
-
-        code.append(JasminUtils.loadElementCode(condition.getLeftOperand(), varTable));
-        code.append(JasminUtils.loadElementCode(condition.getRightOperand(), varTable));
-
-        switch (condition.getOperation().getOpType()) {
-            case EQ : return code.append("\tif_icmpeq ").append(label).append("\n").toString();
-            case GTE: return code.append("\tif_icmpge ").append(label).append("\n").toString();
-            case GTH: return code.append("\tif_icmpgt ").append(label).append("\n").toString();
-            case LTE: return code.append("\tif_icmple ").append(label).append("\n").toString();
-            case LTH: return code.append("\tif_icmplt ").append(label).append("\n").toString();
-            case NEQ: return code.append("\tif_icmpne ").append(label).append("\n").toString();
-        }
-
-        return code.toString();
-    }
-
-    public String getJasminCode(SingleOpCondInstruction instruction, HashMap<String, Descriptor> varTable) {
-        throw new NotImplementedException(instruction.getInstType());
+    public String getJasminCode(CondBranchInstruction instruction, HashMap<String, Descriptor> varTable) {
+        return this.getJasminCode(instruction.getCondition(), new HashMap<>(), varTable)
+                + "\tifeq " + instruction.getLabel() + "\n";
     }
 
     public String getJasminCode(GotoInstruction instruction, HashMap<String, Descriptor> varTable) {
