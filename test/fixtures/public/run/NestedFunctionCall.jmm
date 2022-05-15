@@ -1,0 +1,25 @@
+import io;
+class Test {
+	public static void main(String[] args) {
+        int a;
+        int b;
+        int c;
+        Test t;
+
+        t = new Test();
+        a = 2;
+        b = 3;
+
+        c = t.sum(a,t.mul(a, b));
+
+        io.print(c);
+	}
+
+    public int sum(int a, int b) {
+        return a+b;
+    }
+
+    public int mul(int a, int b) {
+        return a*b;
+    }
+}

@@ -52,6 +52,11 @@ public class MyCompilerTest {
     }
 
     @Test
+    public void testNestedFunctionCall() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/NestedFunctionCall.jmm"), "8");
+    }
+
+    @Test
     public void testArithmeticExpressionMul() {
         noErrors(SpecsIo.getResource("fixtures/public/run/ArithmeticExpressionMul.jmm"), "2");
     }
