@@ -45,7 +45,8 @@ public class JasminInstrBinaryOpGenerator {
         if (Arrays.asList(OperationType.ADD, OperationType.SUB, OperationType.MUL, OperationType.DIV).contains(opType))
             return this.getBinaryIntOperationCode();
         else if (Arrays.asList(OperationType.EQ, OperationType.GTE, OperationType.GTH, OperationType.LTE,
-                OperationType.LTH, OperationType.NEQ, OperationType.ANDB, OperationType.ORB, OperationType.NOTB).contains(opType))
+                OperationType.LTH, OperationType.NEQ, OperationType.AND, OperationType.ANDB,
+                OperationType.OR, OperationType.ORB, OperationType.NOT, OperationType.NOTB, OperationType.XOR).contains(opType))
             return this.getBinaryBooleanOperationCode();
 
         throw new NotImplementedException(this.instruction.getOperation().getOpType());
@@ -89,16 +90,24 @@ public class JasminInstrBinaryOpGenerator {
                 code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
                 code.append(this.getBinaryBooleanJumpsCode(comparison, trueLabel, falseLabel));
                 break;
+            case AND:
             case ANDB:
                 code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
                 code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
                 code.append("\tiand\n");
                 break;
+            case OR:
             case ORB:
                 code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
                 code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
                 code.append("\tior\n");
                 break;
+            case XOR:
+                code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
+                code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
+                code.append("\tixor\n");
+                break;
+            case NOT:
             case NOTB:
                 code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
                 code.append("\tineg\n");
