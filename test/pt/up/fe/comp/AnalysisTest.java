@@ -25,22 +25,22 @@ public class AnalysisTest {
 
     @Test
     public void helloWorld() {
-        noErrors(SpecsIo.getResource("fixtures/public/HelloWorld.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/HelloWorld.jmm"));
     }
 
     @Test
     public void findMaximum() {
-        noErrors(SpecsIo.getResource("fixtures/public/FindMaximum.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/FindMaximum.jmm"));
     }
 
     @Test
     public void lazysort() {
-        noErrors(SpecsIo.getResource("fixtures/public/Lazysort.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/Lazysort.jmm"));
     }
 
     @Test
     public void life() {
-        noErrors(SpecsIo.getResource("fixtures/public/Life.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/Life.jmm"));
     }
 
     @Test
@@ -50,73 +50,20 @@ public class AnalysisTest {
 
     @Test
     public void simple() {
-        noErrors(SpecsIo.getResource("fixtures/public/Simple.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/Simple.jmm"));
     }
 
     @Test
     public void ticTacToe() {
-        noErrors(SpecsIo.getResource("fixtures/public/TicTacToe.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/TicTacToe.jmm"));
     }
 
     @Test
     public void whileAndIf() {
-        noErrors(SpecsIo.getResource("fixtures/public/WhileAndIf.jmm"));
+        noErrors(SpecsIo.getResource("fixtures/public/general/WhileAndIf.jmm"));
     }
 
 
-
-    @Test
-    public void import_super() {
-        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/import_super.jmm"));
-    }
-    @Test
-    public void import_type() {
-        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/import_type.jmm"));
-    }
-    @Test
-    public void var_declaration1() {
-        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/var_declaration1.jmm"));
-    }
-    @Test
-    public void var_declaration2() {
-        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/var_declaration2.jmm"));
-    }
-    @Test
-    public void var_declaration_imported_method() {
-        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/var_declaration_imported_method.jmm"));
-    }
-    @Test
-    public void var_declaration_method_call() {
-        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/var_declaration_method_call.jmm"));
-    }
-    @Test
-    public void params_args() {
-        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/params_args.jmm"));
-    }
-    @Test
-    public void undefined_var1() {
-        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var1.jmm"));
-    }
-    @Test
-    public void undefined_var2() {
-        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var2.jmm"));
-    }
-    @Test
-    public void undefined_var3() {
-        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var3.jmm"));
-    }
-    @Test
-    public void undefined_var_array1() {
-        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var_array1.jmm"));
-    }
-    @Test
-    public void undefined_var_array2() {
-        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/undefined_var_array2.jmm"));
-    }
-    @Test
-    public void call_class_object_method() {
-        noErrors(SpecsIo.getResource("fixtures/public/analysis/success/call_class_object_method.jmm"));
-    }
 
     /*
      * Code that must fail
@@ -170,61 +117,5 @@ public class AnalysisTest {
     @Test
     public void varNotInit() {
         mustFail(SpecsIo.getResource("fixtures/public/fail/semantic/varNotInit.jmm"));
-    }
-
-
-
-    @Test
-    public void import_super_f() {
-        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/import_super.jmm"));
-    }
-    @Test
-    public void import_type_f() {
-        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/import_type.jmm"));
-    }
-    @Test
-    public void var_declaration1_f() {
-        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/var_declaration1.jmm"));
-    }
-    @Test
-    public void var_declaration2_f() {
-        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/var_declaration2.jmm"));
-    }
-    @Test
-    public void var_declaration_imported_method_f() {
-        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/var_declaration_imported_method.jmm"));
-    }
-    @Test
-    public void params_args_f() {
-        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/params_args.jmm"));
-    }
-    @Test
-    public void undefined_var1_f() {
-        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var1.jmm"));
-    }
-    @Test
-    public void undefined_var2_f() {
-        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var2.jmm"));
-    }
-    @Test
-    public void undefined_var3_f() {
-        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var3.jmm"));
-    }
-    @Test
-    public void undefined_var_array1_f() {
-        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var_array1.jmm"));
-    }
-    @Test
-    public void undefined_var_array2_f() {
-        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/undefined_var_array2.jmm"));
-    }
-
-    @Test
-    public void call_class_object_method_f() {
-        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/call_class_object_method.jmm"));
-    }
-    @Test
-    public void true_call_f() {
-        mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/true_call.jmm"));
     }
 }

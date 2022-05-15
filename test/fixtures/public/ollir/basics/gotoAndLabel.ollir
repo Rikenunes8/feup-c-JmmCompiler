@@ -1,0 +1,10 @@
+Fac {
+    .method public check(b.i32).i32 {
+        goto Label1;
+
+        Label1:
+            ret.i32 b.i32;
+
+        ret.i32 3.i32;
+    }
+}

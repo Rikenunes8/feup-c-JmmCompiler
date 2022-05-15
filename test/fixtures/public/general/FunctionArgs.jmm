@@ -1,0 +1,10 @@
+import ioPlus;
+class FuntionArgs {
+	public static void main(String[] args) {
+        int[] a;
+        int b;
+        a = new int[4];
+        b = a.length;
+        ioPlus.test(a,b,ioPlus.tester(1,2,3));
+	}
+}

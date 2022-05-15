@@ -1,0 +1,7 @@
+myClass {
+
+    .method public check(A.array.i32).V {
+
+        t1.i32 :=.i32 arraylength($1.A.array.i32).i32;
+    }
+}

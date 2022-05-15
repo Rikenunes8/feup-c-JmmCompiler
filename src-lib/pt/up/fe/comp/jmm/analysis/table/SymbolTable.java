@@ -91,6 +91,7 @@ public interface SymbolTable {
 
             // var returnType = getReturnType(method);
             var params = getParameters(method);
+
             builder.append("; params: ");
 
             if (params.isEmpty()) {

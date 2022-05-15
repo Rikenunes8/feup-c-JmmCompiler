@@ -1,0 +1,11 @@
+import abc;
+
+MyFields extends abc {
+    .field private a.i32;
+    .field public b.i32;
+    .field protected c.i32;
+    .field static d.i32;
+    .field final e.i32;
+    .field static final f.i32;
+
+}

@@ -9,6 +9,8 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static pt.up.fe.comp.ast.AstNode.*;
+
 public class Utils {
     static public Type buildType(String typeSignature) {
         if (typeSignature.equals("int[]")) {
@@ -21,7 +23,7 @@ public class Utils {
     }
 
     static public Type getType(JmmNode var, SymbolTableBuilder symbolTable) {
-        if (var.getKind().equals("ThisLiteral"))
+        if (var.getKind().equals(THIS_LITERAL.toString()))
             return null;
 
         if (var.getKind().matches("TrueLiteral|FalseLiteral|AndExp|NotExp|LessExp|Condition"))
@@ -30,18 +32,18 @@ public class Utils {
         if (var.getKind().matches("IntegerLiteral|AddExp|SubExp|MultExp|DivExp|ArrayAccess|ArrayAccessExp"))
             return new Type("int", false);
 
-        if (var.getKind().equals("NewIntArray"))
+        if (var.getKind().equals(NEW_INT_ARRAY.toString()))
             return new Type("int", true);
 
-        if (var.getKind().equals("NewObject"))
+        if (var.getKind().equals(NEW_OBJECT.toString()))
             return new Type(var.get("name"), false);
 
-        if (var.getKind().equals("DotExp"))
+        if (var.getKind().equals(DOT_EXP.toString()))
             return getDotExpType(var, symbolTable);
 
         String methodSignature = "";
-        if (var.getAncestor("MethodDeclaration").isPresent()) {
-            methodSignature = var.getAncestor("MethodDeclaration").get().get("name");
+        if (var.getAncestor(METHOD_DECLARATION.toString()).isPresent()) {
+            methodSignature = var.getAncestor(METHOD_DECLARATION.toString()).get().get("name");
         }
 
         if (!methodSignature.isEmpty()) {
@@ -70,14 +72,18 @@ public class Utils {
     static public Type getDotExpType(JmmNode dotExp, SymbolTableBuilder symbolTable) {
         JmmNode leftNode  = dotExp.getJmmChild(0);
         JmmNode rightNode = dotExp.getJmmChild(1);
+        Type leftNodeType = getType(leftNode, symbolTable);
 
-        if (rightNode.getKind().equals("PropertyLength")) {
-            Type leftNodeType = getType(leftNode, symbolTable);
+        if (rightNode.getKind().equals(PROPERTY_LENGTH.toString())) {
             if (leftNodeType == null || leftNodeType.isArray())
                 return new Type("int", false);
         }
-        else if (rightNode.getKind().equals("FunctionCall")) {
-            if (leftNode.getKind().equals("ThisLiteral")) {
+        else if (rightNode.getKind().equals(FUNCTION_CALL.toString())) {
+            if (leftNode.getKind().equals(THIS_LITERAL.toString())
+                    || (leftNode.getKind().equals(IDENTIFIER_LITERAL.toString()))
+                        && leftNodeType != null
+                        && leftNodeType.getName().equals(symbolTable.getClassName())) {
+
                 if (symbolTable.hasMethod(rightNode.get("name"))) {
                     return symbolTable.getReturnType(rightNode.get("name"));
                 }
@@ -88,8 +94,8 @@ public class Utils {
 
     static public Boolean isIdentifierDeclared(JmmNode identifier, SymbolTable symbolTable) {
         String methodSignature = "";
-        if (identifier.getAncestor("MethodDeclaration").isPresent()) {
-            methodSignature = identifier.getAncestor("MethodDeclaration").get().get("name");
+        if (identifier.getAncestor(METHOD_DECLARATION.toString()).isPresent()) {
+            methodSignature = identifier.getAncestor(METHOD_DECLARATION.toString()).get().get("name");
         }
 
         if (!methodSignature.isEmpty()) {

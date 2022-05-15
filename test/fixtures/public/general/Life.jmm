@@ -9,7 +9,7 @@ class Life {
 
     int xMax;
     int yMax;
-    int[] field;
+    int[] _field;
 
     public static void main(String[] a) {
 		Life l;
@@ -19,7 +19,7 @@ class Life {
 		l.init();
 
         while (true) {
-            l.printField();
+            l.print_field();
             l.update();
             unused = io.read();
         }
@@ -40,124 +40,124 @@ class Life {
         LOOPS_PER_MS = 225000;
 
 
-        field = this.field(lineLenA);
+        _field = this._field(lineLenA);
         lineLen = lineLenA[0];
 
         xMax = lineLen - 1;
-        yMax = field.length / lineLen - 1;
+        yMax = _field.length / lineLen - 1;
 
         return true;
     }
 
 
-    public int[] field(int[] lineLen) {
-        int[] field;
+    public int[] _field(int[] lineLen) {
+        int[] _field;
 
-        field = new int[100];
+        _field = new int[100];
         lineLen[0] = 10;
 
-        field[0] = 0;
-        field[1] = 0;
-        field[2] = 1;
-        field[3] = 0;
-        field[4] = 0;
-        field[5] = 0;
-        field[6] = 0;
-        field[7] = 0;
-        field[8] = 0;
-        field[9] = 0;
-        field[10] = 1;
-        field[11] = 0;
-        field[12] = 1;
-        field[13] = 0;
-        field[14] = 0;
-        field[15] = 0;
-        field[16] = 0;
-        field[17] = 0;
-        field[18] = 0;
-        field[19] = 0;
-        field[20] = 0;
-        field[21] = 1;
-        field[22] = 1;
-        field[23] = 0;
-        field[24] = 0;
-        field[25] = 0;
-        field[26] = 0;
-        field[27] = 0;
-        field[28] = 0;
-        field[29] = 0;
-        field[30] = 0;
-        field[31] = 0;
-        field[32] = 0;
-        field[33] = 0;
-        field[34] = 0;
-        field[35] = 0;
-        field[36] = 0;
-        field[37] = 0;
-        field[38] = 0;
-        field[39] = 0;
-        field[40] = 0;
-        field[41] = 0;
-        field[42] = 0;
-        field[43] = 0;
-        field[44] = 0;
-        field[45] = 0;
-        field[46] = 0;
-        field[47] = 0;
-        field[48] = 0;
-        field[49] = 0;
-        field[50] = 0;
-        field[51] = 0;
-        field[52] = 0;
-        field[53] = 0;
-        field[54] = 0;
-        field[55] = 0;
-        field[56] = 0;
-        field[57] = 0;
-        field[58] = 0;
-        field[59] = 0;
-        field[60] = 0;
-        field[61] = 0;
-        field[62] = 0;
-        field[63] = 0;
-        field[64] = 0;
-        field[65] = 0;
-        field[66] = 0;
-        field[67] = 0;
-        field[68] = 0;
-        field[69] = 0;
-        field[70] = 0;
-        field[71] = 0;
-        field[72] = 0;
-        field[73] = 0;
-        field[74] = 0;
-        field[75] = 0;
-        field[76] = 0;
-        field[77] = 0;
-        field[78] = 0;
-        field[79] = 0;
-        field[80] = 0;
-        field[81] = 0;
-        field[82] = 0;
-        field[83] = 0;
-        field[84] = 0;
-        field[85] = 0;
-        field[86] = 0;
-        field[87] = 0;
-        field[88] = 0;
-        field[89] = 0;
-        field[90] = 0;
-        field[91] = 0;
-        field[92] = 0;
-        field[93] = 0;
-        field[94] = 0;
-        field[95] = 0;
-        field[96] = 0;
-        field[97] = 0;
-        field[98] = 0;
-        field[99] = 0;
+        _field[0] = 0;
+        _field[1] = 0;
+        _field[2] = 1;
+        _field[3] = 0;
+        _field[4] = 0;
+        _field[5] = 0;
+        _field[6] = 0;
+        _field[7] = 0;
+        _field[8] = 0;
+        _field[9] = 0;
+        _field[10] = 1;
+        _field[11] = 0;
+        _field[12] = 1;
+        _field[13] = 0;
+        _field[14] = 0;
+        _field[15] = 0;
+        _field[16] = 0;
+        _field[17] = 0;
+        _field[18] = 0;
+        _field[19] = 0;
+        _field[20] = 0;
+        _field[21] = 1;
+        _field[22] = 1;
+        _field[23] = 0;
+        _field[24] = 0;
+        _field[25] = 0;
+        _field[26] = 0;
+        _field[27] = 0;
+        _field[28] = 0;
+        _field[29] = 0;
+        _field[30] = 0;
+        _field[31] = 0;
+        _field[32] = 0;
+        _field[33] = 0;
+        _field[34] = 0;
+        _field[35] = 0;
+        _field[36] = 0;
+        _field[37] = 0;
+        _field[38] = 0;
+        _field[39] = 0;
+        _field[40] = 0;
+        _field[41] = 0;
+        _field[42] = 0;
+        _field[43] = 0;
+        _field[44] = 0;
+        _field[45] = 0;
+        _field[46] = 0;
+        _field[47] = 0;
+        _field[48] = 0;
+        _field[49] = 0;
+        _field[50] = 0;
+        _field[51] = 0;
+        _field[52] = 0;
+        _field[53] = 0;
+        _field[54] = 0;
+        _field[55] = 0;
+        _field[56] = 0;
+        _field[57] = 0;
+        _field[58] = 0;
+        _field[59] = 0;
+        _field[60] = 0;
+        _field[61] = 0;
+        _field[62] = 0;
+        _field[63] = 0;
+        _field[64] = 0;
+        _field[65] = 0;
+        _field[66] = 0;
+        _field[67] = 0;
+        _field[68] = 0;
+        _field[69] = 0;
+        _field[70] = 0;
+        _field[71] = 0;
+        _field[72] = 0;
+        _field[73] = 0;
+        _field[74] = 0;
+        _field[75] = 0;
+        _field[76] = 0;
+        _field[77] = 0;
+        _field[78] = 0;
+        _field[79] = 0;
+        _field[80] = 0;
+        _field[81] = 0;
+        _field[82] = 0;
+        _field[83] = 0;
+        _field[84] = 0;
+        _field[85] = 0;
+        _field[86] = 0;
+        _field[87] = 0;
+        _field[88] = 0;
+        _field[89] = 0;
+        _field[90] = 0;
+        _field[91] = 0;
+        _field[92] = 0;
+        _field[93] = 0;
+        _field[94] = 0;
+        _field[95] = 0;
+        _field[96] = 0;
+        _field[97] = 0;
+        _field[98] = 0;
+        _field[99] = 0;
 
-        return field;
+        return _field;
 
     }
 
@@ -166,13 +166,13 @@ class Life {
         int cur;
         int neighN;
         boolean goodPop;
-        int[] newField;
+        int[] new_field;
 
-        newField = new int[field.length];
+        new_field = new int[_field.length];
 
         i = 0;
-        while (i < field.length) {
-            cur = field[i];
+        while (i < _field.length) {
+            cur = _field[i];
             neighN = this.getLiveNeighborN(i);
             
 
@@ -180,42 +180,42 @@ class Life {
             if (!(cur < 1)) {
                 goodPop = this.ge(neighN,UNDERPOP_LIM) && this.le(neighN,OVERPOP_LIM);
                 if (!goodPop) {
-                    newField[i] = 0;
+                    new_field[i] = 0;
                 } else {
-                    newField[i] = field[i];
+                    new_field[i] = _field[i];
                 }
             }
 
             else {
                 if (this.eq(neighN,REPRODUCE_NUM)) {
-                    newField[i] = 1;
+                    new_field[i] = 1;
                 } else {
-                    newField[i] = field[i];
+                    new_field[i] = _field[i];
                 }
             }
 
             i = i + 1;
         }
 
-        field = newField;
+        _field = new_field;
         return true;
 
     }
 
-    public boolean printField() {
+    public boolean print_field() {
 
         int i;
         int j;
 
         i = 0;
         j = 0;
-        while (i < field.length) {
+        while (i < _field.length) {
             if (this.gt(j,xMax)) {
                 io.println();
                 j = 0;
             }
             else {}
-            io.print(field[i]);
+            io.print(_field[i]);
 
             i = i + 1;
             j = j + 1;
@@ -314,7 +314,7 @@ class Life {
 
         i = 0;
         while (i < neigh.length) {
-            if (this.ne(field[neigh[i]],0))
+            if (this.ne(_field[neigh[i]],0))
                 result = result + 1;
             else {
             }

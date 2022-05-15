@@ -85,12 +85,13 @@ MethodDeclaration #void :
 ;
 
 PublicMain #MethodDeclaration:
-    < STATIC > < VOID > < MAIN > ({ jjtThis.put("type", "void"); jjtThis.put("name", "main");})
+    < STATIC > < VOID > < MAIN > ({ jjtThis.put("static", "true"); jjtThis.put("type", "void"); jjtThis.put("name", "main");})
     < OPEN_PAREN > (<STRING> < OPEN_SQR_BRACKET > < CLOSE_SQR_BRACKET > (< IDENTIFIER > ({ jjtThis.put("var", lastConsumedToken.getImage()); jjtThis.put("type", "String[]"); })) #Parameter) #MethodParameters < CLOSE_PAREN >
     < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* < CLOSE_CRV_BRACKET >
 ;
 
 PublicMethod #MethodDeclaration:
+    ({ jjtThis.put("static", "false"); })
     (Type) ({ jjtThis.put("type", lastConsumedToken.getImage()); }) < IDENTIFIER > ({ jjtThis.put("name", lastConsumedToken.getImage()); })
     < OPEN_PAREN > ( MethodParameters )? < CLOSE_PAREN >
     < OPEN_CRV_BRACKET > ( SCAN 2 VarDeclaration )* ( Statement )* ReturnStatement < CLOSE_CRV_BRACKET >
@@ -114,7 +115,7 @@ Statement #void :
     |   IfStatement
     |   WhileStatement
     |   SCAN 2 AssignmentStatement
-    |   Expression < SEMICOLON >
+    |   (Expression < SEMICOLON >) #ExpressionStatement
 ;
 
 IfStatement: 

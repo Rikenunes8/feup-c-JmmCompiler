@@ -1,0 +1,15 @@
+myClass {
+    .field private a.i32;
+
+    .method public check(b.i32).V {
+
+        t1.i32 :=.i32 getfield(this,a.i32).i32;
+        putfield(this,a.i32,3.i32).V;
+
+        o1.myClass :=.myClass new(myClass).myClass;
+        invokespecial(o1.myClass, "<init>").V;
+
+        t1.i32 :=.i32 getfield(o1.myClass,a.i32).i32;
+        putfield(o1.myClass,a.i32,3.i32).V;
+    }
+}

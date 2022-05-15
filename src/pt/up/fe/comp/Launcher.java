@@ -7,11 +7,16 @@ import java.util.Map;
 import java.util.Collections;
 import java.util.Objects;
 
+import pt.up.fe.comp.jasmin.JasminEmitter;
 import pt.up.fe.comp.analysis.JmmAnalyser;
 import pt.up.fe.comp.ast.SimpleParser;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
+import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.ollir.JmmOptimizer;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -22,7 +27,7 @@ public class Launcher {
         SpecsSystem.programStandardInit();
 
         // comp [-r=<num>] [-o] [-d] -i=<file.jmm>
-        SpecsLogs.info("Executing with args: " + Arrays.toString(args));
+        SpecsLogs.info("Executing with args: " + Arrays.toString(args) + "\n");
         String correctInput = "Correct input: .\\comp2022-1b [-r=<num>] [-o] [-d] -i=<file.jmm>";
 
         // At least the input file (mandatory argument)
@@ -80,6 +85,7 @@ public class Launcher {
         config.put("registerAllocation", registerAllocation);
         config.put("debug", debug);
 
+        // ---
         // Parse stage
         SimpleParser parser = new SimpleParser();
         JmmParserResult parserResult = parser.parse(input, config);
@@ -88,18 +94,52 @@ public class Launcher {
         }
         TestUtils.noErrors(parserResult.getReports());
 
-
+        // ---
         // Analysis stage
         JmmAnalyser analyser = new JmmAnalyser();
-        JmmSemanticsResult analysisResult = analyser.semanticAnalysis(parserResult);
-        // System.out.println(analysisResult.getSymbolTable().print());
-        for (Report report : analysisResult.getReports()) {
+        JmmSemanticsResult semanticsResult = analyser.semanticAnalysis(parserResult);
+        // System.out.println("Symbol table:\n" + semanticsResult.getSymbolTable().print());
+
+        for (Report report : semanticsResult.getReports()) {
             System.out.println(report);
         }
-        TestUtils.noErrors(parserResult.getReports());
+        TestUtils.noErrors(semanticsResult.getReports());
 
-        // ... add remaining stages
+        // ---
+        // Optimization stage
+        JmmOptimizer optimizer = new JmmOptimizer();
+
+        // FINAL VERSION WITH OPTIMIZATION STEPS
+        /*
+        JmmSemanticsResult optimizationResultStep1 = optimizer.optimize(semanticsResult);
+        OllirResult optimizationResultStep2 = optimizer.toOllir(optimizationResultStep1);
+        OllirResult optimizationResult = optimizer.optimize(optimizationResultStep2);
+        */
+
+        // VERSION WITHOUT OPTIMIZATION STEPS
+        OllirResult optimizationResult = optimizer.toOllir(semanticsResult);
+
+        for (Report report : optimizationResult.getReports()) {
+            System.out.println(report);
+        }
+        TestUtils.noErrors(optimizationResult.getReports());
+
+        // ---
+        // JasminBackend stage
+        JasminEmitter jasminEmitter = new JasminEmitter();
+        JasminResult jasminResult = jasminEmitter.toJasmin(optimizationResult);
+        System.out.println(jasminResult.getJasminCode());
+
+        for (Report report : jasminResult.getReports()) {
+            System.out.println(report);
+        }
+        TestUtils.noErrors(jasminResult.getReports());
+
+        // ---
+        // TODO
+        // Save Jasmin Result in file
+        // String filePath = "generated/jasmin/" + jasminResult.getClassName() + ".j";
+        // String fileContent = jasminResult.getJasminCode();
 
     }
-
 }
