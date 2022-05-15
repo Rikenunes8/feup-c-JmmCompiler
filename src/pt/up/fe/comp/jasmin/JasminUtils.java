@@ -103,6 +103,7 @@ public class JasminUtils {
         switch (element.getType().getTypeOfElement()) {
             case THIS:
                 return "\taload_0\n";
+            case VOID: // When in invokes we can not know the return type of the function called -> assume that is an INT
             case INT32:
             case BOOLEAN:
                 return "\tiload" + JasminUtils.getVariableVirtualRegister(element.getName(), varTable) + "\n";
@@ -120,6 +121,7 @@ public class JasminUtils {
         }
 
         switch (operand.getType().getTypeOfElement()) {
+            case VOID: // When in invokes we can not know the return type of the function called -> assume that is an INT
             case INT32:
             case BOOLEAN:
                 return "\tistore" + JasminUtils.getVariableVirtualRegister(operand.getName(), varTable) + "\n";
