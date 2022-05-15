@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static org.junit.Assert.assertEquals;
+
 public class MyGrammarTest {
-  String passPath = "test/fixtures/public/";
+  String passPath = "test/fixtures/public/general/";
   String failPath = "test/fixtures/public/fail/syntactical/";
 
   void test(String path, boolean pass) {
@@ -23,6 +25,7 @@ public class MyGrammarTest {
         TestUtils.mustFail(parserResult.getReports());
       }
     } catch (IOException e) {
+      assertEquals(true, false);
       e.printStackTrace();
     }
   }
