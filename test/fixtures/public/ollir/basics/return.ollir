@@ -1,0 +1,25 @@
+import myClass;
+
+Fac {
+    .field private a.i32;
+
+    .method public check1(myVar.i32).i32 {
+        ret.i32 myVar.i32;
+    }
+
+    .method public check2(myVar.bool).bool {
+        ret.bool myVar.bool;
+    }
+
+    .method public check3(myVar.myClass).myClass {
+        ret.myClass myVar.myClass;
+    }
+
+    .method public check4(myArray.array.i32).array.i32 {
+        ret.array.i32 myArray.array.i32;
+    }
+
+    .method public check5().V {
+        ret.V;
+    }
+}

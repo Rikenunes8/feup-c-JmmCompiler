@@ -16,7 +16,7 @@ Fac {
 		endif:   
 			ret.i32 num_aux.i32;
 	}
-	
+
 	.method public static main(args.array.Fac, c1.Fac).V {
 		aux1.Fac :=.Fac new(Fac).Fac;
 		invokespecial(aux1.Fac,"<init>").V;

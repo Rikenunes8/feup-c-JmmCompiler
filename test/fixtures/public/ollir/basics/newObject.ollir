@@ -1,0 +1,12 @@
+Fac {
+    .field private a.i32;
+
+    .method public check(b.i32).V {
+
+        aux1.Fac :=.Fac new(Fac).Fac;
+        invokespecial(aux1.Fac,"<init>").V;
+
+        aux1.Fac :=.Fac new(Fac).Fac;
+        invokespecial(aux1.Fac,"<init>",2.i32).V;
+    }
+}

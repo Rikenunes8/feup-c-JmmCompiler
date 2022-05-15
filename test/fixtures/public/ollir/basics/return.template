@@ -1,0 +1,49 @@
+.class public Fac
+.super java/lang/Object
+
+.field private a I
+
+.method public <init>()V
+	aload_0
+	invokenonvirtual java/lang/Object/<init>()V
+	return
+.end method
+
+.method public check1(I)I
+	.limit stack 99
+	.limit locals 99
+
+	iload_1
+	ireturn
+.end method
+
+.method public check2(Z)Z
+	.limit stack 99
+	.limit locals 99
+
+	iload_1
+	ireturn
+.end method
+
+.method public check3(LmyClass;)LmyClass;
+	.limit stack 99
+	.limit locals 99
+
+	aload_1
+	areturn
+.end method
+
+.method public check4([I)[I
+	.limit stack 99
+	.limit locals 99
+
+	aload_1
+	areturn
+.end method
+
+.method public check5()V
+	.limit stack 99
+	.limit locals 99
+
+	return
+.end method

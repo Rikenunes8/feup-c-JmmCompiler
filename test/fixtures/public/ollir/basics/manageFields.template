@@ -1,0 +1,33 @@
+.class public myClass
+.super java/lang/Object
+
+.field private a I
+
+.method public <init>()V
+	aload_0
+	invokenonvirtual java/lang/Object/<init>()V
+	return
+.end method
+
+.method public check(I)V
+	.limit stack 99
+	.limit locals 99
+
+	aload_0
+	getfield myClass/a I
+	istore_2
+	aload_0
+	iconst_3
+	putfield myClass/a I
+	new myClass
+	dup
+	invokespecial myClass/<init>()V
+	astore_3
+	aload_3
+	getfield o1/a I
+	istore_2
+	aload_3
+	iconst_3
+	putfield o1/a I
+	return
+.end method
