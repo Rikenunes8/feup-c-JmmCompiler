@@ -86,7 +86,7 @@ public class Launcher {
         config.put("debug", debug);
 
         // ---
-        // JmmParse stage
+        // Parse stage
         SimpleParser parser = new SimpleParser();
         JmmParserResult parserResult = parser.parse(input, config);
         for (Report report : parserResult.getReports()) {
@@ -95,7 +95,7 @@ public class Launcher {
         TestUtils.noErrors(parserResult.getReports());
 
         // ---
-        // JmmAnalysis stage
+        // Analysis stage
         JmmAnalyser analyser = new JmmAnalyser();
         JmmSemanticsResult semanticsResult = analyser.semanticAnalysis(parserResult);
         // System.out.println("Symbol table:\n" + semanticsResult.getSymbolTable().print());
@@ -106,7 +106,7 @@ public class Launcher {
         TestUtils.noErrors(semanticsResult.getReports());
 
         // ---
-        // JmmOptimization stage
+        // Optimization stage
         JmmOptimizer optimizer = new JmmOptimizer();
 
         // FINAL VERSION WITH OPTIMIZATION STEPS

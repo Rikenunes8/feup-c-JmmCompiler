@@ -34,7 +34,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         addVisit(RETURN_STATEMENT, this::visitReturnStatement);
 
         addVisit(CONDITION, this::visitCondition);
-        addVisit(WHILE_BLOCK, this::visitWhileBlock);
 
         addVisit(EXPRESSION_STATEMENT, this::visitExpressionStatement);
         addVisit(IF_STATEMENT, this::visitIfStatement);
@@ -163,20 +162,20 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         JmmNode elseBlock = ifStatement.getJmmChild(2);
 
         visit(condition);
-        code.append(ident(true)).append("Then").append(ifNumber).append(": \n");
+        int thisIfNumber = ifNumber++;
+        code.append(ident(true)).append("Then").append(thisIfNumber).append(": \n");
         for(JmmNode ifChild : ifBlock.getChildren()){
             visit(ifChild);
         }
 
-        code.append(ident()).append("goto EndIf").append(ifNumber).append(";\n");
-        code.append(ident(true)).append("Else").append(ifNumber).append(": \n");
+        code.append(ident()).append("goto EndIf").append(thisIfNumber).append(";\n");
+        code.append(ident(true)).append("Else").append(thisIfNumber).append(": \n");
 
         for(JmmNode elseChild : elseBlock.getChildren()){
             visit(elseChild);
         }
 
-        code.append(ident(true)).append("EndIf").append(ifNumber).append(":\n");
-        ifNumber++;
+        code.append(ident(true)).append("EndIf").append(thisIfNumber).append(":\n");
         return 0;
     }
 
@@ -187,10 +186,13 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         code.append(ident(true)).append("Loop").append(whileNumber).append(":\n");
 
         visit(condition);
-        visit(whileBlock);
+        int thisWhileNumber = whileNumber++;
 
-        code.append(ident(true)).append("EndLoop").append(whileNumber).append(":\n");
-        whileNumber++;
+        code.append(ident(true)).append("Body").append(thisWhileNumber).append(":\n");
+        visit(whileBlock.getJmmChild(0));
+        code.append(ident()).append("goto Loop").append(thisWhileNumber).append(";\n");
+
+        code.append(ident(true)).append("EndLoop").append(thisWhileNumber).append(":\n");
         return 0;
     }
 
@@ -248,14 +250,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
             default:
                 break;
         }
-
-        return 0;
-    }
-
-    private Integer visitWhileBlock(JmmNode whileBlock, Integer dummy) {
-        code.append(ident(true)).append("Body").append(whileNumber).append(":\n");
-        visit(whileBlock.getJmmChild(0));
-        code.append(ident()).append("goto Loop").append(whileNumber).append(";\n");
 
         return 0;
     }
