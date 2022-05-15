@@ -1,0 +1,30 @@
+import io;
+class Test {
+
+	public static void main(String[] args) {
+
+        int a;
+        int b;
+        int c;
+        Test t;
+
+        t = new Test();
+        a = 1;
+        b = 2;
+
+        c = t.sum(a,b);
+
+        io.print(c);
+	}
+
+    public int sum(int a, int b) {
+
+        int c;
+        c = this.add(a,b);
+        return c;
+    }
+
+    public int add(int a, int b) {
+        return a+b;
+    }
+}

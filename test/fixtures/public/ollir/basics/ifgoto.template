@@ -14,12 +14,12 @@
 	iload_1
 	iconst_1
 	if_icmpge label0
-	iconst_1
+	iconst_0
 	goto label1
 	label0:
-	iconst_0
+	iconst_1
 	label1:
-	ifeq else
+	ifne else
 	else:
 	return
 .end method

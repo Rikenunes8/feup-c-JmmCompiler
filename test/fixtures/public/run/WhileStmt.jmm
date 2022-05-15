@@ -1,0 +1,18 @@
+import io;
+class WhileAndIF {
+
+    public static void main(String[] args){
+
+        int c;
+        int[] d;
+
+        d = new int[10];
+
+        c=0;
+        while(c < d.length){
+            c= c+1;
+        }
+        io.println(c);
+    }
+
+}

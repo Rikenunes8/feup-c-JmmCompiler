@@ -208,7 +208,7 @@ public class JasminGenerator {
 
     public String getJasminCode(CondBranchInstruction instruction, HashMap<String, Descriptor> varTable) {
         return this.getJasminCode(instruction.getCondition(), new HashMap<>(), varTable)
-                + "\tifeq " + instruction.getLabel() + "\n";
+                + "\tifne " + instruction.getLabel() + "\n";
     }
 
     public String getJasminCode(GotoInstruction instruction, HashMap<String, Descriptor> varTable) {

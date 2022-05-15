@@ -134,10 +134,10 @@ public class JasminInstrBinaryOpGenerator {
     private String getBinaryBooleanJumpsCode(String comparison, String trueLabel, String falseLabel) {
 
         return  "\t" + comparison + " " + trueLabel + "\n" +
-                "\ticonst_1\n" +
+                "\ticonst_0\n" +
                 "\tgoto " + falseLabel + "\n" +
                 "\t" + trueLabel + ":\n" +
-                "\ticonst_0\n" +
+                "\ticonst_1\n" +
                 "\t" + falseLabel + ":\n";
     }
 }
