@@ -212,7 +212,7 @@ public class OllirExprGenerator extends AJmmVisitor<Integer, OllirExprCode> {
 
         if (jmmRight.getKind().equals(PROPERTY_LENGTH.toString())) {
             String aux = left.getFullExp();
-            if (jmmLeft.getKind().equals(NEW_INT_ARRAY.toString())) {
+            if (jmmLeft.getKind().equals(NEW_INT_ARRAY.toString()) || (jmmLeft.getKind().equals(IDENTIFIER_LITERAL.toString()) && aux.startsWith("getfield"))) {
                 aux = newVar(left.getType());
                 temps.append(ident()).append(newVarInstr(aux, left.getType(), left.getFullExp()));
             }
