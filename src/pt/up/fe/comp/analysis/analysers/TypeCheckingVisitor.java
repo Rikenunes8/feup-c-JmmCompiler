@@ -227,8 +227,6 @@ public class TypeCheckingVisitor extends SemanticAnalyserVisitor {
     private Boolean visitCondition(JmmNode conditionExp, SymbolTableBuilder symbolTable) {
         Type conditionExpType = getType(conditionExp.getJmmChild(0), symbolTable);
 
-        System.out.println(conditionExpType.getName());
-
         if (conditionExpType == null)
             return true;
 

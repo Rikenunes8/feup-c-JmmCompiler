@@ -106,6 +106,7 @@ public class BackendTest {
 
     private static void noErrors(String jmmCode) {
         var result = TestUtils.backend(jmmCode);
+        System.out.println(result.getJasminCode());
         result.compile();
     }
 

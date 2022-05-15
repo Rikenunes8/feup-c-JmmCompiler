@@ -205,7 +205,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         var leftFullExp = left.getFullExp();
         if (leftFullExp.startsWith("getfield")) {
             String aux = leftFullExp.substring(leftFullExp.indexOf(",")+1, leftFullExp.indexOf(")"));
-            System.out.println(aux);
             String t2 = newVar(right.getType());
             code.append(ident()).append(newVarInstr(t2, right.getType(), right.getFullExp()));
             code.append(ident()).append("putfield(this,").append(aux).append(", ").append(t2).append(").V;\n");
