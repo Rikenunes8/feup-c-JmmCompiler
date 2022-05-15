@@ -1,4 +1,4 @@
-import ioPlus;
+import io;
 class IfStmt {
 	public static void main(String[] args) {
         int b;
@@ -9,6 +9,6 @@ class IfStmt {
         else
             b = 3;
 
-        ioPlus.printResult(b);
+        io.print(b);
 	}
 }

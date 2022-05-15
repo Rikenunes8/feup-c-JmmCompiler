@@ -2,10 +2,7 @@ package pt.up.fe.comp.mytests;
 
 import org.junit.Test;
 import pt.up.fe.comp.TestUtils;
-import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.specs.util.SpecsIo;
-
-import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
@@ -21,6 +18,27 @@ public class MyCompilerTest {
 
     @Test
     public void testIfStmtLogic1() {
-        noErrors(SpecsIo.getResource("fixtures/public/run/IfStmt.jmm"), "Result: 3");
+        noErrors(SpecsIo.getResource("fixtures/public/run/IfStmtLogic1.jmm"), "3");
     }
+
+    @Test
+    public void testFunctionCall() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/FunctionCall.jmm"), "3");
+    }
+
+    @Test
+    public void testLocalVar() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/LocalVar.jmm"), "5");
+    }
+
+    //TODO ifstmt
+
+    //TODO whileloop
+
+    //TODO chamadas a this.funções
+
+    //TODO expressões aritmeticas
+
+
+
 }

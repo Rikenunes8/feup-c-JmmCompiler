@@ -1,0 +1,27 @@
+import io;
+class Test {
+
+	public static void main(String[] args) {
+
+        int a;
+        int b;
+        int c;
+        Test t;
+
+        t = new Test();
+        a = 1;
+        b = 2;
+
+        c = t.sum(a,b);
+
+        io.print(c);
+	}
+
+    public int sum(int a, int b) {
+        int a;
+
+        a = 3;
+
+        return a + b;
+    }
+}
