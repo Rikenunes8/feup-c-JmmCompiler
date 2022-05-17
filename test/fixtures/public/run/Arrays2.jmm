@@ -1,0 +1,15 @@
+import io;
+class Test {
+	public static void main(String[] args) {
+	    int[] a;
+	    int c;
+        a = new int[2+1];
+        a[0] = 1;
+        a[1] = 2;
+        a[3*2-4] = 3;
+
+        c = a[0] + a[1] + a[2];
+
+        io.print(c);
+	}
+}

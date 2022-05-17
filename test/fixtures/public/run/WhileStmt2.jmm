@@ -1,18 +1,20 @@
 import io;
 class WhileAndIF {
-
     public static void main(String[] args){
-
+        int a;
         int c;
         int[] d;
-
         d = new int[10];
 
-        c=0;
+        a = 0;
+        c = 0;
         while(c < d.length){
             c = c+1;
+            while (a < c) {
+                a = a + 1;
+            }
         }
-        io.println(c);
+        io.println(a);
     }
 
 }
