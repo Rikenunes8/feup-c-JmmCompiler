@@ -56,7 +56,7 @@ public class SimpleParser implements JmmParser {
             ParseException err = TestUtils.getException(e, ParseException.class);
             if (err != null) {
                 Token t = err.getToken();
-                return JmmParserResult.newError(Report.newError(Stage.SYNTATIC, t.getBeginLine(), t.getBeginColumn(), e.getMessage(), e));
+                return JmmParserResult.newError(Report.newError(Stage.SYNTATIC, t.getBeginLine(), t.getBeginColumn(), "Exception during parsing", err));
             }
             return JmmParserResult.newError(Report.newError(Stage.SYNTATIC, -1, -1, "Exception during parsing", e));
         }
