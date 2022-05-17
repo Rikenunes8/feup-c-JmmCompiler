@@ -71,6 +71,14 @@ public class MyCompilerTest {
     }
 
     @Test
+    public void testArrays1() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/Arrays1.jmm"), "15");
+    }
+    @Test
+    public void testArrays2() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/Arrays2.jmm"), "6");
+    }
+    @Test
     public void testLocalVar() {
         noErrors(SpecsIo.getResource("fixtures/public/run/LocalVar.jmm"), "5");
     }
@@ -80,6 +88,10 @@ public class MyCompilerTest {
         noErrors(SpecsIo.getResource("fixtures/public/run/WhileStmt.jmm"), "10");
     }
 
+    @Test
+    public void testWhileStmt2() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/WhileStmt2.jmm"), "10");
+    }
 
 
 
