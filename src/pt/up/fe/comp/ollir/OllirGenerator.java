@@ -97,6 +97,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
     
     private Integer visitMethodDeclaration(JmmNode methodDeclaration, Integer dummy) {
+        OllirExprGenerator.varAuxNumber = 0;
         String methodSignature = methodDeclaration.get("name");
         boolean isStatic = Boolean.parseBoolean(methodDeclaration.get("static"));
         code.append(ident()).append(".method public ");
