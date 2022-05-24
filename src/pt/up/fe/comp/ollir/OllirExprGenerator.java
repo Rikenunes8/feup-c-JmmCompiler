@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class OllirExprGenerator extends AJmmVisitor<Integer, OllirExprCode> {
     private final SymbolTableBuilder symbolTable;
-    private static int varAuxNumber = 0;
+    public static int varAuxNumber = 0;
 
     public OllirExprGenerator(SymbolTableBuilder symbolTable) {
         this.symbolTable = symbolTable;
