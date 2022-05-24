@@ -3,6 +3,7 @@ package pt.up.fe.comp.mytests;
 import org.junit.Test;
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.specs.util.SpecsIo;
+import pt.up.fe.specs.util.SpecsStrings;
 
 import static org.junit.Assert.assertEquals;
 
@@ -93,6 +94,21 @@ public class MyCompilerTest {
         noErrors(SpecsIo.getResource("fixtures/public/run/WhileStmt2.jmm"), "10");
     }
 
+    // ----------
 
+    public void assertNoErrorsGeneral(String filename) {
+        noErrors(SpecsIo.getResource("fixtures/public/general/" + filename + ".jmm"),
+                SpecsIo.getResource("fixtures/public/general/" + filename + ".txt"));
+    }
 
+    @Test
+    public void testTicTacToe() {
+        // TODO Correct error
+        // assertNoErrorsGeneral("TicTacToe");
+    }
+
+    @Test
+    public void testWhileAndIf() {
+        assertNoErrorsGeneral("WhileAndIf");
+    }
 }

@@ -123,8 +123,8 @@ public class JasminGenerator {
         // limit stack - max length of the stack that we need to the method
         // limit locals - max number of registers we need to use
 
-        return "\t.limit stack " + 99 + "\n" +
-                "\t.limit locals " + 99 + "\n\n";
+        return "\t.limit stack " + 150 + "\n" +
+                "\t.limit locals " + 150 + "\n\n";
         // NOTE: Now we can use 99, but this will be changed for checkpoint 3
     }
 
