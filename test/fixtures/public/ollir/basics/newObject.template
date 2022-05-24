@@ -1,7 +1,7 @@
 .class public Fac
 .super java/lang/Object
 
-.field private a I
+.field private 'a' I
 
 .method public <init>()V
 	aload_0
