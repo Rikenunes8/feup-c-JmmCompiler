@@ -75,10 +75,22 @@ public class MyCompilerTest {
     public void testArrays1() {
         noErrors(SpecsIo.getResource("fixtures/public/run/Arrays1.jmm"), "15");
     }
+
     @Test
     public void testArrays2() {
         noErrors(SpecsIo.getResource("fixtures/public/run/Arrays2.jmm"), "6");
     }
+
+    @Test
+    public void testArraysAndBooleans() {
+        noErrors(SpecsIo.getResource("fixtures/public/run/ArraysAndBooleans.jmm"), "1\r\n0\r\n15\r\n0\r\n1\r\n15");
+    }
+
+    @Test
+    public void testTicTacToeWinner() {
+        // noErrors(SpecsIo.getResource("fixtures/public/run/TicTacToeWinner.jmm"), "");
+    }
+
     @Test
     public void testLocalVar() {
         noErrors(SpecsIo.getResource("fixtures/public/run/LocalVar.jmm"), "5");

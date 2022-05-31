@@ -23,7 +23,7 @@ public class JasminInstrBinaryOpGenerator {
         this.labelCounter = 0;
     }
 
-    private String nextLabel() {
+    public String nextLabel() {
         return "label" + this.labelCounter++;
     }
 
@@ -131,7 +131,7 @@ public class JasminInstrBinaryOpGenerator {
         }
     }
 
-    private String getBinaryBooleanJumpsCode(String comparison, String trueLabel, String falseLabel) {
+    public String getBinaryBooleanJumpsCode(String comparison, String trueLabel, String falseLabel) {
 
         return  "\t" + comparison + " " + trueLabel + "\n" +
                 "\ticonst_0\n" +

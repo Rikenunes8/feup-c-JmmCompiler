@@ -199,8 +199,11 @@ public class JasminGenerator {
     }
 
     public String getJasminCode(UnaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
+        String trueLabel = instrBinaryOpGenerator.nextLabel();
+        String falseLabel = instrBinaryOpGenerator.nextLabel();
+
         return JasminUtils.loadElementCode(instruction.getOperand(), varTable)
-                + "\tineg\n";
+               + instrBinaryOpGenerator.getBinaryBooleanJumpsCode("ifeq", trueLabel, falseLabel);
     }
 
     public String getJasminCode(SingleOpInstruction instruction, HashMap<String, Descriptor> varTable) {
