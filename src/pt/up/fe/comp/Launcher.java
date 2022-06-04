@@ -138,17 +138,6 @@ public class Launcher {
         }
         TestUtils.noErrors(jasminResult.getReports());
 
-        // ---
-        // TODO
-        // Save Jasmin Result in file
-        String filePath = jasminResult.getClassName() + ".j";
-        String fileContent = jasminResult.getJasminCode();
-
-        File yourFile = new File(filePath);
-        yourFile.createNewFile(); // if file already exists will do nothing
-        FileOutputStream oFile = new FileOutputStream(yourFile, false);
-        oFile.write(fileContent.getBytes());
-
-        JasminUtils.assemble(yourFile, new File("./libs-jmm/compiled/"));
+        jasminResult.compile(new File("./libs-jmm/compiled/"));
     }
 }

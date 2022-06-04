@@ -1,11 +1,11 @@
 import io;
-class Test {
+class FirstCompiler {
 	int a;
 	public static void main(String[] args) {
         int b;
         int c;
-        Test t;
-        t = new Test();
+        FirstCompiler t;
+        t = new FirstCompiler();
         t.f();
 	}
 
