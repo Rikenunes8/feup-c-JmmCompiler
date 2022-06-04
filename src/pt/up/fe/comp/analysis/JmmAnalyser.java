@@ -35,6 +35,7 @@ public class JmmAnalyser implements JmmAnalysis {
 
         List<SemanticAnalyserVisitor> anlysers = Arrays.asList(
                 new SymbolTableVisitor(),
+                new FieldsInStaticMethods(),
                 new UndefinedVarsVisitor(),
                 new CheckImportsVisitor(),
                 new TypeCheckingVisitor(),
