@@ -1,6 +1,8 @@
 package pt.up.fe.comp;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +13,7 @@ import pt.up.fe.comp.jasmin.JasminEmitter;
 import pt.up.fe.comp.analysis.JmmAnalyser;
 import pt.up.fe.comp.ast.SimpleParser;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.jasmin.JasminUtils;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
@@ -23,7 +26,7 @@ import pt.up.fe.specs.util.SpecsSystem;
 
 public class Launcher {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         SpecsSystem.programStandardInit();
 
         // comp [-r=<num>] [-o] [-d] -i=<file.jmm>
@@ -135,11 +138,6 @@ public class Launcher {
         }
         TestUtils.noErrors(jasminResult.getReports());
 
-        // ---
-        // TODO
-        // Save Jasmin Result in file
-        // String filePath = "generated/jasmin/" + jasminResult.getClassName() + ".j";
-        // String fileContent = jasminResult.getJasminCode();
-
+        jasminResult.compile(new File("./libs-jmm/compiled/"));
     }
 }
