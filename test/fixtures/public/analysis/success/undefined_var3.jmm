@@ -4,6 +4,7 @@ class Child {
 
     public static void main(String[] args) {
         int c;
+        boolean b;
 
         c = 1;
         b = true;

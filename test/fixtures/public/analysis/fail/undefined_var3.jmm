@@ -3,6 +3,7 @@ class Child {
     boolean b;
 
     public static void main(String[] args) {
+        boolean b;
         int c;
 
         c = 1;
