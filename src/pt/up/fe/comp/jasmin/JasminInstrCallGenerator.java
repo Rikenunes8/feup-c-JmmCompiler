@@ -10,11 +10,13 @@ public class JasminInstrCallGenerator {
     private final ClassUnit classUnit;
     private final CallInstruction instruction;
     private final HashMap<String, Descriptor> varTable;
+    private final boolean inAssignment;
 
-    public JasminInstrCallGenerator(ClassUnit classUnit, CallInstruction instruction, HashMap<String, Descriptor> varTable) {
+    public JasminInstrCallGenerator(ClassUnit classUnit, CallInstruction instruction, HashMap<String, Descriptor> varTable, boolean inAssignment) {
         this.classUnit = classUnit;
         this.instruction = instruction;
         this.varTable = varTable;
+        this.inAssignment = inAssignment;
     }
 
     public String getJasminCode() {
@@ -80,6 +82,10 @@ public class JasminInstrCallGenerator {
 
         code.append("\tinvokevirtual ").append(methodClass)
                 .append("/").append(virtualMethodCall).append(this.getCallInvokeParametersCode());
+
+        if (!this.inAssignment && this.instruction.getReturnType().getTypeOfElement() != ElementType.VOID) {
+            code.append("pop").append("\n");
+        }
 
         return code.toString();
     }

@@ -147,7 +147,12 @@ public class JasminGenerator {
             code.append(JasminUtils.loadElementCode(arrayOperand.getIndexOperands().get(0), varTable));
         }
 
-        code.append(getJasminCode(instruction.getRhs(), new HashMap<>(), varTable));
+        if (instruction.getRhs() instanceof CallInstruction) {
+            JasminInstrCallGenerator callInstrGenerator = new JasminInstrCallGenerator(this.classUnit, (CallInstruction) instruction.getRhs(), varTable, true);
+            code.append(callInstrGenerator.getJasminCode());
+        } else {
+            code.append(getJasminCode(instruction.getRhs(), new HashMap<>(), varTable));
+        }
 
         // In case that on the right side of the assignment there is a call instruction for a new object - do not store yet
         if (!(instruction.getRhs() instanceof CallInstruction
@@ -159,7 +164,7 @@ public class JasminGenerator {
     }
 
     public String getJasminCode(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
-        JasminInstrCallGenerator callInstrGenerator = new JasminInstrCallGenerator(this.classUnit, instruction, varTable);
+        JasminInstrCallGenerator callInstrGenerator = new JasminInstrCallGenerator(this.classUnit, instruction, varTable, false);
         return callInstrGenerator.getJasminCode();
     }
 
