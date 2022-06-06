@@ -27,7 +27,7 @@ public class UndefinedVarsVisitor extends SemanticAnalyserVisitor {
 
     private Boolean visitClassDeclaration(JmmNode jmmNode, SymbolTableBuilder symbolTableBuilder) {
         for (Symbol field : symbolTableBuilder.getFields()) {
-            this.fields.put(field.getName(), false);
+            this.fields.put(field.getName(), true);
         }
         return true;
     }
