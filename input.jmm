@@ -7,6 +7,10 @@ class FirstCompiler {
         FirstCompiler t;
         t = new FirstCompiler();
         t.f();
+
+        b = 2;
+        c = b + 1;
+        io.print(b);
 	}
 
 	public int f() {

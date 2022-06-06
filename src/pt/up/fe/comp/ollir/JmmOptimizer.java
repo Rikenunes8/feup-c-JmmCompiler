@@ -1,6 +1,7 @@
 package pt.up.fe.comp.ollir;
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
 
+import pt.up.fe.comp.ast.ConstantPropagationVisitor;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
@@ -10,6 +11,9 @@ import java.util.Collections;
 public class JmmOptimizer implements JmmOptimization {
     @Override
     public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
+        if (!semanticsResult.getConfig().get("optimize").equals("true"))
+            return JmmOptimization.super.optimize(semanticsResult);
+        var constantPropagation = new ConstantPropagationVisitor();
         return JmmOptimization.super.optimize(semanticsResult);
     }
 
