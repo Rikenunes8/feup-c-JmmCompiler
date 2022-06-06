@@ -88,11 +88,6 @@ public class MyCompilerTest {
     }
 
     @Test
-    public void testTicTacToeWinner() {
-        // noErrors(SpecsIo.getResource("fixtures/public/run/TicTacToeWinner.jmm"), "");
-    }
-
-    @Test
     public void testLocalVar() {
         noErrors(SpecsIo.getResource("fixtures/public/run/LocalVar.jmm"), "5");
     }
@@ -116,8 +111,7 @@ public class MyCompilerTest {
 
     @Test
     public void testTicTacToe() {
-        // TODO Correct error
-        // assertNoErrorsGeneral("TicTacToe");
+        assertNoErrorsGeneral("TicTacToe");
     }
 
     @Test
