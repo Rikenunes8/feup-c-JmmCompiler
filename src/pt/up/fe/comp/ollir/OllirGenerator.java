@@ -211,10 +211,15 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
             code.append(ident()).append("putfield(this,").append(aux).append(", ").append(t2).append(").V;\n");
         }
         else {
+            String rightFullExp = right.getFullExp();
+            if (rightFullExp.startsWith("invoke")) {
+                rightFullExp = rightFullExp.substring(0, rightFullExp.lastIndexOf('.') + 1).concat(left.getType());
+            }
+
             code.append(ident())
                     .append(left.getFullExp())
                     .append(" :=.").append(left.getType())
-                    .append(" ").append(right.getFullExp()).append(";\n");
+                    .append(" ").append(rightFullExp).append(";\n");
 
         }
         return 0;
