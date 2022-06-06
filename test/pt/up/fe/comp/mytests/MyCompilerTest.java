@@ -83,7 +83,8 @@ public class MyCompilerTest {
 
     @Test
     public void testArraysAndBooleans() {
-        noErrors(SpecsIo.getResource("fixtures/public/run/ArraysAndBooleans.jmm"), "1\r\n0\r\n15\r\n0\r\n1\r\n15");
+        var nl = SpecsIo.getNewline();
+        noErrors(SpecsIo.getResource("fixtures/public/run/ArraysAndBooleans.jmm"), "1"+nl+"0"+nl+"15"+nl+"0"+nl+"1"+nl+"15");
     }
 
     @Test

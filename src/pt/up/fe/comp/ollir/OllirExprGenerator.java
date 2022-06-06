@@ -107,7 +107,7 @@ public class OllirExprGenerator extends AJmmVisitor<Integer, OllirExprCode> {
     }
 
     private OllirExprCode visitAndExp(JmmNode andExp, Integer integer) {
-        return this.visitBiOpExp(andExp, "bool", "&.bool");
+        return this.visitBiOpExp(andExp, "bool", "&&.bool");
     }
     private OllirExprCode visitLessExp(JmmNode lessExp, Integer integer) {
         return this.visitBiOpExp(lessExp, "bool", "<.i32");
