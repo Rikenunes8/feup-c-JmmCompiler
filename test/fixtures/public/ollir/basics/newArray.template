@@ -9,7 +9,7 @@
 
 .method public check()V
 	.limit stack 99
-	.limit locals 99
+	.limit locals 2
 
 	iconst_5
 	iconst_4

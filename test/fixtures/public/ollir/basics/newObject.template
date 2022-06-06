@@ -11,7 +11,7 @@
 
 .method public check(I)V
 	.limit stack 99
-	.limit locals 99
+	.limit locals 3
 
 	new Fac
 	dup

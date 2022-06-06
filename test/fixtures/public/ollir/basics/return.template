@@ -11,7 +11,7 @@
 
 .method public check1(I)I
 	.limit stack 99
-	.limit locals 99
+	.limit locals 2
 
 	iload_1
 	ireturn
@@ -19,7 +19,7 @@
 
 .method public check2(Z)Z
 	.limit stack 99
-	.limit locals 99
+	.limit locals 2
 
 	iload_1
 	ireturn
@@ -27,7 +27,7 @@
 
 .method public check3(LmyClass;)LmyClass;
 	.limit stack 99
-	.limit locals 99
+	.limit locals 2
 
 	aload_1
 	areturn
@@ -35,7 +35,7 @@
 
 .method public check4([I)[I
 	.limit stack 99
-	.limit locals 99
+	.limit locals 2
 
 	aload_1
 	areturn
@@ -43,7 +43,7 @@
 
 .method public check5()V
 	.limit stack 99
-	.limit locals 99
+	.limit locals 1
 
 	return
 .end method

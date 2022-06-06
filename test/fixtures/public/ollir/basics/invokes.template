@@ -9,7 +9,7 @@
 
 .method public static main([Ljava/lang/String;)V
 	.limit stack 99
-	.limit locals 99
+	.limit locals 5
 
 	aload_1
 	iconst_2
@@ -22,7 +22,7 @@
 
 .method public check()V
 	.limit stack 99
-	.limit locals 99
+	.limit locals 2
 
 	aload_0
 	invokespecial java/lang/Object/<init>()V
