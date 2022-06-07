@@ -7,6 +7,7 @@ import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 
 import java.util.Collections;
+import java.util.HashMap;
 
 public class JmmOptimizer implements JmmOptimization {
     @Override
@@ -14,6 +15,9 @@ public class JmmOptimizer implements JmmOptimization {
         if (!semanticsResult.getConfig().get("optimize").equals("true"))
             return JmmOptimization.super.optimize(semanticsResult);
         var constantPropagation = new ConstantPropagationVisitor();
+        var root = semanticsResult.getRootNode();
+        var constants = new HashMap<String, String>();
+        constantPropagation.visit(root, constants);
         return JmmOptimization.super.optimize(semanticsResult);
     }
 
