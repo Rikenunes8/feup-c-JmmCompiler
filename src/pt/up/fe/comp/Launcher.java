@@ -109,12 +109,17 @@ public class Launcher {
         // Optimization stage
         JmmOptimizer optimizer = new JmmOptimizer();
 
-        // FINAL VERSION WITH OPTIMIZATION STEPS
-        /*
-        JmmSemanticsResult optimizationResultStep1 = optimizer.optimize(semanticsResult);
-        OllirResult optimizationResultStep2 = optimizer.toOllir(optimizationResultStep1);
-        OllirResult optimizationResult = optimizer.optimize(optimizationResultStep2);
-        */
+        if(config.get("optimize").equals("true"))
+        {
+            
+            // FINAL VERSION WITH OPTIMIZATION STEPS
+            
+            JmmSemanticsResult optimizationResultStep1 = optimizer.optimize(semanticsResult);
+            OllirResult optimizationResultStep2 = optimizer.toOllir(optimizationResultStep1);
+            OllirResult optimizationResult = optimizer.optimize(optimizationResultStep2);
+            
+
+        }
 
         // VERSION WITHOUT OPTIMIZATION STEPS
         OllirResult optimizationResult = optimizer.toOllir(semanticsResult);
