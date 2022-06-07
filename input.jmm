@@ -4,28 +4,16 @@ class FirstCompiler {
 	public static void main(String[] args) {
         int b;
         int c;
-        FirstCompiler t;
-        int[] z;
-        z = new int[10];
-        t = new FirstCompiler();
-        t.f(1, true);
-        c = z.length;
-        z[1] = 2;
-        b = 2;
-        c = b;
-        z[2] = b;
-        if (b < 4) {
-            c = 3;
-        }
-        else {
-            c = 6;
-        }
+        // FirstCompiler t;
 
-        while (true) {
-            t.f(10, false && true);
-        }
+        // t = new FirstCompiler();
+        b = 2 + 3;
+        c = b * 5;
+        if (true && false && true)
+            c = 3 + 4 * 2;
+        else
+            c = 6 - 3;
 
-        c = b + 1;
         io.print(b);
 	}
 

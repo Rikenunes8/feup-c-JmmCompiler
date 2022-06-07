@@ -1,6 +1,7 @@
 package pt.up.fe.comp.ollir;
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
 
+import pt.up.fe.comp.ast.ConstantFoldingVisitor;
 import pt.up.fe.comp.ast.ConstantPropagationVisitor;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ast.JmmNode;
@@ -16,11 +17,18 @@ public class JmmOptimizer implements JmmOptimization {
     public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
         if (!semanticsResult.getConfig().get("optimize").equals("true"))
             return JmmOptimization.super.optimize(semanticsResult);
-        System.out.println("Optimizing....");
-        var constantPropagation = new ConstantPropagationVisitor();
+
         JmmNode root = semanticsResult.getRootNode();
+
+        // Constant Propagation
+        var constantPropagation = new ConstantPropagationVisitor();
         Map<String, String> constants = new HashMap<>(); // (name, const_value)
         constantPropagation.visit(root, constants);
+
+        // Constant Folding
+        var constantFolding = new ConstantFoldingVisitor();
+        constantFolding.visit(root);
+
         return JmmOptimization.super.optimize(semanticsResult);
     }
 
