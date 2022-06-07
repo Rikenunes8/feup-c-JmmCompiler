@@ -5,26 +5,31 @@ class FirstCompiler {
         int b;
         int c;
         FirstCompiler t;
+        int[] z;
+        z = new int[10];
         t = new FirstCompiler();
-        t.f();
-
+        t.f(1, true);
+        c = z.length;
+        z[1] = 2;
         b = 2;
+        c = b;
+        z[2] = b;
         if (b < 4) {
-            b = 3;
+            c = 3;
         }
         else {
-            b = 6;
+            c = 6;
         }
 
         while (true) {
-            t.f();
+            t.f(10, false && true);
         }
 
         c = b + 1;
         io.print(b);
 	}
 
-	public int f() {
+	public int f(int d, boolean g) {
 	    a = 1;
 	    io.print(a);
 	    return a;

@@ -3,20 +3,23 @@ import pt.up.fe.comp.analysis.SymbolTableBuilder;
 
 import pt.up.fe.comp.ast.ConstantPropagationVisitor;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 public class JmmOptimizer implements JmmOptimization {
     @Override
     public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
         if (!semanticsResult.getConfig().get("optimize").equals("true"))
             return JmmOptimization.super.optimize(semanticsResult);
+        System.out.println("Optimizing....");
         var constantPropagation = new ConstantPropagationVisitor();
-        var root = semanticsResult.getRootNode();
-        var constants = new HashMap<String, String>();
+        JmmNode root = semanticsResult.getRootNode();
+        Map<String, String> constants = new HashMap<>(); // (name, const_value)
         constantPropagation.visit(root, constants);
         return JmmOptimization.super.optimize(semanticsResult);
     }

@@ -13,6 +13,7 @@ import pt.up.fe.comp.jasmin.JasminEmitter;
 import pt.up.fe.comp.analysis.JmmAnalyser;
 import pt.up.fe.comp.ast.SimpleParser;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.jasmin.JasminUtils;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
@@ -111,26 +112,22 @@ public class Launcher {
         // ---
         // Optimization stage
         JmmOptimizer optimizer = new JmmOptimizer();
+        JmmSemanticsResult optSemanticsResult = optimizer.optimize(semanticsResult);
+        JmmNode jmmRoot = (optSemanticsResult.getRootNode()).sanitize();
+        System.out.println("\n\n---- AST Optimized ----\n");
+        System.out.println(jmmRoot.toTree());
+        OllirResult optimizationResult = optimizer.toOllir(optSemanticsResult);
+        OllirResult optOptimizationResult = optimizer.optimize(optimizationResult);
 
-        // FINAL VERSION WITH OPTIMIZATION STEPS
-        /*
-        JmmSemanticsResult optimizationResultStep1 = optimizer.optimize(semanticsResult);
-        OllirResult optimizationResultStep2 = optimizer.toOllir(optimizationResultStep1);
-        OllirResult optimizationResult = optimizer.optimize(optimizationResultStep2);
-        */
-
-        // VERSION WITHOUT OPTIMIZATION STEPS
-        OllirResult optimizationResult = optimizer.toOllir(semanticsResult);
-
-        for (Report report : optimizationResult.getReports()) {
+        for (Report report : optOptimizationResult.getReports()) {
             System.out.println(report);
         }
-        TestUtils.noErrors(optimizationResult.getReports());
+        TestUtils.noErrors(optOptimizationResult.getReports());
 
         // ---
         // JasminBackend stage
         JasminEmitter jasminEmitter = new JasminEmitter();
-        JasminResult jasminResult = jasminEmitter.toJasmin(optimizationResult);
+        JasminResult jasminResult = jasminEmitter.toJasmin(optOptimizationResult);
         System.out.println(jasminResult.getJasminCode());
 
         for (Report report : jasminResult.getReports()) {
