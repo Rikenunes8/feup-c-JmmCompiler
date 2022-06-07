@@ -65,6 +65,7 @@ public class JasminInstrCallGenerator {
 
         code.append("\tinvokestatic ").append(((Operand) this.instruction.getFirstArg()).getName())
                 .append("/").append(staticMethodCall).append(this.getCallInvokeParametersCode());
+        JasminLimits.decrementStack(this.instruction.getListOfOperands().size());
 
         return code.toString();
     }
@@ -82,9 +83,11 @@ public class JasminInstrCallGenerator {
 
         code.append("\tinvokevirtual ").append(methodClass)
                 .append("/").append(virtualMethodCall).append(this.getCallInvokeParametersCode());
+        JasminLimits.decrementStack(this.instruction.getListOfOperands().size());
 
         if (!this.inAssignment && this.instruction.getReturnType().getTypeOfElement() != ElementType.VOID) {
             code.append("pop").append("\n");
+            JasminLimits.decrementStack(1);
         }
 
         return code.toString();
@@ -99,6 +102,7 @@ public class JasminInstrCallGenerator {
             code.append(this.getCallInvokeOperandsLoadCode());
 
             code.append("\tinvokespecial java/lang/Object/<init>").append(this.getCallInvokeParametersCode());
+            JasminLimits.decrementStack(this.instruction.getListOfOperands().size());
         } else {
             // Load operands involved in the invocation
             code.append(this.getCallInvokeOperandsLoadCode());
@@ -106,6 +110,7 @@ public class JasminInstrCallGenerator {
             String methodClass = JasminUtils.getFullyQualifiedClassName(this.classUnit, ((ClassType) this.instruction.getFirstArg().getType()).getName());
             code.append("\tinvokespecial ").append(methodClass)
                     .append("/<init>").append(this.getCallInvokeParametersCode());
+            JasminLimits.decrementStack(this.instruction.getListOfOperands().size());
             code.append(JasminUtils.storeElementCode((Operand) this.instruction.getFirstArg(), this.varTable));
         }
 
@@ -141,6 +146,7 @@ public class JasminInstrCallGenerator {
             return code.toString();
         }
         if (this.instruction.getFirstArg().getType().getTypeOfElement() == ElementType.OBJECTREF) {
+            JasminLimits.incrementStack(2);
             String qualifiedClassName = JasminUtils.getFullyQualifiedClassName(this.classUnit, ((Operand) this.instruction.getFirstArg()).getName());
             return "\tnew " + qualifiedClassName + "\n" +
                     "\tdup\n";
@@ -149,6 +155,7 @@ public class JasminInstrCallGenerator {
     }
 
     private String getCallLdcCode() {
+        JasminLimits.incrementStack(1);
         return "\tldc " + ((LiteralElement) this.instruction.getFirstArg()).getLiteral() + "\n";
     }
 }

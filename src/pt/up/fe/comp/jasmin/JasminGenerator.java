@@ -139,6 +139,8 @@ public class JasminGenerator {
             ArrayOperand arrayOperand = (ArrayOperand) instruction.getDest();
             code.append("\taload").append(JasminUtils.getVariableVirtualRegister(arrayOperand.getName(), varTable)).append("\n");
             code.append(JasminUtils.loadElementCode(arrayOperand.getIndexOperands().get(0), varTable));
+
+            JasminLimits.incrementStack(1);
         }
 
         if (instruction.getRhs() instanceof CallInstruction) {
@@ -188,6 +190,7 @@ public class JasminGenerator {
         code.append("\tputfield ").append(className).append("/").append(field).append(" ")
                 .append(JasminUtils.getJasminType(this.classUnit, instruction.getSecondOperand().getType())).append("\n");
 
+        JasminLimits.decrementStack(2);
         return code.toString();
     }
 
@@ -228,9 +231,11 @@ public class JasminGenerator {
                 return "\treturn\n";
             case INT32:
             case BOOLEAN:
+                JasminLimits.decrementStack(1);
                 return JasminUtils.loadElementCode(instruction.getOperand(), varTable) + "\tireturn\n";
             case ARRAYREF:
             case OBJECTREF:
+                JasminLimits.decrementStack(1);
                 return JasminUtils.loadElementCode(instruction.getOperand(), varTable) + "\tareturn\n";
             default:
                 throw new NotImplementedException(instruction.getElementType());

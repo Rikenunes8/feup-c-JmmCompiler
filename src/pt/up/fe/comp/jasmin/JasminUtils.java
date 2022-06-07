@@ -91,6 +91,7 @@ public class JasminUtils {
 
     static private String loadElementCode(LiteralElement element) {
         String literal = element.getLiteral();
+        JasminLimits.incrementStack(1);
 
         int number = Integer.parseInt(literal);
         if (number >= -1 && number <= 5)
@@ -113,6 +114,7 @@ public class JasminUtils {
 
     static private String loadElementCode(Operand element, HashMap<String, Descriptor> varTable) {
 
+        JasminLimits.incrementStack(1);
         switch (element.getType().getTypeOfElement()) {
             case THIS:
                 return "\taload_0\n";
@@ -131,9 +133,11 @@ public class JasminUtils {
 
     static public String storeElementCode(Operand operand, HashMap<String, Descriptor> varTable) {
         if (operand instanceof ArrayOperand) {
+            JasminLimits.decrementStack(3);
             return "\tiastore\n";
         }
 
+        JasminLimits.decrementStack(1);
         switch (operand.getType().getTypeOfElement()) {
             case VOID: // When in invokes we can not know the return type of the function called -> assume that is an INT
             case INT32:
