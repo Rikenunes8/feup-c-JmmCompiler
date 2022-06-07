@@ -22,7 +22,7 @@
 
 .method public check()V
 	.limit stack 99
-	.limit locals 2
+	.limit locals 1
 
 	aload_0
 	invokespecial java/lang/Object/<init>()V
