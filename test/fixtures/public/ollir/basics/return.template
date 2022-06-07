@@ -10,7 +10,7 @@
 .end method
 
 .method public check1(I)I
-	.limit stack 99
+	.limit stack 1
 	.limit locals 2
 
 	iload_1
@@ -18,7 +18,7 @@
 .end method
 
 .method public check2(Z)Z
-	.limit stack 99
+	.limit stack 1
 	.limit locals 2
 
 	iload_1
@@ -26,7 +26,7 @@
 .end method
 
 .method public check3(LmyClass;)LmyClass;
-	.limit stack 99
+	.limit stack 1
 	.limit locals 2
 
 	aload_1
@@ -34,7 +34,7 @@
 .end method
 
 .method public check4([I)[I
-	.limit stack 99
+	.limit stack 1
 	.limit locals 2
 
 	aload_1
@@ -42,7 +42,7 @@
 .end method
 
 .method public check5()V
-	.limit stack 99
+	.limit stack 0
 	.limit locals 1
 
 	return

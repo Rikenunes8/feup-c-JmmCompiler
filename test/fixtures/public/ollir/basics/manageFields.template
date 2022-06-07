@@ -10,7 +10,7 @@
 .end method
 
 .method public check(I)V
-	.limit stack 99
+	.limit stack 3
 	.limit locals 5
 
 	aload_0

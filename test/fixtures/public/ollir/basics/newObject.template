@@ -10,7 +10,7 @@
 .end method
 
 .method public check(I)V
-	.limit stack 99
+	.limit stack 4
 	.limit locals 3
 
 	new Fac

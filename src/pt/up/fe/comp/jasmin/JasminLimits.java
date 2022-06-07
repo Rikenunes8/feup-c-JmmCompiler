@@ -7,7 +7,7 @@ public class JasminLimits {
     // limit locals - max number of registers we need to use
 
     static private int stackCounter = 0;
-    static private int stackLimit = -1;
+    static private int stackLimit = 0;
 
     static public int getLocals(Method method) {
         return (method.getVarTable().containsKey("this") || method.isStaticMethod())
@@ -21,7 +21,7 @@ public class JasminLimits {
 
     static public void resetStack() {
         stackCounter = 0;
-        stackLimit = -1;
+        stackLimit = 0;
     }
 
     static public void incrementStack(int value) {
@@ -34,7 +34,7 @@ public class JasminLimits {
     }
 
     static public String changeMethodStack(String methodCode) {
-        stackLimit = 99; // TODO remove once stack limit is computed by increment and decrement stack counter here needed
-        return methodCode.replace(".limit stack -1", ".limit stack " + stackLimit);
+        // stackLimit = 99; // TODO remove once stack limit is computed by increment and decrement stack counter here needed
+        return methodCode.replace(".limit stack 0", ".limit stack " + stackLimit);
     }
 }

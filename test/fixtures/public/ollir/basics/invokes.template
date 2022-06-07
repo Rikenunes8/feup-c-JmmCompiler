@@ -8,7 +8,7 @@
 .end method
 
 .method public static main([Ljava/lang/String;)V
-	.limit stack 99
+	.limit stack 3
 	.limit locals 4
 
 	aload_1
@@ -21,7 +21,7 @@
 .end method
 
 .method public check()V
-	.limit stack 99
+	.limit stack 1
 	.limit locals 1
 
 	aload_0
