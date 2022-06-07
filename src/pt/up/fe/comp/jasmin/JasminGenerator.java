@@ -12,8 +12,6 @@ public class JasminGenerator {
     private final ClassUnit classUnit;
     private final JasminInstrBinaryOpGenerator instrBinaryOpGenerator;
 
-    // private int stackCounter;
-
     private final BiFunctionClassMap<Instruction, HashMap<String, Descriptor>, String> instructionMap;
 
     public JasminGenerator(ClassUnit classUnit) {
@@ -51,10 +49,10 @@ public class JasminGenerator {
 
         for (Method method : this.classUnit.getMethods()) {
             if (!method.isConstructMethod()) {
-                // this.stackCounter = 0;
+                JasminLimits.resetStack();
                 this.instrBinaryOpGenerator.resetLabelCounter();
 
-                jasminCode.append(this.getJasminCode(method));
+                jasminCode.append(JasminLimits.changeMethodStack(this.getJasminCode(method)));
             }
         }
 
@@ -121,16 +119,8 @@ public class JasminGenerator {
     }
 
     private String getMethodLimitsCode(Method method) {
-        // limit stack - max length of the stack that we need to the method
-        // limit locals - max number of registers we need to use
-
-        int locals = (method.getVarTable().containsKey("this"))
-                ? method.getVarTable().size()
-                : method.getVarTable().size() + 1;
-
-        return "\t.limit stack " + 99 + "\n" +
-                "\t.limit locals " + locals + "\n\n";
-        // NOTE: Now we can use 99, but this will be changed for checkpoint 3
+        return "\t.limit stack " + JasminLimits.getStack() + "\n" +
+                "\t.limit locals " + JasminLimits.getLocals(method) + "\n\n";
     }
 
     public String getJasminCode(Instruction instruction, HashMap<String, Instruction> methodLabels, HashMap<String, Descriptor> methodVarTable) {
@@ -246,14 +236,4 @@ public class JasminGenerator {
                 throw new NotImplementedException(instruction.getElementType());
         }
     }
-
-    /*
-    private void incrementStackCounter(int value) {
-        this.stackCounter += value;
-    }
-
-    private void decrementStackCounter(int value) {
-        this.stackCounter -= value;
-    }
-    */
 }
