@@ -58,15 +58,16 @@ public class JasminInstrBinaryOpGenerator {
         code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
         code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
 
+        String typePrefix = JasminUtils.getElementTypePrefix(this.instruction.getLeftOperand());
         switch (this.instruction.getOperation().getOpType()) {
             case ADD:
-                return code.append("\tiadd\n").toString();
+                return code.append("\t").append(typePrefix).append("add\n").toString();
             case SUB:
-                return code.append("\tisub\n").toString();
+                return code.append("\t").append(typePrefix).append("sub\n").toString();
             case MUL:
-                return code.append("\timul\n").toString();
+                return code.append("\t").append(typePrefix).append("mul\n").toString();
             case DIV:
-                return code.append("\tidiv\n").toString();
+                return code.append("\t").append(typePrefix).append("div\n").toString();
             default:
                 throw new NotImplementedException(this.instruction.getOperation().getOpType());
         }
@@ -74,43 +75,41 @@ public class JasminInstrBinaryOpGenerator {
 
     private String getBinaryBooleanOperationCode() {
         StringBuilder code = new StringBuilder();
+        OperationType operationType = this.instruction.getOperation().getOpType();
 
-        switch (this.instruction.getOperation().getOpType()) {
+        code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
+        if (operationType != OperationType.NOT && operationType != OperationType.NOTB) {
+            code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
+        }
+
+        String typePrefix = JasminUtils.getElementTypePrefix(this.instruction.getLeftOperand());
+        switch (operationType) {
             case EQ:
             case GTE:
             case GTH:
             case LTE:
             case LTH:
             case NEQ:
-                String comparison = this.getComparisonInstructionCode(this.instruction.getOperation().getOpType());
+                String comparison = this.getComparisonInstructionCode(operationType);
                 String trueLabel = nextLabel();
                 String falseLabel = nextLabel();
 
-                code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
-                code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
                 code.append(this.getBinaryBooleanJumpsCode(comparison, trueLabel, falseLabel));
                 break;
             case AND:
             case ANDB:
-                code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
-                code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
-                code.append("\tiand\n");
+                code.append("\t").append(typePrefix).append("and\n");
                 break;
             case OR:
             case ORB:
-                code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
-                code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
-                code.append("\tior\n");
+                code.append("\t").append(typePrefix).append("or\n");
                 break;
             case XOR:
-                code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
-                code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
-                code.append("\tixor\n");
+                code.append("\t").append(typePrefix).append("xor\n");
                 break;
             case NOT:
             case NOTB:
-                code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
-                code.append("\tineg\n");
+                code.append("\t").append(typePrefix).append("neg\n");
                 break;
             default:
                 throw new NotImplementedException(this.instruction.getOperation().getOpType());
@@ -127,6 +126,8 @@ public class JasminInstrBinaryOpGenerator {
             case LTE: return "if_icmple";
             case LTH: return "if_icmplt";
             case NEQ: return "if_icmpne";
+            case ANDB: return "ifne";
+            case NOTB: return "ifeq";
             default: throw new NotImplementedException(operationType);
         }
     }

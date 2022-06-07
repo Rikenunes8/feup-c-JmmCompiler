@@ -54,6 +54,19 @@ public class JasminUtils {
         }
     }
 
+    static public String getElementTypePrefix(Element element) {
+        switch (element.getType().getTypeOfElement()) {
+            case INT32:
+            case BOOLEAN:
+                return "i";
+            case ARRAYREF:
+            case OBJECTREF:
+                return "a";
+            default:
+                return null;
+        }
+    }
+
     static public String getVariableVirtualRegister(String variableName, HashMap<String, Descriptor> varTable) {
         int virtualRegister = varTable.get(variableName).getVirtualReg();
 
