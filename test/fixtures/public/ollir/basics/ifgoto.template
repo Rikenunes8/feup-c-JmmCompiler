@@ -14,11 +14,12 @@
 	iload_1
 	iconst_1
 	if_icmpge label0
+	label1:
 	iconst_0
-	goto label1
+	goto label2
 	label0:
 	iconst_1
-	label1:
+	label2:
 	ifne else
 	else:
 	return

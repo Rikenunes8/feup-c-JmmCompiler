@@ -61,16 +61,19 @@ public class JasminInstrBinaryOpGenerator {
         String typePrefix = JasminUtils.getElementTypePrefix(this.instruction.getLeftOperand());
         switch (this.instruction.getOperation().getOpType()) {
             case ADD:
-                return code.append("\t").append(typePrefix).append("add\n").toString();
+                code.append("\t").append(typePrefix).append("add\n"); break;
             case SUB:
-                return code.append("\t").append(typePrefix).append("sub\n").toString();
+                code.append("\t").append(typePrefix).append("sub\n"); break;
             case MUL:
-                return code.append("\t").append(typePrefix).append("mul\n").toString();
+                code.append("\t").append(typePrefix).append("mul\n"); break;
             case DIV:
-                return code.append("\t").append(typePrefix).append("div\n").toString();
+                code.append("\t").append(typePrefix).append("div\n"); break;
             default:
                 throw new NotImplementedException(this.instruction.getOperation().getOpType());
         }
+
+        JasminLimits.decrementStack(1);
+        return code.toString();
     }
 
     private String getBinaryBooleanOperationCode() {
@@ -78,7 +81,8 @@ public class JasminInstrBinaryOpGenerator {
         OperationType operationType = this.instruction.getOperation().getOpType();
 
         code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
-        if (operationType != OperationType.NOT && operationType != OperationType.NOTB) {
+        if (operationType != OperationType.NOT && operationType != OperationType.NOTB
+                && operationType != OperationType.ANDB && operationType != OperationType.ORB) {
             code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
         }
 
@@ -91,25 +95,46 @@ public class JasminInstrBinaryOpGenerator {
             case LTH:
             case NEQ:
                 String comparison = this.getComparisonInstructionCode(operationType);
-                String trueLabel = nextLabel();
-                String falseLabel = nextLabel();
-
-                code.append(this.getBinaryBooleanJumpsCode(comparison, trueLabel, falseLabel));
+                code.append(this.getBinaryBooleanJumpsCode(comparison, nextLabel(), nextLabel()));
+                JasminLimits.decrementStack(1);
                 break;
             case AND:
-            case ANDB:
                 code.append("\t").append(typePrefix).append("and\n");
+                JasminLimits.decrementStack(1);
                 break;
             case OR:
-            case ORB:
                 code.append("\t").append(typePrefix).append("or\n");
+                JasminLimits.decrementStack(1);
                 break;
             case XOR:
                 code.append("\t").append(typePrefix).append("xor\n");
+                JasminLimits.decrementStack(1);
                 break;
             case NOT:
-            case NOTB:
                 code.append("\t").append(typePrefix).append("neg\n");
+                break;
+            case ANDB:
+                String trueLabel = nextLabel();
+                String falseLabel = nextLabel();
+
+                code.append("\tifeq ").append(falseLabel).append("\n");
+                code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
+                code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabel, falseLabel));
+
+                JasminLimits.decrementStack(1);
+                break;
+            case ORB:
+                String trueLabelOr = nextLabel();
+                String falseLabelOr = nextLabel();
+
+                code.append("\tifne ").append(trueLabelOr).append("\n");
+                code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
+                code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabelOr, falseLabelOr));
+
+                JasminLimits.decrementStack(1);
+                break;
+            case NOTB:
+                code.append(this.getBinaryBooleanJumpsCode("ifeq", nextLabel(), nextLabel()));
                 break;
             default:
                 throw new NotImplementedException(this.instruction.getOperation().getOpType());
@@ -133,12 +158,14 @@ public class JasminInstrBinaryOpGenerator {
     }
 
     public String getBinaryBooleanJumpsCode(String comparison, String trueLabel, String falseLabel) {
+        String endLabel = this.nextLabel();
 
         return  "\t" + comparison + " " + trueLabel + "\n" +
+                "\t" + falseLabel + ":\n" +
                 "\ticonst_0\n" +
-                "\tgoto " + falseLabel + "\n" +
+                "\tgoto " + endLabel + "\n" +
                 "\t" + trueLabel + ":\n" +
                 "\ticonst_1\n" +
-                "\t" + falseLabel + ":\n";
+                "\t" + endLabel + ":\n";
     }
 }
