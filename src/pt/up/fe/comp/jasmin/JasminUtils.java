@@ -107,9 +107,13 @@ public class JasminUtils {
     static private String loadElementCode(ArrayOperand element, HashMap<String, Descriptor> varTable) {
 
         // Load array + Load index + Load value
-        return "\taload" + JasminUtils.getVariableVirtualRegister(element.getName(), varTable) + "\n" +
-                JasminUtils.loadElementCode(element.getIndexOperands().get(0), varTable) +
-                "\tiaload\n";
+        String code = "\taload" + JasminUtils.getVariableVirtualRegister(element.getName(), varTable) + "\n";
+        JasminLimits.incrementStack(1);
+        code += JasminUtils.loadElementCode(element.getIndexOperands().get(0), varTable);
+        code += "\tiaload\n";
+        JasminLimits.decrementStack(1);
+
+        return code;
     }
 
     static private String loadElementCode(Operand element, HashMap<String, Descriptor> varTable) {
@@ -133,7 +137,7 @@ public class JasminUtils {
 
     static public String storeElementCode(Operand operand, HashMap<String, Descriptor> varTable) {
         if (operand instanceof ArrayOperand) {
-            JasminLimits.decrementStack(3);
+            JasminLimits.decrementStack(1);
             return "\tiastore\n";
         }
 

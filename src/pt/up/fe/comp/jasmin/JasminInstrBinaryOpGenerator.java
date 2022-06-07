@@ -96,7 +96,6 @@ public class JasminInstrBinaryOpGenerator {
             case NEQ:
                 String comparison = this.getComparisonInstructionCode(operationType);
                 code.append(this.getBinaryBooleanJumpsCode(comparison, nextLabel(), nextLabel()));
-                JasminLimits.decrementStack(1);
                 break;
             case AND:
                 code.append("\t").append(typePrefix).append("and\n");
@@ -118,20 +117,18 @@ public class JasminInstrBinaryOpGenerator {
                 String falseLabel = nextLabel();
 
                 code.append("\tifeq ").append(falseLabel).append("\n");
+                JasminLimits.decrementStack(1);
                 code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
                 code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabel, falseLabel));
-
-                JasminLimits.decrementStack(1);
                 break;
             case ORB:
                 String trueLabelOr = nextLabel();
                 String falseLabelOr = nextLabel();
 
                 code.append("\tifne ").append(trueLabelOr).append("\n");
+                JasminLimits.decrementStack(1);
                 code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
                 code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabelOr, falseLabelOr));
-
-                JasminLimits.decrementStack(1);
                 break;
             case NOTB:
                 code.append(this.getBinaryBooleanJumpsCode("ifeq", nextLabel(), nextLabel()));
@@ -144,6 +141,12 @@ public class JasminInstrBinaryOpGenerator {
     }
 
     private String getComparisonInstructionCode(OperationType operationType) {
+        if (operationType == OperationType.ANDB || operationType == OperationType.NOTB) {
+            JasminLimits.decrementStack(1);
+        } else {
+            JasminLimits.decrementStack(2);
+        }
+
         switch (operationType) {
             case EQ: return "if_icmpeq";
             case GTE: return "if_icmpge";
@@ -160,6 +163,7 @@ public class JasminInstrBinaryOpGenerator {
     public String getBinaryBooleanJumpsCode(String comparison, String trueLabel, String falseLabel) {
         String endLabel = this.nextLabel();
 
+        JasminLimits.incrementStack(1);
         return  "\t" + comparison + " " + trueLabel + "\n" +
                 "\t" + falseLabel + ":\n" +
                 "\ticonst_0\n" +

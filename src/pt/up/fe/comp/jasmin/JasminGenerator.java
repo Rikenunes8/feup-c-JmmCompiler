@@ -138,9 +138,8 @@ public class JasminGenerator {
         if (instruction.getDest() instanceof ArrayOperand) { // Load Array + Load Index
             ArrayOperand arrayOperand = (ArrayOperand) instruction.getDest();
             code.append("\taload").append(JasminUtils.getVariableVirtualRegister(arrayOperand.getName(), varTable)).append("\n");
-            code.append(JasminUtils.loadElementCode(arrayOperand.getIndexOperands().get(0), varTable));
-
             JasminLimits.incrementStack(1);
+            code.append(JasminUtils.loadElementCode(arrayOperand.getIndexOperands().get(0), varTable));
         }
 
         if (instruction.getRhs() instanceof CallInstruction) {
@@ -189,8 +188,8 @@ public class JasminGenerator {
         code.append(JasminUtils.loadElementCode(instruction.getThirdOperand(), varTable));
         code.append("\tputfield ").append(className).append("/").append(field).append(" ")
                 .append(JasminUtils.getJasminType(this.classUnit, instruction.getSecondOperand().getType())).append("\n");
-
         JasminLimits.decrementStack(2);
+
         return code.toString();
     }
 
@@ -213,8 +212,10 @@ public class JasminGenerator {
     }
 
     public String getJasminCode(CondBranchInstruction instruction, HashMap<String, Descriptor> varTable) {
-        return this.getJasminCode(instruction.getCondition(), new HashMap<>(), varTable)
-                + "\tifne " + instruction.getLabel() + "\n";
+        String code = this.getJasminCode(instruction.getCondition(), new HashMap<>(), varTable)
+                        + "\tifne " + instruction.getLabel() + "\n";
+        JasminLimits.decrementStack(1);
+        return code;
     }
 
     public String getJasminCode(GotoInstruction instruction, HashMap<String, Descriptor> varTable) {
@@ -226,19 +227,24 @@ public class JasminGenerator {
             return "\treturn\n";
         }
 
+        StringBuilder code = new StringBuilder();
         switch (instruction.getOperand().getType().getTypeOfElement()) {
             case VOID:
                 return "\treturn\n";
             case INT32:
             case BOOLEAN:
+                code.append(JasminUtils.loadElementCode(instruction.getOperand(), varTable)).append("\tireturn\n");
                 JasminLimits.decrementStack(1);
-                return JasminUtils.loadElementCode(instruction.getOperand(), varTable) + "\tireturn\n";
+                break;
             case ARRAYREF:
             case OBJECTREF:
+                code.append(JasminUtils.loadElementCode(instruction.getOperand(), varTable)).append("\tareturn\n");
                 JasminLimits.decrementStack(1);
-                return JasminUtils.loadElementCode(instruction.getOperand(), varTable) + "\tareturn\n";
+                break;
             default:
                 throw new NotImplementedException(instruction.getElementType());
         }
+
+        return code.toString();
     }
 }

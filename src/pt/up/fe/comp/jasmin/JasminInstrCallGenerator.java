@@ -65,7 +65,7 @@ public class JasminInstrCallGenerator {
 
         code.append("\tinvokestatic ").append(((Operand) this.instruction.getFirstArg()).getName())
                 .append("/").append(staticMethodCall).append(this.getCallInvokeParametersCode());
-        JasminLimits.decrementStack(this.instruction.getListOfOperands().size());
+        JasminLimits.decrementStack(this.instruction.getListOfOperands().size() - 1);
 
         return code.toString();
     }
@@ -134,6 +134,7 @@ public class JasminInstrCallGenerator {
             if (arrayDimensions > 1) {
                 String arrayType = JasminUtils.getJasminType(this.classUnit, this.instruction.getReturnType());
                 code.append("\tmultianewarray ").append(arrayType).append(" ").append(arrayDimensions).append("\n");
+                JasminLimits.decrementStack(arrayDimensions - 1);
             } else {
                 ArrayType returnType = (ArrayType) this.instruction.getReturnType();
                 if (returnType.getArrayType() == ElementType.OBJECTREF) {
