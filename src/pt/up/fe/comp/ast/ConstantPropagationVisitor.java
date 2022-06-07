@@ -9,7 +9,10 @@ import java.util.Map;
 import static pt.up.fe.comp.ast.AstNode.*;
 
 public class ConstantPropagationVisitor extends AJmmVisitor<Map<String, String>, Boolean> {
+    private int counter;
+
     public ConstantPropagationVisitor() {
+        this.counter = 0;
         addVisit(PROGRAM, this::visitProgram);
         addVisit(CLASS_DECLARATION, this::visitClassDeclaration);
         addVisit(METHOD_DECLARATION, this::visitMethodDeclaration);
@@ -154,11 +157,13 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Map<String, String>,
             }
             newNode.put("col", jmmNode.get("col"));
             newNode.put("line", jmmNode.get("line"));
+            this.counter++;
             jmmNode.replace(newNode);
         }
         return true;
     }
 
-
-
+    public int getCounter() {
+        return counter;
+    }
 }

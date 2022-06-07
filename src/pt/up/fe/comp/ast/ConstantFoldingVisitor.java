@@ -7,7 +7,11 @@ import pt.up.fe.comp.jmm.ast.PostorderJmmVisitor;
 import static pt.up.fe.comp.ast.AstNode.*;
 
 public class ConstantFoldingVisitor extends PostorderJmmVisitor<String, Boolean> {
+    private int counter;
+
     public ConstantFoldingVisitor() {
+        this.counter = 0;
+
         addVisit(AND_EXP, this::visitAndExp);
         addVisit(LESS_EXP, this::visitLessExp);
         addVisit(ADD_EXP, this::visitAddExp);
@@ -34,7 +38,10 @@ public class ConstantFoldingVisitor extends PostorderJmmVisitor<String, Boolean>
         jmmNode.removeJmmChild(1);
         jmmNode.removeJmmChild(0);
         JmmNode newNode = new JmmNodeImpl(x && y ? TRUE_LITERAL.toString() : FALSE_LITERAL.toString());
+        newNode.put("col", jmmNode.get("col"));
+        newNode.put("line", jmmNode.get("line"));
         jmmNode.replace(newNode);
+        this.counter++;
         return true;
     }
 
@@ -45,7 +52,10 @@ public class ConstantFoldingVisitor extends PostorderJmmVisitor<String, Boolean>
         jmmNode.removeJmmChild(1);
         jmmNode.removeJmmChild(0);
         JmmNode newNode = new JmmNodeImpl(x < y ? TRUE_LITERAL.toString() : FALSE_LITERAL.toString());
+        newNode.put("col", jmmNode.get("col"));
+        newNode.put("line", jmmNode.get("line"));
         jmmNode.replace(newNode);
+        this.counter++;
         return true;
     }
 
@@ -57,7 +67,10 @@ public class ConstantFoldingVisitor extends PostorderJmmVisitor<String, Boolean>
         jmmNode.removeJmmChild(0);
         JmmNode newNode = new JmmNodeImpl(INTEGER_LITERAL.toString());
         newNode.put("val", String.valueOf(x + y));
+        newNode.put("col", jmmNode.get("col"));
+        newNode.put("line", jmmNode.get("line"));
         jmmNode.replace(newNode);
+        this.counter++;
         return true;
     }
 
@@ -69,7 +82,10 @@ public class ConstantFoldingVisitor extends PostorderJmmVisitor<String, Boolean>
         jmmNode.removeJmmChild(0);
         JmmNode newNode = new JmmNodeImpl(INTEGER_LITERAL.toString());
         newNode.put("val", String.valueOf(x * y));
+        newNode.put("col", jmmNode.get("col"));
+        newNode.put("line", jmmNode.get("line"));
         jmmNode.replace(newNode);
+        this.counter++;
         return true;
     }
 
@@ -81,7 +97,10 @@ public class ConstantFoldingVisitor extends PostorderJmmVisitor<String, Boolean>
         jmmNode.removeJmmChild(0);
         JmmNode newNode = new JmmNodeImpl(INTEGER_LITERAL.toString());
         newNode.put("val", String.valueOf(x - y));
+        newNode.put("col", jmmNode.get("col"));
+        newNode.put("line", jmmNode.get("line"));
         jmmNode.replace(newNode);
+        this.counter++;
         return true;
     }
 
@@ -93,7 +112,10 @@ public class ConstantFoldingVisitor extends PostorderJmmVisitor<String, Boolean>
         jmmNode.removeJmmChild(0);
         JmmNode newNode = new JmmNodeImpl(INTEGER_LITERAL.toString());
         newNode.put("val", String.valueOf(x / y));
+        newNode.put("col", jmmNode.get("col"));
+        newNode.put("line", jmmNode.get("line"));
         jmmNode.replace(newNode);
+        this.counter++;
         return true;
     }
 
@@ -102,7 +124,14 @@ public class ConstantFoldingVisitor extends PostorderJmmVisitor<String, Boolean>
         if (x == null) return false;
         jmmNode.removeJmmChild(0);
         JmmNode newNode = new JmmNodeImpl(!x ? TRUE_LITERAL.toString() : FALSE_LITERAL.toString());
+        newNode.put("col", jmmNode.get("col"));
+        newNode.put("line", jmmNode.get("line"));
         jmmNode.replace(newNode);
+        this.counter++;
         return true;
+    }
+
+    public int getCounter() {
+        return counter;
     }
 }

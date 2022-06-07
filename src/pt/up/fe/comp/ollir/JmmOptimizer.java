@@ -19,15 +19,19 @@ public class JmmOptimizer implements JmmOptimization {
             return JmmOptimization.super.optimize(semanticsResult);
 
         JmmNode root = semanticsResult.getRootNode();
+        int counter = 1;
+        while (counter > 0) {
+            // Constant Propagation
+            var constantPropagation = new ConstantPropagationVisitor();
+            Map<String, String> constants = new HashMap<>(); // (name, const_value)
+            constantPropagation.visit(root, constants);
+            counter = constantPropagation.getCounter();
 
-        // Constant Propagation
-        var constantPropagation = new ConstantPropagationVisitor();
-        Map<String, String> constants = new HashMap<>(); // (name, const_value)
-        constantPropagation.visit(root, constants);
-
-        // Constant Folding
-        var constantFolding = new ConstantFoldingVisitor();
-        constantFolding.visit(root);
+            // Constant Folding
+            var constantFolding = new ConstantFoldingVisitor();
+            constantFolding.visit(root);
+            counter += constantFolding.getCounter();
+        }
 
         return JmmOptimization.super.optimize(semanticsResult);
     }
