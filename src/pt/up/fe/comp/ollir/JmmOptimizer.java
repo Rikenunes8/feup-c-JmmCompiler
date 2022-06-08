@@ -16,8 +16,6 @@ import java.util.Map;
 public class JmmOptimizer implements JmmOptimization {
     @Override
     public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
-        System.out.println(semanticsResult.getConfig());
-
         if (!semanticsResult.getConfig().containsKey("optimize") || !semanticsResult.getConfig().get("optimize").equals("true"))
             return semanticsResult;
 
