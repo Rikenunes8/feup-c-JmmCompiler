@@ -1,4 +1,4 @@
-package pt.up.fe.comp.ast;
+package pt.up.fe.comp.optimization;
 
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
