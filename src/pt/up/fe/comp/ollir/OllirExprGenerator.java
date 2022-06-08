@@ -225,9 +225,14 @@ public class OllirExprGenerator extends AJmmVisitor<Integer, OllirExprCode> {
 
             StringBuilder fullExp = new StringBuilder();
 
+            String firstArg = left.getFullExp();
+            if (firstArg.startsWith("$")) {
+                String t = newVar(left.getType());
+                temps.append(ident()).append(newVarInstr(t, left.getType(), left.getFullExp()));
+                firstArg = t;
+            }
 
             String callInstr = "invokevirtual";
-            String firstArg = left.getFullExp();
             if (jmmLeft.getKind().equals(IDENTIFIER_LITERAL.toString())
                     && (isImported(jmmLeft.get("val"), symbolTable) || jmmLeft.get("val").equals(symbolTable.getClassName()))) {
                 callInstr = "invokestatic";

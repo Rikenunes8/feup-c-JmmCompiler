@@ -41,4 +41,114 @@ public class MyOptimizationTest {
         TestUtils.noErrors(result.getReports());
     }
 
+
+    @Test
+    public void if_invokevirtual_obj_boolean_cond() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/if_invokevirtual_obj_boolean_cond.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void if_invokevirtual_obj_int_cond() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/if_invokevirtual_obj_int_cond.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void if_invokevirtual_this_boolean_cond() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/if_invokevirtual_this_boolean_cond.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void if_invokevirtual_this_int_cond() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/if_invokevirtual_this_int_cond.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+
+    @Test
+    public void invokevirtual_obj_param() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/invokevirtual_obj_param.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void invokevirtual_this_arg_arr_param() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/invokevirtual_this_arg_arr_param.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void invokevirtual_this_arg_boolean_param() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/invokevirtual_this_arg_boolean_param.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void invokevirtual_this_arg_int_param() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/invokevirtual_this_arg_int_param.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void invokevirtual_this_arg_obj_param() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/invokevirtual_this_arg_obj_param.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+
+
+
+    @Test
+    public void return_obj_param() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/return_obj_param.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void return_obj_local() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/return_obj_local.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void return_obj_field() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/return_obj_field.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void return_int_param() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/return_int_param.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void return_int_local() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/return_int_local.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void return_int_field() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/return_int_field.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void return_boolean_param() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/return_boolean_param.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void return_boolean_local() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/return_boolean_local.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void return_boolean_field() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/return_boolean_field.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void return_arr_param() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/return_arr_param.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void return_arr_local() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/return_arr_local.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void return_arr_field() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/return_arr_field.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
 }

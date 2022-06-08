@@ -1,0 +1,12 @@
+class A {
+    public int foo(A a) {
+        if (a.bar(1) < 2)
+            a.bar(1);
+        else
+            a.bar(2);
+        return 0;
+    }
+    public int bar(int a) {
+        return a;
+    }
+}

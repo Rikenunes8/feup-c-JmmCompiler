@@ -1,0 +1,7 @@
+import B;
+
+class A {
+    public B foo(B a) {
+        return a;
+    }
+}
