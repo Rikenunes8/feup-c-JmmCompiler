@@ -112,6 +112,31 @@ public class MyOptimizationTest {
         TestUtils.noErrors(result.getReports());
     }
 
+    @Test
+    public void new_arr_const() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/new_arr_const.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void new_arr_field() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/new_arr_field.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void new_arr_local() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/new_arr_local.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void new_arr_local_arraccess() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/new_arr_local_arraccess.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void new_arr_param() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/new_arr_param.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
 
 
     @Test

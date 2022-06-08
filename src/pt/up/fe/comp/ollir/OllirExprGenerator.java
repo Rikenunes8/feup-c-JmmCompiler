@@ -180,7 +180,7 @@ public class OllirExprGenerator extends AJmmVisitor<Integer, OllirExprCode> {
         String type = "array.i32";
         OllirExprCode size = visit(newIntArray.getJmmChild(0));
         temps.append(size.getTemps());
-
+        
         String t1 = newVar(size.getType());
         temps.append(ident()).append(newVarInstr(t1, size.getType(), size.getFullExp()));
 
