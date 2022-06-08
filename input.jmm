@@ -4,12 +4,20 @@ class FirstCompiler {
 	public static void main(String[] args) {
         int b;
         int c;
-        FirstCompiler t;
-        t = new FirstCompiler();
-        t.f();
+        // FirstCompiler t;
+
+        // t = new FirstCompiler();
+        b = 2 + 3;
+        c = b * 5;
+        if (true && false && true)
+            c = 3 + 4 * 2;
+        else
+            c = 6 - 3;
+
+        io.print(b);
 	}
 
-	public int f() {
+	public int f(int d, boolean g) {
 	    a = 1;
 	    io.print(a);
 	    return a;
