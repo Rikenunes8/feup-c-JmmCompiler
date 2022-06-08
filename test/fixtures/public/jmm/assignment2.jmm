@@ -1,0 +1,10 @@
+class A {
+    public static void main(String[] args) {
+        int a;
+        int[] b;
+        b = new int[2];
+        b[0] = 1;
+        b[1] = 2;
+        a = b[0] + b[1];
+    }
+}

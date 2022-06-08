@@ -53,8 +53,27 @@ public class MyOptimizationTest {
         var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/assignment1.jmm"));
         TestUtils.noErrors(result.getReports());
     }
+    @Test
+    public void assignment2() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/assignment2.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
 
-
+    @Test
+    public void if_2_arraccess_local() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/if_2_arraccess_local.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void if_arraccess_local() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/if_arraccess_local.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void if_arraccess_param() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/if_arraccess_param.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
     @Test
     public void if_invokevirtual_obj_boolean_cond() {
         var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/if_invokevirtual_obj_boolean_cond.jmm"));
@@ -99,6 +118,11 @@ public class MyOptimizationTest {
     @Test
     public void invokevirtual_this_arg_boolean_param() {
         var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/invokevirtual_this_arg_boolean_param.jmm"));
+        TestUtils.noErrors(result.getReports());
+    }
+    @Test
+    public void invokevirtual_this_arg_expr() {
+        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/jmm/invokevirtual_this_arg_expr.jmm"));
         TestUtils.noErrors(result.getReports());
     }
     @Test

@@ -36,10 +36,10 @@ public class OllirUtils {
 
 
     public static boolean isConstant(String e) {
-        return e.matches("\\d*");
+        return e.matches("\\d.*");
     }
     public static boolean isVariable(String e) {
-        return !e.contains("(") && !isArithExpr(e) && !isParam(e);
+        return !e.contains("(") && !isArithExpr(e) && !isParam(e) && !isConstant(e) && !isArrayAccess(e);
     }
     public static boolean isArrayAccess(String e) {
         return e.contains("[");

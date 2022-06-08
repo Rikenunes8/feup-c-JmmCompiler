@@ -180,9 +180,12 @@ public class OllirExprGenerator extends AJmmVisitor<Integer, OllirExprCode> {
         String type = "array.i32";
         OllirExprCode size = visit(newIntArray.getJmmChild(0));
         temps.append(size.getTemps());
-        
-        String t1 = newVar(size.getType());
-        temps.append(ident()).append(newVarInstr(t1, size.getType(), size.getFullExp()));
+
+        String t1 = size.getFullExp();
+        if (isComplex(t1) || isArrayAccess(t1)) {
+            t1 = newVar(size.getType());
+            temps.append(ident()).append(newVarInstr(t1, size.getType(), size.getFullExp()));
+        }
 
         String expr = "new(array, " + t1 + ")." + type;
         return new OllirExprCode(expr, type, temps.toString());
@@ -203,8 +206,11 @@ public class OllirExprGenerator extends AJmmVisitor<Integer, OllirExprCode> {
             temps.append(ident()).append(newVarInstr(valueExp, value.getType(), value.getFullExp()));
         }
 
-        String t1 = newVar(index.getType());
-        temps.append(ident()).append(newVarInstr(t1, index.getType(), index.getFullExp()));
+        String t1 = index.getFullExp();
+        if (!isVariable(t1)) {
+            t1 = newVar(index.getType());
+            temps.append(ident()).append(newVarInstr(t1, index.getType(), index.getFullExp()));
+        }
         String val = valueExp.replace("." + value.getType(), "");
         String type = getOllirType(getType(jmmValue, this.symbolTable).getName());
         expr.append(val).append("[").append(t1).append("].").append(type);
@@ -269,8 +275,11 @@ public class OllirExprGenerator extends AJmmVisitor<Integer, OllirExprCode> {
             OllirExprCode exprGenerator = visit(child);
             temps.append(exprGenerator.getTemps());
 
-            String t = newVar(exprGenerator.getType());
-            temps.append(ident()).append(newVarInstr(t, exprGenerator.getType(), exprGenerator.getFullExp()));
+            String t = exprGenerator.getFullExp();
+            if (isComplex(t) || isArrayAccess(t)) {
+                t = newVar(exprGenerator.getType());
+                temps.append(ident()).append(newVarInstr(t, exprGenerator.getType(), exprGenerator.getFullExp()));
+            }
 
             fullExp.append(", ");
             fullExp.append(t);
