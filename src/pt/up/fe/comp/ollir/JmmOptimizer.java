@@ -1,8 +1,9 @@
 package pt.up.fe.comp.ollir;
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
 
-import pt.up.fe.comp.ast.ConstantFoldingVisitor;
-import pt.up.fe.comp.ast.ConstantPropagationVisitor;
+import pt.up.fe.comp.optimization.ConstPropagationTable;
+import pt.up.fe.comp.optimization.ConstantFoldingVisitor;
+import pt.up.fe.comp.optimization.ConstantPropagationVisitor;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
@@ -25,8 +26,8 @@ public class JmmOptimizer implements JmmOptimization {
         while (counter > 0) {
             // Constant Propagation
             var constantPropagation = new ConstantPropagationVisitor();
-            Map<String, String> constants = new HashMap<>(); // (name, const_value)
-            constantPropagation.visit(root, constants);
+            ConstPropagationTable table = new ConstPropagationTable(); // (name, const_value)
+            constantPropagation.visit(root, table);
             counter = constantPropagation.getCounter();
 
             // Constant Folding

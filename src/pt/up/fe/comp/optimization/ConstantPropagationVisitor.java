@@ -1,14 +1,12 @@
-package pt.up.fe.comp.ast;
+package pt.up.fe.comp.optimization;
 
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
 
-import java.util.Map;
-
 import static pt.up.fe.comp.ast.AstNode.*;
 
-public class ConstantPropagationVisitor extends AJmmVisitor<Map<String, String>, Boolean> {
+public class ConstantPropagationVisitor extends AJmmVisitor<ConstPropagationTable, Boolean> {
     private int counter;
 
     public ConstantPropagationVisitor() {
@@ -38,120 +36,128 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Map<String, String>,
     }
 
 
-    private Boolean visitDefault(JmmNode jmmNode, Map<String, String> constants) {
+    private Boolean visitDefault(JmmNode jmmNode, ConstPropagationTable table) {
         return true;
     }
 
-    private Boolean visitProgram(JmmNode jmmNode, Map<String, String> constants) {
-        this.visit(jmmNode.getJmmChild(1), constants);
+    private Boolean visitProgram(JmmNode jmmNode, ConstPropagationTable table) {
+        this.visit(jmmNode.getJmmChild(1), table);
         return true;
     }
 
-    private Boolean visitClassDeclaration(JmmNode jmmNode, Map<String, String> constants) {
+    private Boolean visitClassDeclaration(JmmNode jmmNode, ConstPropagationTable table) {
         for (var node : jmmNode.getChildren()) {
             if (node.getKind().equals(METHOD_DECLARATION.toString()))
-                this.visit(node, constants);
+                this.visit(node, table);
         }
         return true;
     }
 
-    private Boolean visitMethodDeclaration(JmmNode jmmNode, Map<String, String> constants) {
+    private Boolean visitMethodDeclaration(JmmNode jmmNode, ConstPropagationTable table) {
         for (var node : jmmNode.getChildren()) {
-            if (node.getKind().equals(WHILE_STATEMENT.toString())) return false;
-            this.visit(node, constants);
+            //if (node.getKind().equals(WHILE_STATEMENT.toString())) return false;
+            this.visit(node, table);
         }
         return true;
     }
 
-    private Boolean visitAssignmentStatement(JmmNode jmmNode, Map<String, String> constants) {
+    private Boolean visitAssignmentStatement(JmmNode jmmNode, ConstPropagationTable table) {
         var left = jmmNode.getJmmChild(0);
         var right = jmmNode.getJmmChild(1);
 
         if (left.getKind().equals(ARRAY_ACCESS_EXP.toString())) {
-            this.visit(left, constants);
-            this.visit(right, constants);
+            this.visit(left, table);
+            this.visit(right, table);
             return true;
         }
 
-        if (right.getKind().equals(TRUE_LITERAL.toString())) {
-            constants.put(left.get("val"), "true");
+        if (right.getKind().equals(TRUE_LITERAL.toString()) && table.isPropagating()) {
+            table.put(left.get("val"), "true");
         }
-        else if (right.getKind().equals(FALSE_LITERAL.toString())) {
-            constants.put(left.get("val"), "false");
+        else if (right.getKind().equals(FALSE_LITERAL.toString()) && table.isPropagating()) {
+            table.put(left.get("val"), "false");
         }
-        else if (right.getKind().equals(INTEGER_LITERAL.toString())) {
-            constants.put(left.get("val"), right.get("val"));
+        else if (right.getKind().equals(INTEGER_LITERAL.toString()) && table.isPropagating()) {
+            table.put(left.get("val"), right.get("val"));
         }
         else {
-            this.visit(right, constants);
+            this.visit(right, table);
             if (left.getKind().equals(IDENTIFIER_LITERAL.toString())) {
-                constants.remove(left.get("val"));
+                table.remove(left.get("val"));
             }
         }
         return true;
     }
 
-    private Boolean visitScope(JmmNode jmmNode, Map<String, String> constants) {
+    private Boolean visitScope(JmmNode jmmNode, ConstPropagationTable table) {
         for (var statement : jmmNode.getChildren()) {
-            this.visit(statement, constants);
+            this.visit(statement, table);
         }
         return true;
     }
 
-    private Boolean visitExpressionStatement(JmmNode jmmNode, Map<String, String> constants) {
-        this.visit(jmmNode.getJmmChild(0), constants);
+    private Boolean visitExpressionStatement(JmmNode jmmNode, ConstPropagationTable table) {
+        this.visit(jmmNode.getJmmChild(0), table);
         return true;
     }
 
-    private Boolean visitWhileStatement(JmmNode jmmNode, Map<String, String> constants) {
-        return true;
-    }
-
-    private Boolean visitIfStatement(JmmNode jmmNode, Map<String, String> constants) {
+    private Boolean visitWhileStatement(JmmNode jmmNode, ConstPropagationTable table) {
+        table.setPropagating(false);
         for (var block : jmmNode.getChildren()) {
-            this.visit(block.getJmmChild(0), constants); // Condition, IfBlock & ElseBlock
+            this.visit(block.getJmmChild(0), table); // Condition, WhileBlock
+        }
+        table.setPropagating(true);
+        for (var block : jmmNode.getChildren()) {
+            this.visit(block.getJmmChild(0), table); // Condition, WhileBlock
         }
         return true;
     }
 
-    private Boolean visitReturnStatement(JmmNode jmmNode, Map<String, String> constants) {
-        this.visit(jmmNode.getJmmChild(0), constants);
+    private Boolean visitIfStatement(JmmNode jmmNode, ConstPropagationTable table) {
+        for (var block : jmmNode.getChildren()) {
+            this.visit(block.getJmmChild(0), table); // Condition, IfBlock & ElseBlock
+        }
         return true;
     }
 
-    private Boolean visitExpression(JmmNode jmmNode, Map<String, String> constants) {
+    private Boolean visitReturnStatement(JmmNode jmmNode, ConstPropagationTable table) {
+        this.visit(jmmNode.getJmmChild(0), table);
+        return true;
+    }
+
+    private Boolean visitExpression(JmmNode jmmNode, ConstPropagationTable table) {
         for (var child : jmmNode.getChildren()) {
-            this.visit(child, constants);
+            this.visit(child, table);
         }
         return true;
     }
 
-    private Boolean visitArrayAccessExp(JmmNode jmmNode, Map<String, String> constants) {
-        this.visit(jmmNode.getJmmChild(1), constants);
+    private Boolean visitArrayAccessExp(JmmNode jmmNode, ConstPropagationTable table) {
+        this.visit(jmmNode.getJmmChild(1), table);
         return true;
     }
 
-    private Boolean visitIntArray(JmmNode jmmNode, Map<String, String> constants) {
-        this.visit(jmmNode.getJmmChild(0), constants);
+    private Boolean visitIntArray(JmmNode jmmNode, ConstPropagationTable table) {
+        this.visit(jmmNode.getJmmChild(0), table);
         return true;
     }
 
-    private Boolean visitDotExp(JmmNode jmmNode, Map<String, String> constants) {
-        this.visit(jmmNode.getJmmChild(1), constants);
+    private Boolean visitDotExp(JmmNode jmmNode, ConstPropagationTable table) {
+        this.visit(jmmNode.getJmmChild(1), table);
         return true;
     }
 
-    private Boolean visitFunctionCall(JmmNode jmmNode, Map<String, String> constants) {
+    private Boolean visitFunctionCall(JmmNode jmmNode, ConstPropagationTable table) {
         for (var arg : jmmNode.getChildren()) {
-            this.visit(arg, constants);
+            this.visit(arg, table);
         }
         return true;
     }
 
-    private Boolean visitIdentifier(JmmNode jmmNode, Map<String, String> constants) {
+    private Boolean visitIdentifier(JmmNode jmmNode, ConstPropagationTable table) {
         String name = jmmNode.get("val");
-        if (constants.containsKey(name)) {
-            String value = constants.get(name);
+        String value = table.get(name);
+        if (value != null && table.isPropagating()) {
             JmmNode newNode;
             if (value.equals("true")) {
                 newNode = new JmmNodeImpl(TRUE_LITERAL.toString());
