@@ -16,7 +16,7 @@ import org.junit.Test;
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.specs.util.SpecsIo;
 
-public class MyOptimizationTest {
+public class MyOllirTest {
 
     @Test
     public void testHelloWorld() {

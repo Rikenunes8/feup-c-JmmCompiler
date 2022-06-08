@@ -15,9 +15,10 @@ import java.util.Map;
 public class JmmOptimizer implements JmmOptimization {
     @Override
     public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
+        System.out.println(semanticsResult.getConfig());
 
         if (!semanticsResult.getConfig().containsKey("optimize") || !semanticsResult.getConfig().get("optimize").equals("true"))
-            return JmmOptimization.super.optimize(semanticsResult);
+            return semanticsResult;
 
         JmmNode root = semanticsResult.getRootNode();
         int counter = 1;
@@ -34,7 +35,7 @@ public class JmmOptimizer implements JmmOptimization {
             counter += constantFolding.getCounter();
         }
 
-        return JmmOptimization.super.optimize(semanticsResult);
+        return semanticsResult;
     }
 
     @Override

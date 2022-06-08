@@ -21,6 +21,7 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Map<String, String>,
         addVisit(WHILE_STATEMENT, this::visitWhileStatement);
         addVisit(EXPRESSION_STATEMENT, this::visitExpressionStatement);
         addVisit(SCOPE, this::visitScope);
+        addVisit(RETURN_STATEMENT, this::visitReturnStatement);
         addVisit(AND_EXP, this::visitExpression);
         addVisit(LESS_EXP, this::visitExpression);
         addVisit(ADD_EXP, this::visitExpression);
@@ -110,6 +111,11 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Map<String, String>,
         for (var block : jmmNode.getChildren()) {
             this.visit(block.getJmmChild(0), constants); // Condition, IfBlock & ElseBlock
         }
+        return true;
+    }
+
+    private Boolean visitReturnStatement(JmmNode jmmNode, Map<String, String> constants) {
+        this.visit(jmmNode.getJmmChild(0), constants);
         return true;
     }
 
