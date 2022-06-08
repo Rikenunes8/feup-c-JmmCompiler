@@ -155,4 +155,30 @@ public class JasminUtils {
                 throw new RuntimeException("Exception during store elements  type" + operand.getType().getTypeOfElement());
         }
     }
+
+    static public boolean isIincOptimizable(AssignInstruction instruction) {
+        if (instruction.getRhs() instanceof BinaryOpInstruction) {
+            BinaryOpInstruction leftInstruction = (BinaryOpInstruction) instruction.getRhs();
+
+            if (leftInstruction.getOperation().getOpType() == OperationType.ADD) {
+                Element leftEl = leftInstruction.getLeftOperand();
+                Element rightEl = leftInstruction.getRightOperand();
+
+                // a = a (+) Literal or a = Literal (+) a
+                return ((leftEl instanceof Operand && ((Operand) leftEl).getName()
+                        .equals(((Operand) instruction.getDest()).getName()) && rightEl instanceof LiteralElement)
+                    || rightEl instanceof Operand && ((Operand) rightEl).getName()
+                        .equals(((Operand) instruction.getDest()).getName()) && leftEl instanceof LiteralElement);
+            } else if (leftInstruction.getOperation().getOpType() == OperationType.SUB) {
+                Element leftEl = leftInstruction.getLeftOperand();
+                Element rightEl = leftInstruction.getRightOperand();
+
+                // a = a (-) Literal [only]
+                return (leftEl instanceof Operand && ((Operand) leftEl).getName()
+                        .equals(((Operand) instruction.getDest()).getName()) && rightEl instanceof LiteralElement);
+            }
+        }
+
+        return false;
+    }
 }

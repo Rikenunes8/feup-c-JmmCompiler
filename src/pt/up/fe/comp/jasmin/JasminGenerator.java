@@ -140,6 +140,22 @@ public class JasminGenerator {
             code.append("\taload").append(JasminUtils.getVariableVirtualRegister(arrayOperand.getName(), varTable)).append("\n");
             JasminLimits.incrementStack(1);
             code.append(JasminUtils.loadElementCode(arrayOperand.getIndexOperands().get(0), varTable));
+        } else {
+            if (JasminUtils.isIincOptimizable(instruction)) {
+                String registerNumber = JasminUtils.getVariableVirtualRegister(((Operand) instruction.getDest()).getName(), varTable)
+                        .replace("_", " ");
+
+                BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) instruction.getRhs();
+                LiteralElement literalElement = (binaryOpInstruction).getRightOperand() instanceof LiteralElement
+                        ? (LiteralElement) (binaryOpInstruction).getRightOperand()
+                        : (LiteralElement) (binaryOpInstruction).getLeftOperand();
+
+                String literal = (binaryOpInstruction).getOperation().getOpType() == OperationType.ADD
+                        ? literalElement.getLiteral()
+                        : "-" + literalElement.getLiteral();
+
+                return code.append("\tiinc").append(registerNumber).append(" ").append(literal).append("\n").toString();
+            }
         }
 
         if (instruction.getRhs() instanceof CallInstruction) {

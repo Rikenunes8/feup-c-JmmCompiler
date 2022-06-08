@@ -34,7 +34,6 @@ public class JasminLimits {
     }
 
     static public String changeMethodStack(String methodCode) {
-        // stackLimit = 99; // TODO remove once stack limit is computed by increment and decrement stack counter here needed
         return methodCode.replace(".limit stack 0", ".limit stack " + stackLimit);
     }
 }
