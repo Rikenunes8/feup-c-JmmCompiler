@@ -8,8 +8,8 @@
 .end method
 
 .method public static main([Ljava/lang/String;)V
-	.limit stack 99
-	.limit locals 99
+	.limit stack 3
+	.limit locals 4
 
 	aload_1
 	iconst_2
@@ -21,8 +21,8 @@
 .end method
 
 .method public check()V
-	.limit stack 99
-	.limit locals 99
+	.limit stack 1
+	.limit locals 1
 
 	aload_0
 	invokespecial java/lang/Object/<init>()V

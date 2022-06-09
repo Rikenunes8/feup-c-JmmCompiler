@@ -12,8 +12,6 @@ public class JasminGenerator {
     private final ClassUnit classUnit;
     private final JasminInstrBinaryOpGenerator instrBinaryOpGenerator;
 
-    // private int stackCounter;
-
     private final BiFunctionClassMap<Instruction, HashMap<String, Descriptor>, String> instructionMap;
 
     public JasminGenerator(ClassUnit classUnit) {
@@ -51,10 +49,10 @@ public class JasminGenerator {
 
         for (Method method : this.classUnit.getMethods()) {
             if (!method.isConstructMethod()) {
-                // this.stackCounter = 0;
+                JasminLimits.resetStack();
                 this.instrBinaryOpGenerator.resetLabelCounter();
 
-                jasminCode.append(this.getJasminCode(method));
+                jasminCode.append(JasminLimits.changeMethodStack(this.getJasminCode(method)));
             }
         }
 
@@ -121,12 +119,8 @@ public class JasminGenerator {
     }
 
     private String getMethodLimitsCode(Method method) {
-        // limit stack - max length of the stack that we need to the method
-        // limit locals - max number of registers we need to use
-
-        return "\t.limit stack " + 99 + "\n" +
-                "\t.limit locals " + 99 + "\n\n";
-        // NOTE: Now we can use 99, but this will be changed for checkpoint 3
+        return "\t.limit stack " + JasminLimits.getStack() + "\n" +
+                "\t.limit locals " + JasminLimits.getLocals(method) + "\n\n";
     }
 
     public String getJasminCode(Instruction instruction, HashMap<String, Instruction> methodLabels, HashMap<String, Descriptor> methodVarTable) {
@@ -144,10 +138,32 @@ public class JasminGenerator {
         if (instruction.getDest() instanceof ArrayOperand) { // Load Array + Load Index
             ArrayOperand arrayOperand = (ArrayOperand) instruction.getDest();
             code.append("\taload").append(JasminUtils.getVariableVirtualRegister(arrayOperand.getName(), varTable)).append("\n");
+            JasminLimits.incrementStack(1);
             code.append(JasminUtils.loadElementCode(arrayOperand.getIndexOperands().get(0), varTable));
+        } else {
+            if (JasminUtils.isIincOptimizable(instruction)) {
+                String registerNumber = JasminUtils.getVariableVirtualRegister(((Operand) instruction.getDest()).getName(), varTable)
+                        .replace("_", " ");
+
+                BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) instruction.getRhs();
+                LiteralElement literalElement = (binaryOpInstruction).getRightOperand() instanceof LiteralElement
+                        ? (LiteralElement) (binaryOpInstruction).getRightOperand()
+                        : (LiteralElement) (binaryOpInstruction).getLeftOperand();
+
+                String literal = (binaryOpInstruction).getOperation().getOpType() == OperationType.ADD
+                        ? literalElement.getLiteral()
+                        : "-" + literalElement.getLiteral();
+
+                return code.append("\tiinc").append(registerNumber).append(" ").append(literal).append("\n").toString();
+            }
         }
 
-        code.append(getJasminCode(instruction.getRhs(), new HashMap<>(), varTable));
+        if (instruction.getRhs() instanceof CallInstruction) {
+            JasminInstrCallGenerator callInstrGenerator = new JasminInstrCallGenerator(this.classUnit, (CallInstruction) instruction.getRhs(), varTable, true);
+            code.append(callInstrGenerator.getJasminCode());
+        } else {
+            code.append(getJasminCode(instruction.getRhs(), new HashMap<>(), varTable));
+        }
 
         // In case that on the right side of the assignment there is a call instruction for a new object - do not store yet
         if (!(instruction.getRhs() instanceof CallInstruction
@@ -159,7 +175,7 @@ public class JasminGenerator {
     }
 
     public String getJasminCode(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
-        JasminInstrCallGenerator callInstrGenerator = new JasminInstrCallGenerator(this.classUnit, instruction, varTable);
+        JasminInstrCallGenerator callInstrGenerator = new JasminInstrCallGenerator(this.classUnit, instruction, varTable, false);
         return callInstrGenerator.getJasminCode();
     }
 
@@ -188,6 +204,7 @@ public class JasminGenerator {
         code.append(JasminUtils.loadElementCode(instruction.getThirdOperand(), varTable));
         code.append("\tputfield ").append(className).append("/").append(field).append(" ")
                 .append(JasminUtils.getJasminType(this.classUnit, instruction.getSecondOperand().getType())).append("\n");
+        JasminLimits.decrementStack(2);
 
         return code.toString();
     }
@@ -211,8 +228,10 @@ public class JasminGenerator {
     }
 
     public String getJasminCode(CondBranchInstruction instruction, HashMap<String, Descriptor> varTable) {
-        return this.getJasminCode(instruction.getCondition(), new HashMap<>(), varTable)
-                + "\tifne " + instruction.getLabel() + "\n";
+        String code = this.getJasminCode(instruction.getCondition(), new HashMap<>(), varTable)
+                        + "\tifne " + instruction.getLabel() + "\n";
+        JasminLimits.decrementStack(1);
+        return code;
     }
 
     public String getJasminCode(GotoInstruction instruction, HashMap<String, Descriptor> varTable) {
@@ -224,27 +243,24 @@ public class JasminGenerator {
             return "\treturn\n";
         }
 
+        StringBuilder code = new StringBuilder();
         switch (instruction.getOperand().getType().getTypeOfElement()) {
             case VOID:
                 return "\treturn\n";
             case INT32:
             case BOOLEAN:
-                return JasminUtils.loadElementCode(instruction.getOperand(), varTable) + "\tireturn\n";
+                code.append(JasminUtils.loadElementCode(instruction.getOperand(), varTable)).append("\tireturn\n");
+                JasminLimits.decrementStack(1);
+                break;
             case ARRAYREF:
             case OBJECTREF:
-                return JasminUtils.loadElementCode(instruction.getOperand(), varTable) + "\tareturn\n";
+                code.append(JasminUtils.loadElementCode(instruction.getOperand(), varTable)).append("\tareturn\n");
+                JasminLimits.decrementStack(1);
+                break;
             default:
                 throw new NotImplementedException(instruction.getElementType());
         }
-    }
 
-    /*
-    private void incrementStackCounter(int value) {
-        this.stackCounter += value;
+        return code.toString();
     }
-
-    private void decrementStackCounter(int value) {
-        this.stackCounter -= value;
-    }
-    */
 }

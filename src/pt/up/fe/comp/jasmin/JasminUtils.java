@@ -54,6 +54,19 @@ public class JasminUtils {
         }
     }
 
+    static public String getElementTypePrefix(Element element) {
+        switch (element.getType().getTypeOfElement()) {
+            case INT32:
+            case BOOLEAN:
+                return "i";
+            case ARRAYREF:
+            case OBJECTREF:
+                return "a";
+            default:
+                return null;
+        }
+    }
+
     static public String getVariableVirtualRegister(String variableName, HashMap<String, Descriptor> varTable) {
         int virtualRegister = varTable.get(variableName).getVirtualReg();
 
@@ -78,6 +91,7 @@ public class JasminUtils {
 
     static private String loadElementCode(LiteralElement element) {
         String literal = element.getLiteral();
+        JasminLimits.incrementStack(1);
 
         int number = Integer.parseInt(literal);
         if (number >= -1 && number <= 5)
@@ -93,13 +107,18 @@ public class JasminUtils {
     static private String loadElementCode(ArrayOperand element, HashMap<String, Descriptor> varTable) {
 
         // Load array + Load index + Load value
-        return "\taload" + JasminUtils.getVariableVirtualRegister(element.getName(), varTable) + "\n" +
-                JasminUtils.loadElementCode(element.getIndexOperands().get(0), varTable) +
-                "\tiaload\n";
+        String code = "\taload" + JasminUtils.getVariableVirtualRegister(element.getName(), varTable) + "\n";
+        JasminLimits.incrementStack(1);
+        code += JasminUtils.loadElementCode(element.getIndexOperands().get(0), varTable);
+        code += "\tiaload\n";
+        JasminLimits.decrementStack(1);
+
+        return code;
     }
 
     static private String loadElementCode(Operand element, HashMap<String, Descriptor> varTable) {
 
+        JasminLimits.incrementStack(1);
         switch (element.getType().getTypeOfElement()) {
             case THIS:
                 return "\taload_0\n";
@@ -118,9 +137,11 @@ public class JasminUtils {
 
     static public String storeElementCode(Operand operand, HashMap<String, Descriptor> varTable) {
         if (operand instanceof ArrayOperand) {
+            JasminLimits.decrementStack(1);
             return "\tiastore\n";
         }
 
+        JasminLimits.decrementStack(1);
         switch (operand.getType().getTypeOfElement()) {
             case VOID: // When in invokes we can not know the return type of the function called -> assume that is an INT
             case INT32:
@@ -133,5 +154,31 @@ public class JasminUtils {
             default:
                 throw new RuntimeException("Exception during store elements  type" + operand.getType().getTypeOfElement());
         }
+    }
+
+    static public boolean isIincOptimizable(AssignInstruction instruction) {
+        if (instruction.getRhs() instanceof BinaryOpInstruction) {
+            BinaryOpInstruction leftInstruction = (BinaryOpInstruction) instruction.getRhs();
+
+            if (leftInstruction.getOperation().getOpType() == OperationType.ADD) {
+                Element leftEl = leftInstruction.getLeftOperand();
+                Element rightEl = leftInstruction.getRightOperand();
+
+                // a = a (+) Literal or a = Literal (+) a
+                return ((leftEl instanceof Operand && ((Operand) leftEl).getName()
+                        .equals(((Operand) instruction.getDest()).getName()) && rightEl instanceof LiteralElement)
+                    || rightEl instanceof Operand && ((Operand) rightEl).getName()
+                        .equals(((Operand) instruction.getDest()).getName()) && leftEl instanceof LiteralElement);
+            } else if (leftInstruction.getOperation().getOpType() == OperationType.SUB) {
+                Element leftEl = leftInstruction.getLeftOperand();
+                Element rightEl = leftInstruction.getRightOperand();
+
+                // a = a (-) Literal [only]
+                return (leftEl instanceof Operand && ((Operand) leftEl).getName()
+                        .equals(((Operand) instruction.getDest()).getName()) && rightEl instanceof LiteralElement);
+            }
+        }
+
+        return false;
     }
 }

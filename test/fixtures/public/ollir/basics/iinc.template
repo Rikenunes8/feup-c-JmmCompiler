@@ -1,4 +1,4 @@
-.class public Fac
+.class public MyTypes
 .super java/lang/Object
 
 .method public <init>()V
@@ -7,20 +7,20 @@
 	return
 .end method
 
-.method public check(I)V
+.method public static main([Ljava/lang/String;)V
 	.limit stack 2
 	.limit locals 2
 
+	iinc 1 2
+	iinc 1 2
+	iinc 1 -4
+	iconst_4
 	iload_1
-	iconst_1
-	if_icmpge label0
-	label1:
-	iconst_0
-	goto label2
-	label0:
-	iconst_1
-	label2:
-	ifne else
-	else:
+	isub
+	istore_1
+	iload_1
+	iconst_2
+	imul
+	istore_1
 	return
 .end method
