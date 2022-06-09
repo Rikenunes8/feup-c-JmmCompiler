@@ -4,7 +4,6 @@ import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 
 
-// TODO Possible change things
 public class OllirUtils {
     public static String getCode(Symbol symbol) {
         return symbol.getName() + "." + getCode(symbol.getType());
