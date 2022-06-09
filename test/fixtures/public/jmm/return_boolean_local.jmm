@@ -1,0 +1,7 @@
+class A {
+    public boolean foo(int a) {
+        boolean b;
+        b = true;
+        return b;
+    }
+}

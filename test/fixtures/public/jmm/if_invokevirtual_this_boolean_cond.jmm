@@ -1,0 +1,12 @@
+class A {
+    public int foo() {
+        if (this.bar(true))
+            this.bar(true);
+        else
+            this.bar(false);
+        return 0;
+    }
+    public boolean bar(boolean a) {
+        return a;
+    }
+}

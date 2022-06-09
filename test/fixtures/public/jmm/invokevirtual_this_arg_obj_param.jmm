@@ -1,0 +1,8 @@
+import B;
+
+class A {
+    public int foo(B a) {
+        this.foo(a);
+        return 0;
+    }
+}

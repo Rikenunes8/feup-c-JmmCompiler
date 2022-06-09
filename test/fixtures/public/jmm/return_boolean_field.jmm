@@ -1,0 +1,6 @@
+class A {
+    boolean b;
+    public boolean foo() {
+        return b;
+    }
+}
