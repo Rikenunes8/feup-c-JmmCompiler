@@ -111,7 +111,16 @@ public class MyCompilerTest {
 
     @Test
     public void testTicTacToe() {
-        assertNoErrorsGeneral("TicTacToe");
+        String filename = "TicTacToe";
+        String jmmCode = SpecsIo.getResource("fixtures/public/general/" + filename + ".jmm");
+        String expected = SpecsIo.getResource("fixtures/public/general/" + filename + ".txt");
+        String input = SpecsIo.getResource("fixtures/public/general/" + filename + ".input");
+
+        var result = TestUtils.backend(jmmCode);
+        System.out.println(result.getJasminCode());
+        result.compile();
+        var output = result.run(input);
+        assertEquals(expected, output.trim());
     }
 
     @Test
