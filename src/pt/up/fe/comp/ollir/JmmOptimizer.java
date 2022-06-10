@@ -29,7 +29,7 @@ public class JmmOptimizer implements JmmOptimization {
 
         
         
-        while(ollirResult.getOllirCode().contains(" Loop"))
+        while(ollirResult.getOllirCode().contains("Loop"))
         {
             ollirResult = optimizeGoto(ollirResult);
         }
@@ -60,14 +60,14 @@ public class JmmOptimizer implements JmmOptimization {
         int conditionStartIndex = loop.indexOf(":")+ 1;
         int conditionEndIndex = loop.indexOf("goto EndLoop"+loopNumber);
         String condition = loop.substring(conditionStartIndex,conditionEndIndex);
-        condition = condition.replace("Body", "OptLoop");
+        condition = condition.replace("Body", "Optloop");
         //System.out.println(condition);
 
         /* Create Optmize Loop Block*/
-        String optLoop = "\tgoto OptEndLoop"+loopNumber+" ;\n";
-        optLoop += "OptLoop" + loopNumber + ":";
+        String optLoop = "\tgoto OptEndloop"+loopNumber+";\n";
+        optLoop += "Optloop" + loopNumber + ":";
         optLoop += body;
-        optLoop += "OptEndLoop" + loopNumber + " :";
+        optLoop += "OptEndloop" + loopNumber + ":";
         optLoop += condition;
         //System.out.println("new loop: " + optLoop);
 
