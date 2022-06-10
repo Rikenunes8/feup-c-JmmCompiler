@@ -2,14 +2,36 @@ package pt.up.fe.comp.ollir;
 import java.util.Collections;
 
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
+import pt.up.fe.comp.optimization.ConstPropagationTable;
+import pt.up.fe.comp.optimization.ConstantFoldingVisitor;
+import pt.up.fe.comp.optimization.ConstantPropagationVisitor;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 
 public class JmmOptimizer implements JmmOptimization {
     @Override
     public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
-        return JmmOptimization.super.optimize(semanticsResult);
+        if (!semanticsResult.getConfig().containsKey("optimize") || !semanticsResult.getConfig().get("optimize").equals("true"))
+            return semanticsResult;
+
+        JmmNode root = semanticsResult.getRootNode();
+        int counter = 1;
+        while (counter > 0) {
+            // Constant Propagation
+            var constantPropagation = new ConstantPropagationVisitor();
+            ConstPropagationTable table = new ConstPropagationTable(); // (name, const_value)
+            constantPropagation.visit(root, table);
+            counter = constantPropagation.getCounter();
+
+            // Constant Folding
+            var constantFolding = new ConstantFoldingVisitor();
+            constantFolding.visit(root);
+            counter += constantFolding.getCounter();
+        }
+
+        return semanticsResult;
     }
 
     @Override

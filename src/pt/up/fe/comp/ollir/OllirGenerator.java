@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import static pt.up.fe.comp.ast.AstNode.*;
 import static pt.up.fe.comp.ollir.OllirExprGenerator.newVar;
 import static pt.up.fe.comp.ollir.OllirExprGenerator.newVarInstr;
+import static pt.up.fe.comp.ollir.OllirUtils.*;
 
 
 public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
@@ -139,10 +140,12 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     private Integer visitReturnStatement(JmmNode returnStatement, Integer dummy) {
         OllirExprCode result = visitExpression(returnStatement.getJmmChild(0));
 
-        String t1 = newVar(result.getType());
         code.append(result.getTemps());
-        code.append(ident()).append(newVarInstr(t1, result.getType(), result.getFullExp()));
-
+        String t1 = result.getFullExp();
+        if (isComplex(t1)) {
+            t1 = newVar(result.getType());
+            code.append(ident()).append(newVarInstr(t1, result.getType(), result.getFullExp()));
+        }
         code.append(ident()).append("ret.").append(result.getType());
         code.append(" ").append(t1);
         code.append(";\n");
@@ -204,18 +207,25 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         code.append(left.getTemps());
         code.append(right.getTemps());
         var leftFullExp = left.getFullExp();
-        if (leftFullExp.startsWith("getfield")) {
+        if (isGetfield(leftFullExp)) {
             String aux = leftFullExp.substring(leftFullExp.indexOf(",")+1, leftFullExp.indexOf(")"));
-            String t2 = newVar(right.getType());
-            code.append(ident()).append(newVarInstr(t2, right.getType(), right.getFullExp()));
+            String t2 = right.getFullExp();
+            if (isComplex(t2) || isParam(t2)) {
+                t2 = newVar(right.getType());
+                code.append(ident()).append(newVarInstr(t2, right.getType(), right.getFullExp()));
+            }
             code.append(ident()).append("putfield(this,").append(aux).append(", ").append(t2).append(").V;\n");
         }
         else {
+            String rightFullExp = right.getFullExp();
+            if (isInvoke(rightFullExp)) {
+                rightFullExp = rightFullExp.substring(0, rightFullExp.lastIndexOf('.') + 1).concat(left.getType());
+            }
+
             code.append(ident())
                     .append(left.getFullExp())
                     .append(" :=.").append(left.getType())
-                    .append(" ").append(right.getFullExp()).append(";\n");
-
+                    .append(" ").append(rightFullExp).append(";\n");
         }
         return 0;
     }
@@ -232,9 +242,12 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         StringBuilder temps = new StringBuilder();
         OllirExprCode cond = visitExpression(condition.getJmmChild(0));
 
-        String t1 = newVar(cond.getType());
         temps.append(cond.getTemps());
-        temps.append(ident()).append(newVarInstr(t1, cond.getType(), cond.getFullExp()));
+        String t1 = cond.getFullExp();
+        if (isComplex(t1) && !isArithExpr(t1)) {
+            t1 = newVar(cond.getType());
+            temps.append(ident()).append(newVarInstr(t1, cond.getType(), cond.getFullExp()));
+        }
 
         switch (condition.getJmmParent().getKind()) {
             case "IfStatement":

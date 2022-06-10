@@ -1,0 +1,9 @@
+class A {
+    public int foo(int n) {
+        this.bar(1 + 2, true && false && true);
+        return 0;
+    }
+    public int bar(int a, boolean b) {
+        return a;
+    }
+}

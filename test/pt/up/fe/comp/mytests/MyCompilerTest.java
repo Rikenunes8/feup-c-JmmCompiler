@@ -75,10 +75,18 @@ public class MyCompilerTest {
     public void testArrays1() {
         noErrors(SpecsIo.getResource("fixtures/public/run/Arrays1.jmm"), "15");
     }
+
     @Test
     public void testArrays2() {
         noErrors(SpecsIo.getResource("fixtures/public/run/Arrays2.jmm"), "6");
     }
+
+    @Test
+    public void testArraysAndBooleans() {
+        var nl = SpecsIo.getNewline();
+        noErrors(SpecsIo.getResource("fixtures/public/run/ArraysAndBooleans.jmm"), "1"+nl+"0"+nl+"15"+nl+"0"+nl+"1"+nl+"15");
+    }
+
     @Test
     public void testLocalVar() {
         noErrors(SpecsIo.getResource("fixtures/public/run/LocalVar.jmm"), "5");
@@ -103,8 +111,16 @@ public class MyCompilerTest {
 
     @Test
     public void testTicTacToe() {
-        // TODO Correct error
-        // assertNoErrorsGeneral("TicTacToe");
+        String filename = "TicTacToe";
+        String jmmCode = SpecsIo.getResource("fixtures/public/general/" + filename + ".jmm");
+        String expected = SpecsIo.getResource("fixtures/public/general/" + filename + ".txt");
+        String input = SpecsIo.getResource("fixtures/public/general/" + filename + ".input");
+
+        var result = TestUtils.backend(jmmCode);
+        System.out.println(result.getJasminCode());
+        result.compile();
+        var output = result.run(input);
+        assertEquals(expected, output.trim());
     }
 
     @Test

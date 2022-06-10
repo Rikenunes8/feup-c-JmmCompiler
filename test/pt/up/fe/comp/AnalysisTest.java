@@ -43,9 +43,9 @@ public class AnalysisTest {
         noErrors(SpecsIo.getResource("fixtures/public/general/Life.jmm"));
     }
 
-    @Test
+    // @Test // TODO Method overloading is not to be implemented
     public void quickSort() {
-        // noErrors(SpecsIo.getResource("fixtures/public/QuickSort.jmm")); // TODO Method overloading is not to be implemented
+        noErrors(SpecsIo.getResource("fixtures/public/QuickSort.jmm"));
     }
 
     @Test

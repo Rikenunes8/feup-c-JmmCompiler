@@ -2,10 +2,8 @@ package pt.up.fe.comp.ollir;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
-import pt.up.fe.comp.jmm.ast.JmmNode;
 
 
-// TODO Possible change things
 public class OllirUtils {
     public static String getCode(Symbol symbol) {
         return symbol.getName() + "." + getCode(symbol.getType());
@@ -33,5 +31,43 @@ public class OllirUtils {
             case "boolean": return "bool";
             default: return jmmType;
         }
+    }
+
+
+    public static boolean isConstant(String e) {
+        return e.matches("\\d.*");
+    }
+    public static boolean isVariable(String e) {
+        return !e.contains("(") && !isArithExpr(e) && !isParam(e) && !isConstant(e) && !isArrayAccess(e);
+    }
+    public static boolean isArrayAccess(String e) {
+        return e.contains("[");
+    }
+    public static boolean isArithExpr(String e) {
+        return e.matches(".*(&&|<|\\+|-|\\*|/|!).*");
+    }
+    public static boolean isInvoke(String e) {
+        return e.startsWith("invokevirtual(") || e.startsWith("invokespecial(") || e.startsWith("invokestatic(");
+    }
+    public static boolean isLength(String e) {
+        return e.startsWith("arraylength(");
+    }
+    public static boolean isFieldAccess(String e) {
+        return isGetfield(e) || isPutfield(e);
+    }
+    public static boolean isGetfield(String e) {
+        return e.startsWith("getfield(");
+    }
+    public static boolean isPutfield(String e) {
+        return e.startsWith("putfield(");
+    }
+    public static boolean isNew(String e) {
+        return e.startsWith("new(");
+    }
+    public static boolean isParam(String e) {
+        return e.startsWith("$");
+    }
+    public static boolean isComplex(String e) {
+        return isInvoke(e) || isLength(e) || isNew(e) || isFieldAccess(e) || isArithExpr(e);
     }
 }

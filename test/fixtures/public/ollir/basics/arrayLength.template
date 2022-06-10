@@ -8,8 +8,8 @@
 .end method
 
 .method public check([I)V
-	.limit stack 99
-	.limit locals 99
+	.limit stack 1
+	.limit locals 3
 
 	aload_1
 	arraylength

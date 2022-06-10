@@ -1,44 +1,68 @@
 package pt.up.fe.comp.mytests;
-/**
- * Copyright 2021 SPeCS.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License. under the License.
- */
 
 import org.junit.Test;
 import pt.up.fe.comp.TestUtils;
+import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.specs.util.SpecsIo;
+import pt.up.fe.specs.util.SpecsStrings;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MyOptimizationTest {
-
-    @Test
-    public void testHelloWorld() {
-        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/general/HelloWorld.jmm"));
-        TestUtils.noErrors(result.getReports());
+    static OllirResult getOllirResult(String filename) {
+        return TestUtils.optimize(SpecsIo.getResource("fixtures/public/optimizations/" + filename));
     }
-    @Test
-    public void testFunctionAsArgument() {
-        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/general/FunctionArgs.jmm"));
-        TestUtils.noErrors(result.getReports());
+    static OllirResult getOllirResultOpt(String filename) {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+        return TestUtils.optimize(SpecsIo.getResource("fixtures/public/optimizations/" + filename), config);
     }
 
-    @Test
-    public void testIfStmt() {
-        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/general/IfStmt.jmm"));
-        TestUtils.noErrors(result.getReports());
+    static OllirResult getSetup(String filename) {
+        var ollirResult = getOllirResult(filename);
+        var ollirResultOpt = getOllirResultOpt(filename);
+        TestUtils.noErrors(ollirResult.getReports());
+        TestUtils.noErrors(ollirResultOpt.getReports());
+        assertNotEquals(ollirResult.getOllirCode(), ollirResultOpt.getOllirCode());
+        return ollirResultOpt;
     }
 
     @Test
-    public void testWhileAndIf() {
-        var result = TestUtils.optimize(SpecsIo.getResource("fixtures/public/general/WhileAndIf.jmm"));
-        TestUtils.noErrors(result.getReports());
+    public void constant_propagation_while() {
+        String ollirCode = getSetup("while.jmm").getOllirCode();
+
+        String cond = ".*a\\.i32 <\\.bool 4\\.i32.*";
+        String assignment = ".*c\\.i32 :=\\.i32 4\\.i32.*";
+        assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(cond)));
+        assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment)));
     }
 
+    @Test
+    public void constant_propagation_while_nested() {
+        String ollirCode = getSetup("while_nested.jmm").getOllirCode();
+
+        String cond1 = ".*a\\.i32 <\\.bool 4\\.i32.*";
+        String cond2 = ".*c\\.i32 <\\.bool 4\\.i32.*";
+        String assignment1 = ".*a\\.i32 :=\\.i32 a\\.i32 \\+.i32 1.i32.*";
+        String assignment2 = ".*c\\.i32 :=\\.i32 5\\.i32.*";
+        String assignment3 = ".*d\\.i32 :=\\.i32 4\\.i32.*";
+        String assignment4 = ".*a\\.i32 :=\\.i32 a\\.i32 \\+.i32 4.i32.*";
+        String assignment5 = ".*d\\.i32 :=\\.i32 5\\.i32.*";
+        String assignment6 = ".*a\\.i32 :=\\.i32 a\\.i32 \\+.i32 5.i32.*";
+        assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(cond1)));
+        assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(cond2)));
+        assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment1)));
+        assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment2)));
+        assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment3)));
+        assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment4)));
+        assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment5)));
+        assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment6)));
+    }
 }
