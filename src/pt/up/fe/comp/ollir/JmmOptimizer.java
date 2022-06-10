@@ -1,4 +1,5 @@
 package pt.up.fe.comp.ollir;
+import org.specs.comp.ollir.OllirErrorException;
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
 
 import pt.up.fe.comp.optimization.ConstPropagationTable;
@@ -8,6 +9,7 @@ import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.comp.optimization.register_allocation.RegisterAllocation;
 
 import java.util.Collections;
 
@@ -49,6 +51,8 @@ public class JmmOptimizer implements JmmOptimization {
 
     @Override
     public OllirResult optimize(OllirResult ollirResult) {
+        var ollirClass = ollirResult.getOllirClass();
+        new RegisterAllocation(ollirClass).optimize();
         return JmmOptimization.super.optimize(ollirResult);
     }
 }

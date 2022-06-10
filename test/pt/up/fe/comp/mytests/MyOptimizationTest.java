@@ -65,4 +65,10 @@ public class MyOptimizationTest {
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment5)));
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment6)));
     }
+
+    @Test
+    public void register_allocation() {
+        String ollirCode = getSetup("register_allocation.jmm").getOllirCode();
+    }
+
 }
