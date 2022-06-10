@@ -27,8 +27,12 @@ public class JmmOptimizer implements JmmOptimization {
     @Override
     public OllirResult optimize(OllirResult ollirResult) {
 
-        ollirResult = optimizeGoto(ollirResult);
-
+        
+        
+        while(ollirResult.getOllirCode().contains(" Loop"))
+        {
+            ollirResult = optimizeGoto(ollirResult);
+        }
 
         return JmmOptimization.super.optimize(ollirResult);
     }
@@ -36,12 +40,14 @@ public class JmmOptimizer implements JmmOptimization {
     private OllirResult optimizeGoto(OllirResult ollirResult) {
         System.out.println("Optimize");
         String ollirCode = ollirResult.getOllirCode();
+
+        /*Loop Block*/
         int loopStartIndex = ollirCode.indexOf("Loop");
         int dotIndex = ollirCode.indexOf(":", loopStartIndex + 4);
         String loopNumber = ollirCode.substring(loopStartIndex + 4,dotIndex);
         int loopEndIndex = ollirCode.indexOf("EndLoop"+loopNumber,ollirCode.indexOf("EndLoop"+loopNumber)+1);
         String loop = ollirCode.substring(loopStartIndex,loopEndIndex);
-        //System.out.println(loop);
+        //System.out.println("old loop: " + loop);
 
         /* Body Block*/
         int bodyStartIndex = loop.indexOf("Body"+loopNumber,loop.indexOf("Body"+loopNumber)+1);
@@ -57,13 +63,21 @@ public class JmmOptimizer implements JmmOptimization {
         condition = condition.replace("Body", "OptLoop");
         //System.out.println(condition);
 
-        String optLoop = "\tgoto OptEndLoop"+loopNumber+";\n";
+        /* Create Optmize Loop Block*/
+        String optLoop = "\tgoto OptEndLoop"+loopNumber+" ;\n";
         optLoop += "OptLoop" + loopNumber + ":";
         optLoop += body;
-        optLoop += "OptEndLoop" + loopNumber + ":";
+        optLoop += "OptEndLoop" + loopNumber + " :";
         optLoop += condition;
-        System.out.println(optLoop);
+        //System.out.println("new loop: " + optLoop);
 
-        return new OllirResult(ollirCode, ollirResult.getConfig());
+        ollirCode = ollirCode.replace(loop, optLoop);
+        ollirCode = ollirCode.replace("EndLoop"+loopNumber+":", "");
+        System.out.println("opt ollir code: " + ollirCode);
+
+        OllirResult optOllirResult = new OllirResult(ollirCode, ollirResult.getConfig());
+
+
+        return optOllirResult;
     }
 }
