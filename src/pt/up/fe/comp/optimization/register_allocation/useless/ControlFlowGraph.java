@@ -1,4 +1,4 @@
-package pt.up.fe.comp.optimization.register_allocation;
+package pt.up.fe.comp.optimization.register_allocation.useless;
 
 import org.specs.comp.ollir.*;
 

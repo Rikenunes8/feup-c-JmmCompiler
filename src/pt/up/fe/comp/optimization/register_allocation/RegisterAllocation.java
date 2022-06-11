@@ -17,10 +17,6 @@ public class RegisterAllocation {
     }
 
     private void allocateRegisters(Method method) {
-        var cfg = new ControlFlowGraph(method);
-        var graph = cfg.getCfg();
-        for (var block : graph) {
-            block.show();
-        }
+        new Liveness(method.getInstructions()).show();
     }
 }
