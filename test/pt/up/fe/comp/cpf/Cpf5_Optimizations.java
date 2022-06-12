@@ -228,7 +228,7 @@ public class Cpf5_Optimizations {
         String filename = "reg_alloc/regalloc.jmm";
 
         JasminResult original = getJasminResult(filename);
-        JasminResult optimized = getJasminResultReg(filename, -1);
+        JasminResult optimized = getJasminResultReg(filename, 0);
 
         CpUtils.assertNotEquals("Expected code to change with -r flag\n\nOriginal code:\n" + original.getJasminCode(),
                 original.getJasminCode(), optimized.getJasminCode(),
