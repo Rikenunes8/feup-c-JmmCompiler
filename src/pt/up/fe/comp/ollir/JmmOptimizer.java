@@ -51,8 +51,13 @@ public class JmmOptimizer implements JmmOptimization {
 
     @Override
     public OllirResult optimize(OllirResult ollirResult) {
+        
+        if (!ollirResult.getConfig().containsKey("registerAllocation")) return ollirResult;
+        int nRegisters = Integer.parseInt(ollirResult.getConfig().get("registerAllocation"));
+        if (nRegisters == -1) return ollirResult;
+
         var ollirClass = ollirResult.getOllirClass();
-        new RegisterAllocation(ollirClass).optimize();
+        new RegisterAllocation(ollirClass).optimize(nRegisters);
         return JmmOptimization.super.optimize(ollirResult);
     }
 }

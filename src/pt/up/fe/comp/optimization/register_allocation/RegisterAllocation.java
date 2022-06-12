@@ -3,23 +3,27 @@ package pt.up.fe.comp.optimization.register_allocation;
 import org.specs.comp.ollir.ClassUnit;
 import org.specs.comp.ollir.Method;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RegisterAllocation {
     private final ClassUnit ollir;
     private final Map<String, List<String>> interferenceGraph;
-
+    private final Stack<String> coloringStack;
+    private final Map<String, Integer> coloredGraph;
+    private int nRegisters;
+    private Method currentMethod;
 
     public RegisterAllocation(ClassUnit ollir) {
         this.ollir = ollir;
         this.interferenceGraph = new HashMap<>();
+        this.coloredGraph = new HashMap<>();
+        this.coloringStack = new Stack<>();
     }
-    public void optimize() {
+    public void optimize(int nRegisters) {
+        this.nRegisters = nRegisters;
         this.ollir.buildCFGs();
         for (var method : this.ollir.getMethods()) {
+            this.currentMethod = method;
             this.allocateRegisters(method);
         }
     }
@@ -28,7 +32,8 @@ public class RegisterAllocation {
         var liveliness = new Liveliness(method.getInstructions());
         liveliness.show();
         var webs = liveliness.getWebs();
-        buildInterferenceGraph(webs);
+        this.buildInterferenceGraph(webs);
+        this.colorGraph();
     }
 
     private void buildInterferenceGraph(Map<String, LivelinessRange> webs) {
@@ -50,5 +55,59 @@ public class RegisterAllocation {
 
             interferenceGraph.put(w1, interferences);
         }
+    }
+
+    private void colorGraph() {
+        int minNRegisters = getMinNRegistersPossible();
+        if (nRegisters < minNRegisters && nRegisters > 0) {
+            // report it to the user with the minimum possible
+        }
+        else {
+            if (nRegisters == 0) nRegisters = minNRegisters;
+            Map<String, List<String>> copyGraph = new HashMap<>(interferenceGraph);
+
+            while (!copyGraph.isEmpty()) {
+                boolean success = nextNodeToStack(copyGraph);
+                assert success;
+            }
+
+            while (!coloringStack.isEmpty()) {
+                String variable = coloringStack.pop();
+                int register = this.getRegister(variable);
+                coloredGraph.put(variable, register);
+            }
+        }
+    }
+
+    private int getRegister(String variable) {
+        int startRegister = currentMethod.getParams().size();
+        if (!currentMethod.isStaticMethod()) startRegister++;
+
+        Set<Integer> registersAvailable = new HashSet<>();
+        for (int i = startRegister; i < nRegisters; i++) registersAvailable.add(i);
+
+        var interferences = interferenceGraph.get(variable);
+        for (var interference : interferences) {
+            if (!coloredGraph.containsKey(interference)) continue;
+            int registerUsed = coloredGraph.get(interference);
+            registersAvailable.remove(registerUsed);
+        }
+
+        return registersAvailable.stream().findFirst().orElse(-1);
+    }
+
+    private boolean nextNodeToStack(Map<String, List<String>> copyGraph) {
+        for (String web : copyGraph.keySet()) {
+            if (interferenceGraph.get(web).size() < nRegisters) {
+                coloringStack.add(web);
+                copyGraph.remove(web);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int getMinNRegistersPossible() {
+        return 0;
     }
 }
