@@ -64,7 +64,7 @@ public class MyOptimizationTest {
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment6)));
     }
 
-    @Test
+    @Test // TODO do something to this test latter
     public void register_allocation() {
         String ollirCode = SpecsIo.getResource("fixtures/public/temp.ollir");
         JmmOptimizer optimizer = new JmmOptimizer();
