@@ -17,6 +17,6 @@ public class RegisterAllocation {
     }
 
     private void allocateRegisters(Method method) {
-        new Liveness(method.getInstructions()).show();
+        new Liveliness(method.getInstructions()).show();
     }
 }

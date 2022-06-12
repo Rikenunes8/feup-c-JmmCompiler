@@ -6,21 +6,24 @@ import pt.up.fe.specs.util.classmap.FunctionClassMap;
 
 import java.util.*;
 
-public class Liveness {
+public class Liveliness {
     private final List<Instruction> instructions;
     private FunctionClassMap<Instruction, Boolean> instructionMap;
     private final Map<Instruction, UseDef> useDefMap;
     private final Map<Instruction, InOut> inOutMap;
-    private Set<Web> webs;
+    private final Map<String, LivelinessRange> webs;
 
-    public Liveness(List<Instruction> instructions) {
+    public Liveliness(List<Instruction> instructions) {
         this.instructions = instructions;
         this.useDefMap = new HashMap<>();
         this.inOutMap = new HashMap<>();
+        this.webs = new HashMap<>();
         this.setInstructionsMap();
         this.buildUseDef();
         this.buildInOut();
+        this.buildLivelinessRanges();
     }
+
     public void show() {
         for (var inst : instructions) {
             System.out.println("BB" + String.valueOf(inst.getId()) + " ----------------");
@@ -35,6 +38,32 @@ public class Liveness {
             System.out.println("out: " + String.join(" ", out));
             System.out.println("--------------------------\n");
         }
+        for (var variable : webs.entrySet()) {
+            System.out.println(variable.getKey() + ": " + variable.getValue().getStart() + " - "+ variable.getValue().getEnd());
+        }
+    }
+
+    // TODO how to get the liveliness ranges from in and out sets?
+    private void buildLivelinessRanges() {
+        Instruction instruction = instructions.get(0);
+        while (true) {
+            var inSet = this.inOutMap.get(instruction).getIn();
+            var outSet = this.inOutMap.get(instruction).getOut();
+
+            // add new variables
+            for (String variable : outSet) {
+                if (!webs.containsKey(variable)) {
+                    webs.put(variable, new LivelinessRange(instruction.getId()));
+                }
+            }
+
+            for (var variable : webs.keySet()) {
+                LivelinessRange range = webs.get(variable);
+                if (inSet.contains(variable)) {
+
+                }
+            }
+        }
     }
 
     private void buildInOut() {
@@ -43,7 +72,6 @@ public class Liveness {
         }
         boolean update;
         do {
-            System.out.println("DO_WHILE");
             update = false;
             for (var inst : instructions) {
                 var inOut = this.inOutMap.get(inst);
@@ -71,21 +99,29 @@ public class Liveness {
         } while (update);
     }
 
-    private void setInstructionsMap() {
-        this.instructionMap = new FunctionClassMap<>();
-        this.instructionMap.put(AssignInstruction.class, this::getDefUse);
-        this.instructionMap.put(CallInstruction.class, this::getDefUse);
-        this.instructionMap.put(GetFieldInstruction.class, this::getDefUse);
-        this.instructionMap.put(PutFieldInstruction.class, this::getDefUse);
-        this.instructionMap.put(BinaryOpInstruction.class, this::getDefUse);
-        this.instructionMap.put(UnaryOpInstruction.class, this::getDefUse);
-        this.instructionMap.put(SingleOpInstruction.class, this::getDefUse);
-        this.instructionMap.put(CondBranchInstruction.class, this::getDefUse);
-        this.instructionMap.put(GotoInstruction.class, this::getDefUse);
-        this.instructionMap.put(ReturnInstruction.class, this::getDefUse);
+    private void buildUseDef() {
+        for (var inst : instructions) {
+            this.useDefMap.put(inst, new UseDef());
+            this.instructionMap.apply(inst);
+        }
     }
 
-    private Boolean getDefUse(AssignInstruction instruction)  {
+
+    private void setInstructionsMap() {
+        this.instructionMap = new FunctionClassMap<>();
+        this.instructionMap.put(AssignInstruction.class, this::setDefUse);
+        this.instructionMap.put(CallInstruction.class, this::setDefUse);
+        this.instructionMap.put(GetFieldInstruction.class, this::setDefUse);
+        this.instructionMap.put(PutFieldInstruction.class, this::setDefUse);
+        this.instructionMap.put(BinaryOpInstruction.class, this::setDefUse);
+        this.instructionMap.put(UnaryOpInstruction.class, this::setDefUse);
+        this.instructionMap.put(SingleOpInstruction.class, this::setDefUse);
+        this.instructionMap.put(CondBranchInstruction.class, this::setDefUse);
+        this.instructionMap.put(GotoInstruction.class, this::setDefUse);
+        this.instructionMap.put(ReturnInstruction.class, this::setDefUse);
+    }
+
+    private Boolean setDefUse(AssignInstruction instruction)  {
         String def = ((Operand)instruction.getDest()).getName();
         this.useDefMap.get(instruction).addDef(def);
         Instruction rhs = instruction.getRhs();
@@ -107,46 +143,47 @@ public class Liveness {
         }
         return true;
     }
-    private Boolean getDefUse(CallInstruction instruction)  {
+    private Boolean setDefUse(CallInstruction instruction)  {
         for (var element : instruction.getListOfOperands()) {
             this.addUseToMap(instruction, element);
         }
         return true;
     }
-    private Boolean getDefUse(GetFieldInstruction instruction)  {
+    private Boolean setDefUse(GetFieldInstruction instruction)  {
         this.addUseToMap(instruction, instruction.getSecondOperand()); // TODO is this ok?
         return true;
     }
-    private Boolean getDefUse(PutFieldInstruction instruction)  {
+    private Boolean setDefUse(PutFieldInstruction instruction)  {
         this.addUseToMap(instruction, instruction.getThirdOperand());
         return true;
     }
-    private Boolean getDefUse(BinaryOpInstruction instruction)  {
+    private Boolean setDefUse(BinaryOpInstruction instruction)  {
         this.addUseToMap(instruction, instruction.getLeftOperand());
         this.addUseToMap(instruction, instruction.getRightOperand());
         return true;
     }
-    private Boolean getDefUse(UnaryOpInstruction instruction)  {
+    private Boolean setDefUse(UnaryOpInstruction instruction)  {
         this.addUseToMap(instruction, instruction.getOperand());
         return true;
     }
-    private Boolean getDefUse(SingleOpInstruction instruction)  {
+    private Boolean setDefUse(SingleOpInstruction instruction)  {
         this.addUseToMap(instruction, instruction.getSingleOperand());
         return true;
     }
-    private Boolean getDefUse(CondBranchInstruction instruction)  {
+    private Boolean setDefUse(CondBranchInstruction instruction)  {
         for (var element : instruction.getOperands()) {
             this.addUseToMap(instruction, element);
         }
         return true;
     }
-    private Boolean getDefUse(GotoInstruction instruction)  {
+    private Boolean setDefUse(GotoInstruction instruction)  {
         return true;
     }
-    private Boolean getDefUse(ReturnInstruction instruction)  {
+    private Boolean setDefUse(ReturnInstruction instruction)  {
         this.addUseToMap(instruction, instruction.getOperand());
         return true;
     }
+
     private void addUseToMap(Instruction instruction, Element element) {
         if (element == null) return;
         if (element.isLiteral()) return;
@@ -156,12 +193,4 @@ public class Liveness {
         var useDef = this.useDefMap.get(instruction);
         useDef.addUse(name);
     }
-
-    private void buildUseDef() {
-        for (var inst : instructions) {
-            this.useDefMap.put(inst, new UseDef());
-            this.instructionMap.apply(inst);
-        }
-    }
-
 }
