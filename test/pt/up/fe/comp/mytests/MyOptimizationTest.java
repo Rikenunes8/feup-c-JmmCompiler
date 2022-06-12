@@ -68,7 +68,9 @@ public class MyOptimizationTest {
     public void register_allocation() {
         String ollirCode = SpecsIo.getResource("fixtures/public/temp.ollir");
         JmmOptimizer optimizer = new JmmOptimizer();
-        OllirResult ollirResult = new OllirResult(ollirCode, Collections.emptyMap());
+        Map<String, String> config = new HashMap<>();
+        config.put("registerAllocation", String.valueOf(5));
+        OllirResult ollirResult = new OllirResult(ollirCode, config);
         optimizer.optimize(ollirResult);
     }
 

@@ -51,13 +51,32 @@ public class JmmOptimizer implements JmmOptimization {
 
     @Override
     public OllirResult optimize(OllirResult ollirResult) {
-        
+        // TODO DEBUG
+        System.out.println("Printing var tables");
+        for (var method : ollirResult.getOllirClass().getMethods()) {
+            var table = method.getVarTable();
+            for (var ent : table.entrySet()) {
+                System.out.println(ent.getKey() + "   -   " + ent.getValue().getVirtualReg());
+            }
+        }
+        // TODO --------------------
+
         if (!ollirResult.getConfig().containsKey("registerAllocation")) return ollirResult;
         int nRegisters = Integer.parseInt(ollirResult.getConfig().get("registerAllocation"));
         if (nRegisters == -1) return ollirResult;
 
         var ollirClass = ollirResult.getOllirClass();
         new RegisterAllocation(ollirClass).optimize(nRegisters);
-        return JmmOptimization.super.optimize(ollirResult);
+
+        // TODO DEBUG
+        System.out.println("Printing var tables optimized");
+        for (var method : ollirClass.getMethods()) {
+            var table = method.getVarTable();
+            for (var ent : table.entrySet()) {
+                System.out.println(ent.getKey() + "   -   " + ent.getValue().getVirtualReg());
+            }
+        }
+        // TODO --------------------
+        return ollirResult;
     }
 }
