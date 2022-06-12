@@ -12,6 +12,10 @@ public class JasminInstrBinaryOpGenerator {
 
     private int labelCounter;
 
+    private boolean insideCondBranchInstruction = false;
+    private String condBranchInstructionLabel = null;
+    private boolean completedCondBranchInstruction = false;
+
     public JasminInstrBinaryOpGenerator() {
         this.labelCounter = 0;
     }
@@ -37,6 +41,28 @@ public class JasminInstrBinaryOpGenerator {
 
     public void resetLabelCounter() {
         this.labelCounter = 0;
+    }
+
+    public void setCondBranchInstruction(boolean insideCondBranchInst, String label) {
+        this.insideCondBranchInstruction = insideCondBranchInst;
+        this.condBranchInstructionLabel = label;
+    }
+
+    public void setCompletedCondBranchInstruction(boolean completedCondBranchInst) {
+        this.completedCondBranchInstruction = completedCondBranchInst;
+    }
+
+    public void resetCondBranchInstruction() {
+        this.setCondBranchInstruction(false, null);
+        this.setCompletedCondBranchInstruction(false);
+    }
+
+    public boolean insideCondBranchInstruction() {
+        return this.insideCondBranchInstruction;
+    }
+
+    public boolean completedCondBranchInstruction() {
+        return this.completedCondBranchInstruction;
     }
 
     public String getJasminCode() {
@@ -80,12 +106,6 @@ public class JasminInstrBinaryOpGenerator {
         StringBuilder code = new StringBuilder();
         OperationType operationType = this.instruction.getOperation().getOpType();
 
-        code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
-        if (operationType != OperationType.NOT && operationType != OperationType.NOTB
-                && operationType != OperationType.ANDB && operationType != OperationType.ORB) {
-            code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
-        }
-
         String typePrefix = JasminUtils.getElementTypePrefix(this.instruction.getLeftOperand());
         switch (operationType) {
             case EQ:
@@ -94,43 +114,74 @@ public class JasminInstrBinaryOpGenerator {
             case LTE:
             case LTH:
             case NEQ:
+                if (this.insideCondBranchInstruction()) {
+                    Element leftOp = this.instruction.getLeftOperand();
+                    Element rightOP = this.instruction.getRightOperand();
+
+                    if (JasminUtils.isLiteralZero(leftOp) && JasminUtils.isVariableNotArray(rightOP)) {
+                        code.append(this.loadInstructionRightOperand());
+                        code.append("\t").append(this.getComparisonZeroInstructionCode(operationType, true))
+                                .append(" ").append(this.condBranchInstructionLabel).append("\n");
+                        this.completedCondBranchInstruction = true;
+                        return code.toString();
+                    }
+                    else if (JasminUtils.isVariableNotArray(leftOp) && JasminUtils.isLiteralZero(rightOP)) {
+                        code.append(this.loadInstructionLeftOperand());
+                        code.append("\t").append(this.getComparisonZeroInstructionCode(operationType, false))
+                                .append(" ").append(this.condBranchInstructionLabel).append("\n");
+                        this.completedCondBranchInstruction = true;
+                        return code.toString();
+                    }
+                }
+
+                code.append(this.loadInstructionOperands());
                 String comparison = this.getComparisonInstructionCode(operationType);
                 code.append(this.getBinaryBooleanJumpsCode(comparison, nextLabel(), nextLabel()));
                 break;
             case AND:
+                code.append(this.loadInstructionOperands());
                 code.append("\t").append(typePrefix).append("and\n");
                 JasminLimits.decrementStack(1);
                 break;
             case OR:
+                code.append(this.loadInstructionOperands());
                 code.append("\t").append(typePrefix).append("or\n");
                 JasminLimits.decrementStack(1);
                 break;
             case XOR:
+                code.append(this.loadInstructionOperands());
                 code.append("\t").append(typePrefix).append("xor\n");
                 JasminLimits.decrementStack(1);
                 break;
             case NOT:
+                code.append(this.loadInstructionLeftOperand());
                 code.append("\t").append(typePrefix).append("neg\n");
                 break;
             case ANDB:
+                // TODO check optimization with binary instructions inside if conditions
                 String trueLabel = nextLabel();
                 String falseLabel = nextLabel();
 
+                code.append(this.loadInstructionLeftOperand());
                 code.append("\tifeq ").append(falseLabel).append("\n");
                 JasminLimits.decrementStack(1);
-                code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
+                code.append(this.loadInstructionRightOperand());
                 code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabel, falseLabel));
                 break;
             case ORB:
+                // TODO check optimization with binary instructions inside if conditions
                 String trueLabelOr = nextLabel();
                 String falseLabelOr = nextLabel();
 
+                code.append(this.loadInstructionLeftOperand());
                 code.append("\tifne ").append(trueLabelOr).append("\n");
                 JasminLimits.decrementStack(1);
-                code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
+                code.append(this.loadInstructionRightOperand());
                 code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabelOr, falseLabelOr));
                 break;
             case NOTB:
+                code.append(this.loadInstructionLeftOperand());
+                // TODO check optimization with binary instructions inside if conditions
                 code.append(this.getBinaryBooleanJumpsCode("ifeq", nextLabel(), nextLabel()));
                 break;
             default:
@@ -138,6 +189,19 @@ public class JasminInstrBinaryOpGenerator {
         }
 
         return code.toString();
+    }
+
+    private String loadInstructionOperands() {
+        return JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable) +
+                JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable);
+    }
+
+    private String loadInstructionLeftOperand() {
+        return JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable);
+    }
+
+    private String loadInstructionRightOperand() {
+        return JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable);
     }
 
     private String getComparisonInstructionCode(OperationType operationType) {
@@ -157,6 +221,20 @@ public class JasminInstrBinaryOpGenerator {
             case ANDB: return "ifne";
             case NOTB: return "ifeq";
             default: throw new NotImplementedException(operationType);
+        }
+    }
+
+    private String getComparisonZeroInstructionCode(OperationType operationType, boolean leftZero) {
+        JasminLimits.decrementStack(1);
+
+        switch (operationType) {
+            case EQ : return "ifeq";
+            case GTE: return (leftZero) ? "ifle" : "ifge";
+            case GTH: return (leftZero) ? "iflt" : "ifgt";
+            case LTE: return (leftZero) ? "ifge" : "ifle";
+            case LTH: return (leftZero) ? "ifgt" : "iflt";
+            case NEQ: return "ifne";
+            default : throw new NotImplementedException(operationType);
         }
     }
 

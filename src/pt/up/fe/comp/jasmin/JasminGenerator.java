@@ -216,6 +216,7 @@ public class JasminGenerator {
     }
 
     public String getJasminCode(UnaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
+        // TODO check optimization with binary instructions inside if conditions
         String trueLabel = instrBinaryOpGenerator.nextLabel();
         String falseLabel = instrBinaryOpGenerator.nextLabel();
 
@@ -228,9 +229,13 @@ public class JasminGenerator {
     }
 
     public String getJasminCode(CondBranchInstruction instruction, HashMap<String, Descriptor> varTable) {
-        String code = this.getJasminCode(instruction.getCondition(), new HashMap<>(), varTable)
-                        + "\tifne " + instruction.getLabel() + "\n";
-        JasminLimits.decrementStack(1);
+        instrBinaryOpGenerator.setCondBranchInstruction(true, instruction.getLabel());
+        String code = this.getJasminCode(instruction.getCondition(), new HashMap<>(), varTable);
+        if (!instrBinaryOpGenerator.completedCondBranchInstruction()) {
+            code += "\tifne " + instruction.getLabel() + "\n";
+            JasminLimits.decrementStack(1);
+        }
+        instrBinaryOpGenerator.resetCondBranchInstruction();
         return code;
     }
 
