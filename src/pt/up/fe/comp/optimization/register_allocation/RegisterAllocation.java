@@ -57,8 +57,12 @@ public class RegisterAllocation {
         }
     }
 
+    private int getMethodNFixedRegisters(Method method) {
+        return method.getParams().size() + (method.isStaticMethod() ? 0 : 1);
+    }
+
     private void colorGraph() {
-        int minNRegisters = getMinNRegistersPossible();
+        int minNRegisters = this.getMinNRegistersPossible();
         if (nRegisters < minNRegisters && nRegisters > 0) {
             // report it to the user with the minimum possible
         }
@@ -74,14 +78,25 @@ public class RegisterAllocation {
             while (!coloringStack.isEmpty()) {
                 String variable = coloringStack.pop();
                 int register = this.getRegister(variable);
+                assert register != -1;
                 coloredGraph.put(variable, register);
             }
         }
     }
 
+    private boolean nextNodeToStack(Map<String, List<String>> copyGraph) {
+        for (String web : copyGraph.keySet()) {
+            if (interferenceGraph.get(web).size() < nRegisters) {
+                coloringStack.add(web);
+                copyGraph.remove(web);
+                return true;
+            }
+        }
+        return false;
+    }
+
     private int getRegister(String variable) {
-        int startRegister = currentMethod.getParams().size();
-        if (!currentMethod.isStaticMethod()) startRegister++;
+        int startRegister = this.getMethodNFixedRegisters(currentMethod);
 
         Set<Integer> registersAvailable = new HashSet<>();
         for (int i = startRegister; i < nRegisters; i++) registersAvailable.add(i);
@@ -96,18 +111,8 @@ public class RegisterAllocation {
         return registersAvailable.stream().findFirst().orElse(-1);
     }
 
-    private boolean nextNodeToStack(Map<String, List<String>> copyGraph) {
-        for (String web : copyGraph.keySet()) {
-            if (interferenceGraph.get(web).size() < nRegisters) {
-                coloringStack.add(web);
-                copyGraph.remove(web);
-                return true;
-            }
-        }
-        return false;
-    }
-
     private int getMinNRegistersPossible() {
-        return 0;
+        // clique
+        return this.getMethodNFixedRegisters(currentMethod);
     }
 }
