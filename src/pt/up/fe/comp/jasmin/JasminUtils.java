@@ -181,4 +181,13 @@ public class JasminUtils {
 
         return false;
     }
+
+    static public boolean isLiteralZero(Element element) {
+        return element.isLiteral() && ((LiteralElement) element).getLiteral().equals("0");
+    }
+
+    static public boolean isVariableNotArray(Element element) {
+        if (element instanceof LiteralElement) return false;
+        return !(element instanceof ArrayOperand);
+    }
 }
