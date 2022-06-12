@@ -39,11 +39,8 @@ public class DeadCodeEliminationVisitor extends PostorderJmmVisitor<String, Bool
             JmmNode newNode = new JmmNodeImpl(elseBlock.getKind());
             newNode.put("col", jmmNode.get("col"));
             newNode.put("line", jmmNode.get("line"));
-
-            for (JmmNode child : elseBlock.getChildren()) {
-                System.out.println("Child: " + child.getKind());
+            for (JmmNode child : elseBlock.getChildren())
                 newNode.add(child);
-            }
 
             jmmNode.replace(newNode);
         }
