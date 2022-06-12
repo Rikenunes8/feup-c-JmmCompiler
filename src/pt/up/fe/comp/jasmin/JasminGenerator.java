@@ -216,21 +216,22 @@ public class JasminGenerator {
     }
 
     public String getJasminCode(UnaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
+        StringBuilder code = new StringBuilder();
+
         if (instrBinaryOpGenerator.insideCondBranchInstruction()) {
-            instrBinaryOpGenerator.setCompletedCondBranchInstruction(true);
-
-            String code = JasminUtils.loadElementCode(instruction.getOperand(), varTable) +
-                    "\tifeq " + instrBinaryOpGenerator.getCondBranchInstructionLabel() + "\n";
+            code.append(JasminUtils.loadElementCode(instruction.getOperand(), varTable));
+            code.append("\tifeq ").append(instrBinaryOpGenerator.getCondBranchInstructionLabel()).append("\n");
             JasminLimits.decrementStack(1);
-
-            return code;
+            instrBinaryOpGenerator.setCompletedCondBranchInstruction(true);
         } else {
             String trueLabel = instrBinaryOpGenerator.nextLabel();
             String falseLabel = instrBinaryOpGenerator.nextLabel();
 
-            return JasminUtils.loadElementCode(instruction.getOperand(), varTable)
-                    + instrBinaryOpGenerator.getBinaryBooleanJumpsCode("ifeq", trueLabel, falseLabel);
+            code.append(JasminUtils.loadElementCode(instruction.getOperand(), varTable));
+            code.append(instrBinaryOpGenerator.getBinaryBooleanJumpsCode("ifeq", trueLabel, falseLabel));
         }
+
+        return code.toString();
     }
 
     public String getJasminCode(SingleOpInstruction instruction, HashMap<String, Descriptor> varTable) {

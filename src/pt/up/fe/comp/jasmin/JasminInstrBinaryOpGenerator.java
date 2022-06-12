@@ -153,21 +153,33 @@ public class JasminInstrBinaryOpGenerator {
                 code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabel, falseLabel));
                 break;
             case ORB:
-                // TODO check optimization with binary instructions inside if conditions
-                String trueLabelOr = nextLabel();
-                String falseLabelOr = nextLabel();
+                if (this.insideCondBranchInstruction()) {
+                    code.append(this.loadInstructionLeftOperand());
+                    code.append("\tifne ").append(this.condBranchInstructionLabel).append("\n");
+                    JasminLimits.decrementStack(1);
+                    code.append(this.loadInstructionRightOperand());
+                    code.append("\tifne ").append(this.condBranchInstructionLabel).append("\n");
+                    JasminLimits.decrementStack(1);
+                    this.completedCondBranchInstruction = true;
+                } else {
+                    String trueLabelOr = nextLabel();
+                    String falseLabelOr = nextLabel();
 
-                code.append(this.loadInstructionLeftOperand());
-                code.append("\tifne ").append(trueLabelOr).append("\n");
-                JasminLimits.decrementStack(1);
-                code.append(this.loadInstructionRightOperand());
-                code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabelOr, falseLabelOr));
+                    code.append(this.loadInstructionLeftOperand());
+                    code.append("\tifne ").append(trueLabelOr).append("\n");
+                    JasminLimits.decrementStack(1);
+                    code.append(this.loadInstructionRightOperand());
+                    code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabelOr, falseLabelOr));
+                }
                 break;
             case NOTB:
-                code.append(this.loadInstructionLeftOperand());
                 if (this.insideCondBranchInstruction()) {
-                    code.append(this.getBinaryNOTBOptimizedCode());
+                    code.append(this.loadInstructionLeftOperand());
+                    code.append("\tifeq ").append(this.condBranchInstructionLabel).append("\n");
+                    JasminLimits.decrementStack(1);
+                    this.completedCondBranchInstruction = true;
                 } else {
+                    code.append(this.loadInstructionLeftOperand());
                     code.append(this.getBinaryBooleanJumpsCode("ifeq", nextLabel(), nextLabel()));
                 }
                 break;
@@ -184,13 +196,6 @@ public class JasminInstrBinaryOpGenerator {
         return (leftZero ? this.loadInstructionRightOperand() : this.loadInstructionLeftOperand()) +
                 "\t" + this.getComparisonZeroInstructionCode(operationType, leftZero) +
                 " " + this.condBranchInstructionLabel + "\n";
-    }
-
-    private String getBinaryNOTBOptimizedCode() {
-        this.completedCondBranchInstruction = true;
-        JasminLimits.decrementStack(1);
-
-        return "\tifeq " + this.condBranchInstructionLabel + "\n";
     }
 
     private String loadInstructionOperands() {
