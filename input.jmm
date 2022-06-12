@@ -1,19 +1,21 @@
-import io;
-class WhileAndIF {
-
-    public static void main(String[] args){
-
+class A {
+    public static void main(String[] args) {
+        int a;
+        int b;
         int c;
-        int[] d;
-        d = new int[10];
-        c=0;
-        while(c < d.length){
-            c = c+1;
-            while(c < d.length){
-                c = c+1;
+        int d;
+        a = 0;
+        b = 4;
+        c = 1;
+        while (a < b) {
+            while (c < b) {
+                a = a + 1;
+                c = b + 1;
             }
+            d = b;
+            a = a + d;
+            d = c;
+            a = a + d;
         }
-        io.println(c);
     }
-
 }

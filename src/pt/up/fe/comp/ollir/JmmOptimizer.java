@@ -1,6 +1,10 @@
 package pt.up.fe.comp.ollir;
 import java.util.Collections;
+import java.util.regex.Pattern;
 
+import org.hamcrest.Matcher;
+
+import freemarker.core.builtins.sourceBI;
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.optimization.ConstPropagationTable;
 import pt.up.fe.comp.optimization.ConstantFoldingVisitor;
@@ -48,10 +52,10 @@ public class JmmOptimizer implements JmmOptimization {
 
     @Override
     public OllirResult optimize(OllirResult ollirResult) {
-
+        if (!ollirResult.getConfig().containsKey("optimize") || !ollirResult.getConfig().get("optimize").equals("true"))
+        return ollirResult;
         
-        
-        while(ollirResult.getOllirCode().contains("Loop"))
+        while(indexOfRegEx(ollirResult.getOllirCode(),"Loop\\d*:")!=-1)
         {
             ollirResult = optimizeGoto(ollirResult);
         }
@@ -60,16 +64,19 @@ public class JmmOptimizer implements JmmOptimization {
     }
 
     private OllirResult optimizeGoto(OllirResult ollirResult) {
+
         System.out.println("Optimize");
         String ollirCode = ollirResult.getOllirCode();
 
         /*Loop Block*/
-        int loopStartIndex = ollirCode.indexOf("Loop");
+        //int loopStartIndex = ollirCode.indexOf("Loop");
+        int loopStartIndex = indexOfRegEx(ollirCode, "Loop\\d*:");
         int dotIndex = ollirCode.indexOf(":", loopStartIndex + 4);
         String loopNumber = ollirCode.substring(loopStartIndex + 4,dotIndex);
-        int loopEndIndex = ollirCode.indexOf("EndLoop"+loopNumber,ollirCode.indexOf("EndLoop"+loopNumber)+1);
+        // int loopEndIndex = ollirCode.indexOf("EndLoop"+loopNumber,ollirCode.indexOf("EndLoop"+loopNumber)+1);
+        int loopEndIndex = indexOfRegEx(ollirCode, "EndLoop"+loopNumber +":");
         String loop = ollirCode.substring(loopStartIndex,loopEndIndex);
-        //System.out.println("old loop: " + loop);
+        // System.out.println("old loop: " + loop);
 
         /* Body Block*/
         int bodyStartIndex = loop.indexOf("Body"+loopNumber,loop.indexOf("Body"+loopNumber)+1);
@@ -101,5 +108,27 @@ public class JmmOptimizer implements JmmOptimization {
 
 
         return optOllirResult;
+    }
+
+    //returns -1 in case the pattern is not found in the string
+    private static int indexOfRegEx(String strSource, String strRegExPattern) {
+    
+        int idx = -1;
+        
+        //compile pattern from string
+        Pattern p =  Pattern.compile(strRegExPattern);
+        
+        //create a matcher object
+        java.util.regex.Matcher m = p.matcher(strSource);
+        
+        //if pattern is found in the source string
+        if(m.find()) {
+            
+            //get the start index using start method of the Matcher class
+            idx = m.start();
+        }
+        
+        return idx;
+        
     }
 }
