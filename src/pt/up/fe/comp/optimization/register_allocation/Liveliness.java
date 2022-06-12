@@ -1,7 +1,6 @@
 package pt.up.fe.comp.optimization.register_allocation;
 
 import org.specs.comp.ollir.*;
-import pt.up.fe.comp.optimization.register_allocation.useless.Web;
 import pt.up.fe.specs.util.classmap.FunctionClassMap;
 
 import java.util.*;
@@ -11,13 +10,16 @@ public class Liveliness {
     private FunctionClassMap<Instruction, Boolean> instructionMap;
     private final Map<Instruction, UseDef> useDefMap;
     private final Map<Instruction, InOut> inOutMap;
-    private final Map<String, LivelinessRange> webs;
+    private final Map<String, LivelinessRange> variables;
+
+    // private final Map<String, List<Web>> webs;
 
     public Liveliness(List<Instruction> instructions) {
         this.instructions = instructions;
         this.useDefMap = new HashMap<>();
         this.inOutMap = new HashMap<>();
-        this.webs = new HashMap<>();
+        this.variables = new HashMap<>();
+        // this.webs = new HashMap<>();
         this.setInstructionsMap();
         this.buildUseDef();
         this.buildInOut();
@@ -26,7 +28,7 @@ public class Liveliness {
 
     public void show() {
         for (var inst : instructions) {
-            System.out.println("BB" + String.valueOf(inst.getId()) + " ----------------");
+            System.out.println("BB" + inst.getId() + " ----------------");
             inst.show();
             var use = useDefMap.get(inst).getUse();
             var def = useDefMap.get(inst).getDef();
@@ -38,30 +40,25 @@ public class Liveliness {
             System.out.println("out: " + String.join(" ", out));
             System.out.println("--------------------------\n");
         }
-        for (var variable : webs.entrySet()) {
-            System.out.println(variable.getKey() + ": " + variable.getValue().getStart() + " - "+ variable.getValue().getEnd());
+
+        System.out.println("---- Liveliness Range ----");
+        for (var variable : variables.entrySet()) {
+            System.out.println(variable.getKey() + ": " + variable.getValue());
         }
     }
 
     // TODO how to get the liveliness ranges from in and out sets?
     private void buildLivelinessRanges() {
-        Instruction instruction = instructions.get(0);
-        while (true) {
+        for (var instruction : instructions) {
             var inSet = this.inOutMap.get(instruction).getIn();
             var outSet = this.inOutMap.get(instruction).getOut();
 
-            // add new variables
             for (String variable : outSet) {
-                if (!webs.containsKey(variable)) {
-                    webs.put(variable, new LivelinessRange(instruction.getId()));
-                }
+                if (!variables.containsKey(variable)) variables.put(variable, new LivelinessRange(instruction.getId()));
             }
-
-            for (var variable : webs.keySet()) {
-                LivelinessRange range = webs.get(variable);
-                if (inSet.contains(variable)) {
-
-                }
+            for (String variable : inSet) {
+                LivelinessRange range = variables.get(variable);
+                if (instruction.getId() > range.getEnd()) range.setEnd(instruction.getId());
             }
         }
     }

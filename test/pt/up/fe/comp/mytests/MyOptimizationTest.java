@@ -3,13 +3,11 @@ package pt.up.fe.comp.mytests;
 import org.junit.Test;
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.comp.ollir.JmmOptimizer;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsStrings;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertNotEquals;
@@ -68,7 +66,10 @@ public class MyOptimizationTest {
 
     @Test
     public void register_allocation() {
-        String ollirCode = getSetup("register_allocation.jmm").getOllirCode();
+        String ollirCode = SpecsIo.getResource("fixtures/public/temp.ollir");
+        JmmOptimizer optimizer = new JmmOptimizer();
+        OllirResult ollirResult = new OllirResult(ollirCode, Collections.emptyMap());
+        optimizer.optimize(ollirResult);
     }
 
 }
