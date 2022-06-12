@@ -5,6 +5,7 @@ import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.optimization.ConstPropagationTable;
 import pt.up.fe.comp.optimization.ConstantFoldingVisitor;
 import pt.up.fe.comp.optimization.ConstantPropagationVisitor;
+import pt.up.fe.comp.optimization.DeadCodeEliminationVisitor;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
@@ -33,6 +34,9 @@ public class JmmOptimizer implements JmmOptimization {
             constantFolding.visit(root);
             counter += constantFolding.getCounter();
         }
+
+        var deadCodeElimination = new DeadCodeEliminationVisitor();
+        deadCodeElimination.visit(root);
 
         return semanticsResult;
     }

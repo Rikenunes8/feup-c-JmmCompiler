@@ -12,6 +12,11 @@ public class JasminInstrBinaryOpGenerator {
 
     private int labelCounter;
 
+    private boolean insideCondBranchInstruction = false;
+    private String condBranchInstructionLabel = null;
+    private String condBranchInstructionFalseLabel = null;
+    private boolean completedCondBranchInstruction = false;
+
     public JasminInstrBinaryOpGenerator() {
         this.labelCounter = 0;
     }
@@ -39,20 +44,47 @@ public class JasminInstrBinaryOpGenerator {
         this.labelCounter = 0;
     }
 
+    public void setCondBranchInstruction(boolean insideCondBranchInst, String condBranchLabel, String falseLabel) {
+        this.insideCondBranchInstruction = insideCondBranchInst;
+        this.condBranchInstructionLabel = condBranchLabel;
+        this.condBranchInstructionFalseLabel = falseLabel;
+    }
+
+    public void setCompletedCondBranchInstruction(boolean completedCondBranchInst) {
+        this.completedCondBranchInstruction = completedCondBranchInst;
+    }
+
+    public void resetCondBranchInstruction() {
+        this.setCondBranchInstruction(false, null, null);
+        this.setCompletedCondBranchInstruction(false);
+    }
+
+    public boolean insideCondBranchInstruction() {
+        return this.insideCondBranchInstruction;
+    }
+
+    public String getCondBranchInstructionLabel() {
+        return this.condBranchInstructionLabel;
+    }
+
+    public boolean completedCondBranchInstruction() {
+        return this.completedCondBranchInstruction;
+    }
+
     public String getJasminCode() {
         OperationType opType = this.instruction.getOperation().getOpType();
 
         if (Arrays.asList(OperationType.ADD, OperationType.SUB, OperationType.MUL, OperationType.DIV).contains(opType))
-            return this.getBinaryIntOperationCode();
+            return this.getBinaryArithmeticOperationCode();
         else if (Arrays.asList(OperationType.EQ, OperationType.GTE, OperationType.GTH, OperationType.LTE,
                 OperationType.LTH, OperationType.NEQ, OperationType.AND, OperationType.ANDB,
                 OperationType.OR, OperationType.ORB, OperationType.NOT, OperationType.NOTB, OperationType.XOR).contains(opType))
-            return this.getBinaryBooleanOperationCode();
+            return this.getBinaryRelationOperationCode();
 
         throw new NotImplementedException(this.instruction.getOperation().getOpType());
     }
 
-    private String getBinaryIntOperationCode() {
+    private String getBinaryArithmeticOperationCode() {
         StringBuilder code = new StringBuilder();
 
         code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
@@ -76,15 +108,9 @@ public class JasminInstrBinaryOpGenerator {
         return code.toString();
     }
 
-    private String getBinaryBooleanOperationCode() {
+    private String getBinaryRelationOperationCode() {
         StringBuilder code = new StringBuilder();
         OperationType operationType = this.instruction.getOperation().getOpType();
-
-        code.append(JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable));
-        if (operationType != OperationType.NOT && operationType != OperationType.NOTB
-                && operationType != OperationType.ANDB && operationType != OperationType.ORB) {
-            code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
-        }
 
         String typePrefix = JasminUtils.getElementTypePrefix(this.instruction.getLeftOperand());
         switch (operationType) {
@@ -94,44 +120,79 @@ public class JasminInstrBinaryOpGenerator {
             case LTE:
             case LTH:
             case NEQ:
+                if (this.insideCondBranchInstruction()) {
+                    Element leftOp = this.instruction.getLeftOperand();
+                    Element rightOP = this.instruction.getRightOperand();
+
+                    if (JasminUtils.isLiteralZero(leftOp) && JasminUtils.isVariableNotArray(rightOP)) {
+                        return code.append(this.getComparisonZeroOptimizedCode(operationType, true)).toString();
+                    }
+                    if (JasminUtils.isVariableNotArray(leftOp) && JasminUtils.isLiteralZero(rightOP)) {
+                        return code.append(this.getComparisonZeroOptimizedCode(operationType,false)).toString();
+                    }
+                }
+
+                code.append(this.loadInstructionOperands());
                 String comparison = this.getComparisonInstructionCode(operationType);
                 code.append(this.getBinaryBooleanJumpsCode(comparison, nextLabel(), nextLabel()));
                 break;
             case AND:
-                code.append("\t").append(typePrefix).append("and\n");
-                JasminLimits.decrementStack(1);
-                break;
             case OR:
-                code.append("\t").append(typePrefix).append("or\n");
-                JasminLimits.decrementStack(1);
-                break;
             case XOR:
-                code.append("\t").append(typePrefix).append("xor\n");
-                JasminLimits.decrementStack(1);
-                break;
             case NOT:
-                code.append("\t").append(typePrefix).append("neg\n");
+                code.append(this.loadInstructionOperands());
+                code.append("\t").append(typePrefix).append(this.getRelationInstructionCode(operationType)).append("\n");
                 break;
             case ANDB:
-                String trueLabel = nextLabel();
-                String falseLabel = nextLabel();
+                if (this.insideCondBranchInstruction() && this.condBranchInstructionFalseLabel != null) {
+                    code.append(this.loadInstructionLeftOperand());
+                    code.append("\tifeq ").append(this.condBranchInstructionFalseLabel).append("\n");
+                    JasminLimits.decrementStack(1);
+                    code.append(this.loadInstructionRightOperand());
+                    code.append("\tifne ").append(this.condBranchInstructionLabel).append("\n");
+                    JasminLimits.decrementStack(1);
+                    this.completedCondBranchInstruction = true;
+                } else {
+                    String trueLabel = nextLabel();
+                    String falseLabel = nextLabel();
 
-                code.append("\tifeq ").append(falseLabel).append("\n");
-                JasminLimits.decrementStack(1);
-                code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
-                code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabel, falseLabel));
+                    code.append(this.loadInstructionLeftOperand());
+                    code.append("\tifeq ").append(falseLabel).append("\n");
+                    JasminLimits.decrementStack(1);
+                    code.append(this.loadInstructionRightOperand());
+                    code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabel, falseLabel));
+                }
                 break;
             case ORB:
-                String trueLabelOr = nextLabel();
-                String falseLabelOr = nextLabel();
+                if (this.insideCondBranchInstruction()) {
+                    code.append(this.loadInstructionLeftOperand());
+                    code.append("\tifne ").append(this.condBranchInstructionLabel).append("\n");
+                    JasminLimits.decrementStack(1);
+                    code.append(this.loadInstructionRightOperand());
+                    code.append("\tifne ").append(this.condBranchInstructionLabel).append("\n");
+                    JasminLimits.decrementStack(1);
+                    this.completedCondBranchInstruction = true;
+                } else {
+                    String trueLabel = nextLabel();
+                    String falseLabel = nextLabel();
 
-                code.append("\tifne ").append(trueLabelOr).append("\n");
-                JasminLimits.decrementStack(1);
-                code.append(JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable));
-                code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabelOr, falseLabelOr));
+                    code.append(this.loadInstructionLeftOperand());
+                    code.append("\tifne ").append(trueLabel).append("\n");
+                    JasminLimits.decrementStack(1);
+                    code.append(this.loadInstructionRightOperand());
+                    code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabel, falseLabel));
+                }
                 break;
             case NOTB:
-                code.append(this.getBinaryBooleanJumpsCode("ifeq", nextLabel(), nextLabel()));
+                if (this.insideCondBranchInstruction()) {
+                    code.append(this.loadInstructionLeftOperand());
+                    code.append("\tifeq ").append(this.condBranchInstructionLabel).append("\n");
+                    JasminLimits.decrementStack(1);
+                    this.completedCondBranchInstruction = true;
+                } else {
+                    code.append(this.loadInstructionLeftOperand());
+                    code.append(this.getBinaryBooleanJumpsCode("ifeq", nextLabel(), nextLabel()));
+                }
                 break;
             default:
                 throw new NotImplementedException(this.instruction.getOperation().getOpType());
@@ -140,12 +201,29 @@ public class JasminInstrBinaryOpGenerator {
         return code.toString();
     }
 
+    private String getComparisonZeroOptimizedCode(OperationType operationType, boolean leftZero) {
+        this.completedCondBranchInstruction = true;
+
+        return (leftZero ? this.loadInstructionRightOperand() : this.loadInstructionLeftOperand()) +
+                "\t" + this.getComparisonZeroInstructionCode(operationType, leftZero) +
+                " " + this.condBranchInstructionLabel + "\n";
+    }
+
+    private String loadInstructionOperands() {
+        return JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable) +
+                JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable);
+    }
+
+    private String loadInstructionLeftOperand() {
+        return JasminUtils.loadElementCode(this.instruction.getLeftOperand(), this.varTable);
+    }
+
+    private String loadInstructionRightOperand() {
+        return JasminUtils.loadElementCode(this.instruction.getRightOperand(), this.varTable);
+    }
+
     private String getComparisonInstructionCode(OperationType operationType) {
-        if (operationType == OperationType.ANDB || operationType == OperationType.NOTB) {
-            JasminLimits.decrementStack(1);
-        } else {
-            JasminLimits.decrementStack(2);
-        }
+        JasminLimits.decrementStack(2);
 
         switch (operationType) {
             case EQ: return "if_icmpeq";
@@ -154,8 +232,34 @@ public class JasminInstrBinaryOpGenerator {
             case LTE: return "if_icmple";
             case LTH: return "if_icmplt";
             case NEQ: return "if_icmpne";
-            case ANDB: return "ifne";
-            case NOTB: return "ifeq";
+            default: throw new NotImplementedException(operationType);
+        }
+    }
+
+    private String getComparisonZeroInstructionCode(OperationType operationType, boolean leftZero) {
+        JasminLimits.decrementStack(1);
+
+        switch (operationType) {
+            case EQ : return "ifeq";
+            case GTE: return (leftZero) ? "ifle" : "ifge";
+            case GTH: return (leftZero) ? "iflt" : "ifgt";
+            case LTE: return (leftZero) ? "ifge" : "ifle";
+            case LTH: return (leftZero) ? "ifgt" : "iflt";
+            case NEQ: return "ifne";
+            default : throw new NotImplementedException(operationType);
+        }
+    }
+
+    private String getRelationInstructionCode(OperationType operationType) {
+        if (operationType != OperationType.NOT) {
+            JasminLimits.decrementStack(1);
+        }
+
+        switch (operationType) {
+            case AND: return "and";
+            case OR : return "or" ;
+            case XOR: return "xor";
+            case NOT: return "neg";
             default: throw new NotImplementedException(operationType);
         }
     }

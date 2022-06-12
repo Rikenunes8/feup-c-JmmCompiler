@@ -4,6 +4,7 @@ import org.specs.comp.ollir.*;
 import pt.up.fe.specs.util.classmap.BiFunctionClassMap;
 import pt.up.fe.specs.util.exceptions.NotImplementedException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
@@ -11,6 +12,8 @@ public class JasminGenerator {
 
     private final ClassUnit classUnit;
     private final JasminInstrBinaryOpGenerator instrBinaryOpGenerator;
+    private Method currentMethod;
+    private int currentInstructionIndex;
 
     private final BiFunctionClassMap<Instruction, HashMap<String, Descriptor>, String> instructionMap;
 
@@ -51,6 +54,7 @@ public class JasminGenerator {
             if (!method.isConstructMethod()) {
                 JasminLimits.resetStack();
                 this.instrBinaryOpGenerator.resetLabelCounter();
+                this.currentMethod = method;
 
                 jasminCode.append(JasminLimits.changeMethodStack(this.getJasminCode(method)));
             }
@@ -102,8 +106,10 @@ public class JasminGenerator {
         code.append(this.getMethodLimitsCode(method));
 
         // Method Instructions
-        for (Instruction instruction : method.getInstructions()) {
-            code.append(this.getJasminCode(instruction, method.getLabels(), method.getVarTable()));
+        ArrayList<Instruction> instructions = method.getInstructions();
+        for (int i = 0; i < instructions.size(); i++) {
+            this.currentInstructionIndex = i;
+            code.append(this.getJasminCode(instructions.get(i), method.getLabels(), method.getVarTable()));
         }
 
         // To guarantee that there is always a return statement before the .end method instruction
@@ -210,17 +216,28 @@ public class JasminGenerator {
     }
 
     public String getJasminCode(BinaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
-        instrBinaryOpGenerator.setInstruction(instruction);
-        instrBinaryOpGenerator.setVarTable(varTable);
-        return instrBinaryOpGenerator.getJasminCode();
+        this.instrBinaryOpGenerator.setInstruction(instruction);
+        this.instrBinaryOpGenerator.setVarTable(varTable);
+        return this.instrBinaryOpGenerator.getJasminCode();
     }
 
     public String getJasminCode(UnaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
-        String trueLabel = instrBinaryOpGenerator.nextLabel();
-        String falseLabel = instrBinaryOpGenerator.nextLabel();
+        StringBuilder code = new StringBuilder();
 
-        return JasminUtils.loadElementCode(instruction.getOperand(), varTable)
-               + instrBinaryOpGenerator.getBinaryBooleanJumpsCode("ifeq", trueLabel, falseLabel);
+        if (this.instrBinaryOpGenerator.insideCondBranchInstruction()) {
+            code.append(JasminUtils.loadElementCode(instruction.getOperand(), varTable));
+            code.append("\tifeq ").append(this.instrBinaryOpGenerator.getCondBranchInstructionLabel()).append("\n");
+            JasminLimits.decrementStack(1);
+            this.instrBinaryOpGenerator.setCompletedCondBranchInstruction(true);
+        } else {
+            String trueLabel = this.instrBinaryOpGenerator.nextLabel();
+            String falseLabel = this.instrBinaryOpGenerator.nextLabel();
+
+            code.append(JasminUtils.loadElementCode(instruction.getOperand(), varTable));
+            code.append(this.instrBinaryOpGenerator.getBinaryBooleanJumpsCode("ifeq", trueLabel, falseLabel));
+        }
+
+        return code.toString();
     }
 
     public String getJasminCode(SingleOpInstruction instruction, HashMap<String, Descriptor> varTable) {
@@ -228,9 +245,23 @@ public class JasminGenerator {
     }
 
     public String getJasminCode(CondBranchInstruction instruction, HashMap<String, Descriptor> varTable) {
-        String code = this.getJasminCode(instruction.getCondition(), new HashMap<>(), varTable)
-                        + "\tifne " + instruction.getLabel() + "\n";
-        JasminLimits.decrementStack(1);
+        // Know the false label of the branch to use in the Binary Operation type ANDB optimization
+        String falseLabel = null;
+        if (this.currentMethod.getInstructions().size() > this.currentInstructionIndex + 1) {
+            Instruction nextInstr = this.currentMethod.getInstr(this.currentInstructionIndex + 1);
+            if (nextInstr instanceof GotoInstruction) {
+                falseLabel = ((GotoInstruction) nextInstr).getLabel();
+            }
+        }
+        this.instrBinaryOpGenerator.setCondBranchInstruction(true, instruction.getLabel(), falseLabel);
+
+        String code = this.getJasminCode(instruction.getCondition(), new HashMap<>(), varTable);
+        if (!this.instrBinaryOpGenerator.completedCondBranchInstruction()) {
+            code += "\tifne " + instruction.getLabel() + "\n";
+            JasminLimits.decrementStack(1);
+        }
+
+        this.instrBinaryOpGenerator.resetCondBranchInstruction();
         return code;
     }
 

@@ -1,26 +1,15 @@
 import io;
-class FirstCompiler {
-	int a;
+class IfStmt {
 	public static void main(String[] args) {
         int b;
-        int c;
-        // FirstCompiler t;
-
-        // t = new FirstCompiler();
-        b = 2 + 3;
-        c = b * 5;
-        if (true && false && true)
-            c = 3 + 4 * 2;
+        while(true && false)
+            b = 0;
+        if (5<3)
+            b = 1;
+        else if (false)
+            b = 2;
         else
-            c = 6 - 3;
-
-        io.print(b);
+            b = 3;
 	}
-
-	public int f(int d, boolean g) {
-	    a = 1;
-	    io.print(a);
-	    return a;
-	}
-
 }
+
