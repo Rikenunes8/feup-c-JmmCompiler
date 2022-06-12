@@ -10,7 +10,7 @@ public class Liveliness {
     private FunctionClassMap<Instruction, Boolean> instructionMap;
     private final Map<Instruction, UseDef> useDefMap;
     private final Map<Instruction, InOut> inOutMap;
-    private final Map<String, LivelinessRange> variables;
+    private final Map<String, LivelinessRange> webs;
 
     // private final Map<String, List<Web>> webs;
 
@@ -18,7 +18,7 @@ public class Liveliness {
         this.instructions = instructions;
         this.useDefMap = new HashMap<>();
         this.inOutMap = new HashMap<>();
-        this.variables = new HashMap<>();
+        this.webs = new HashMap<>();
         // this.webs = new HashMap<>();
         this.setInstructionsMap();
         this.buildUseDef();
@@ -42,7 +42,7 @@ public class Liveliness {
         }
 
         System.out.println("---- Liveliness Range ----");
-        for (var variable : variables.entrySet()) {
+        for (var variable : webs.entrySet()) {
             System.out.println(variable.getKey() + ": " + variable.getValue());
         }
     }
@@ -54,10 +54,10 @@ public class Liveliness {
             var outSet = this.inOutMap.get(instruction).getOut();
 
             for (String variable : outSet) {
-                if (!variables.containsKey(variable)) variables.put(variable, new LivelinessRange(instruction.getId()));
+                if (!webs.containsKey(variable)) webs.put(variable, new LivelinessRange(instruction.getId()));
             }
             for (String variable : inSet) {
-                LivelinessRange range = variables.get(variable);
+                LivelinessRange range = webs.get(variable);
                 if (instruction.getId() > range.getEnd()) range.setEnd(instruction.getId());
             }
         }
@@ -189,5 +189,9 @@ public class Liveliness {
         String name = operand.getName();
         var useDef = this.useDefMap.get(instruction);
         useDef.addUse(name);
+    }
+
+    public Map<String, LivelinessRange> getWebs() {
+        return webs;
     }
 }
