@@ -1,5 +1,7 @@
 package pt.up.fe.comp.ollir;
 
+import java.util.regex.Pattern;
+
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 
@@ -69,5 +71,27 @@ public class OllirUtils {
     }
     public static boolean isComplex(String e) {
         return isInvoke(e) || isLength(e) || isNew(e) || isFieldAccess(e) || isArithExpr(e);
+    }
+
+    //returns -1 in case the pattern is not found in the string
+    public static int indexOfRegEx(String strSource, String strRegExPattern) {
+
+        int idx = -1;
+        
+        //compile pattern from string
+        Pattern p =  Pattern.compile(strRegExPattern);
+        
+        //create a matcher object
+        java.util.regex.Matcher m = p.matcher(strSource);
+        
+        //if pattern is found in the source string
+        if(m.find()) {
+            
+            //get the start index using start method of the Matcher class
+            idx = m.start();
+        }
+        
+        return idx;
+        
     }
 }
