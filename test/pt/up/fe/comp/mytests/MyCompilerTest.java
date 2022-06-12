@@ -119,8 +119,8 @@ public class MyCompilerTest {
         var result = TestUtils.backend(jmmCode);
         System.out.println(result.getJasminCode());
         result.compile();
-        var output = result.run(input);
-        assertEquals(expected, output.trim());
+        var output = result.run(input).replaceAll(" ", "");
+        assertEquals(expected.replaceAll(" ", ""), output.trim());
     }
 
     @Test
