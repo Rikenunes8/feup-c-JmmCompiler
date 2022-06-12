@@ -1,0 +1,10 @@
+import io;
+class IfStmt {
+	public static void main(String[] args) {
+        int b;
+        if (false)
+            b = 1;
+        else
+            b = 2;
+	}
+}

@@ -10,8 +10,6 @@ class IfStmt {
             b = 2;
         else
             b = 3;
-
-        io.print(b);
 	}
 }
 

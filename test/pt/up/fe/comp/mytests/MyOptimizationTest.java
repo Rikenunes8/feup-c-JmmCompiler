@@ -1,6 +1,7 @@
 package pt.up.fe.comp.mytests;
 
 import org.junit.Test;
+import pt.up.fe.comp.CpUtils;
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.specs.util.SpecsIo;
@@ -12,8 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MyOptimizationTest {
     static OllirResult getOllirResult(String filename) {
@@ -64,5 +64,63 @@ public class MyOptimizationTest {
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment4)));
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment5)));
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment6)));
+    }
+
+    @Test
+    public void dead_code_elimination_if_true() {
+        String ollirCode = getSetup("if_true.jmm").getOllirCode();
+
+        String assignment1 = "b.i32 :=.i32 1.i32";
+        String assignment2 = "b.i32 :=.i32 2.i32";
+        var gotoOccurOpt = countOccurences(ollirCode, "goto");
+
+        assertEquals(0, gotoOccurOpt);
+        assertTrue(ollirCode.contains(assignment1));
+        assertFalse(ollirCode.contains(assignment2));
+    }
+
+    @Test
+    public void dead_code_elimination_if_false() {
+        String ollirCode = getSetup("if_false.jmm").getOllirCode();
+
+        String assignment1 = "b.i32 :=.i32 1.i32";
+        String assignment2 = "b.i32 :=.i32 2.i32";
+        var gotoOccurOpt = countOccurences(ollirCode, "goto");
+
+        assertEquals(0, gotoOccurOpt);
+        assertFalse(ollirCode.contains(assignment1));
+        assertTrue(ollirCode.contains(assignment2));
+
+    }
+
+    @Test
+    public void dead_code_elimination_while() {
+        String ollirCode = getSetup("while_false.jmm").getOllirCode();
+        String assignment1 = "a.i32 :=.i32 0.i32";
+        String assignment2 = "a.i32 :=.i32 a.i32 +.i32 1.i32";
+        String returnV = "ret.V";
+        var gotoOccurOpt = countOccurences(ollirCode, "goto");
+
+        assertEquals(0, gotoOccurOpt);
+        assertTrue(ollirCode.contains(assignment1));
+        assertFalse(ollirCode.contains(assignment2));
+        assertTrue(ollirCode.contains(returnV));
+    }
+
+    @Test
+    public void dead_code_elimination_while_nested() {
+        String ollirCode = getSetup("while_nested_false.jmm").getOllirCode();
+
+        String assignment1 = "a.i32 :=.i32 1.i32";
+        String assignment2 = "b.i32 :=.i32 1.i32";
+        var gotoOccurOpt = countOccurences(ollirCode, "goto");
+
+        assertEquals(3, gotoOccurOpt);
+        assertFalse(ollirCode.contains(assignment1));
+        assertTrue(ollirCode.contains(assignment2));
+    }
+
+    public static int countOccurences(String code, String word) {
+        return (code.length() - code.replace(word, "").length()) / word.length();
     }
 }
