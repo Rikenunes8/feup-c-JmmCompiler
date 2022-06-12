@@ -114,17 +114,6 @@ public class Launcher {
         JmmOptimizer optimizer = new JmmOptimizer();
         JmmSemanticsResult optSemanticsResult = optimizer.optimize(semanticsResult);
 
-        if(config.get("optimize").equals("true"))
-        {
-            
-            // FINAL VERSION WITH OPTIMIZATION STEPS
-            
-            JmmSemanticsResult optimizationResultStep1 = optimizer.optimize(semanticsResult);
-            OllirResult optimizationResultStep2 = optimizer.toOllir(optimizationResultStep1);
-            OllirResult optimizationResult = optimizer.optimize(optimizationResultStep2);
-            
-
-        }
         // TODO debug
         JmmNode jmmRoot = (optSemanticsResult.getRootNode()).sanitize();
         System.out.println("\n\n---- AST Optimized ----\n");
