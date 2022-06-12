@@ -61,6 +61,10 @@ public class JasminInstrBinaryOpGenerator {
         return this.insideCondBranchInstruction;
     }
 
+    public String getCondBranchInstructionLabel() {
+        return this.condBranchInstructionLabel;
+    }
+
     public boolean completedCondBranchInstruction() {
         return this.completedCondBranchInstruction;
     }
@@ -161,8 +165,11 @@ public class JasminInstrBinaryOpGenerator {
                 break;
             case NOTB:
                 code.append(this.loadInstructionLeftOperand());
-                // TODO check optimization with binary instructions inside if conditions
-                code.append(this.getBinaryBooleanJumpsCode("ifeq", nextLabel(), nextLabel()));
+                if (this.insideCondBranchInstruction()) {
+                    code.append(this.getBinaryNOTBOptimizedCode());
+                } else {
+                    code.append(this.getBinaryBooleanJumpsCode("ifeq", nextLabel(), nextLabel()));
+                }
                 break;
             default:
                 throw new NotImplementedException(this.instruction.getOperation().getOpType());
@@ -177,6 +184,13 @@ public class JasminInstrBinaryOpGenerator {
         return (leftZero ? this.loadInstructionRightOperand() : this.loadInstructionLeftOperand()) +
                 "\t" + this.getComparisonZeroInstructionCode(operationType, leftZero) +
                 " " + this.condBranchInstructionLabel + "\n";
+    }
+
+    private String getBinaryNOTBOptimizedCode() {
+        this.completedCondBranchInstruction = true;
+        JasminLimits.decrementStack(1);
+
+        return "\tifeq " + this.condBranchInstructionLabel + "\n";
     }
 
     private String loadInstructionOperands() {

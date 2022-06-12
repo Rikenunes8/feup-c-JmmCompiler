@@ -216,12 +216,21 @@ public class JasminGenerator {
     }
 
     public String getJasminCode(UnaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
-        // TODO check optimization with binary instructions inside if conditions
-        String trueLabel = instrBinaryOpGenerator.nextLabel();
-        String falseLabel = instrBinaryOpGenerator.nextLabel();
+        if (instrBinaryOpGenerator.insideCondBranchInstruction()) {
+            instrBinaryOpGenerator.setCompletedCondBranchInstruction(true);
 
-        return JasminUtils.loadElementCode(instruction.getOperand(), varTable)
-               + instrBinaryOpGenerator.getBinaryBooleanJumpsCode("ifeq", trueLabel, falseLabel);
+            String code = JasminUtils.loadElementCode(instruction.getOperand(), varTable) +
+                    "\tifeq " + instrBinaryOpGenerator.getCondBranchInstructionLabel() + "\n";
+            JasminLimits.decrementStack(1);
+
+            return code;
+        } else {
+            String trueLabel = instrBinaryOpGenerator.nextLabel();
+            String falseLabel = instrBinaryOpGenerator.nextLabel();
+
+            return JasminUtils.loadElementCode(instruction.getOperand(), varTable)
+                    + instrBinaryOpGenerator.getBinaryBooleanJumpsCode("ifeq", trueLabel, falseLabel);
+        }
     }
 
     public String getJasminCode(SingleOpInstruction instruction, HashMap<String, Descriptor> varTable) {
