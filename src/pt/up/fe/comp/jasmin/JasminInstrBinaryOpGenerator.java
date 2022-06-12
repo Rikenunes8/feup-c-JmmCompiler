@@ -14,6 +14,7 @@ public class JasminInstrBinaryOpGenerator {
 
     private boolean insideCondBranchInstruction = false;
     private String condBranchInstructionLabel = null;
+    private String condBranchInstructionFalseLabel = null;
     private boolean completedCondBranchInstruction = false;
 
     public JasminInstrBinaryOpGenerator() {
@@ -43,9 +44,10 @@ public class JasminInstrBinaryOpGenerator {
         this.labelCounter = 0;
     }
 
-    public void setCondBranchInstruction(boolean insideCondBranchInst, String label) {
+    public void setCondBranchInstruction(boolean insideCondBranchInst, String condBranchLabel, String falseLabel) {
         this.insideCondBranchInstruction = insideCondBranchInst;
-        this.condBranchInstructionLabel = label;
+        this.condBranchInstructionLabel = condBranchLabel;
+        this.condBranchInstructionFalseLabel = falseLabel;
     }
 
     public void setCompletedCondBranchInstruction(boolean completedCondBranchInst) {
@@ -53,7 +55,7 @@ public class JasminInstrBinaryOpGenerator {
     }
 
     public void resetCondBranchInstruction() {
-        this.setCondBranchInstruction(false, null);
+        this.setCondBranchInstruction(false, null, null);
         this.setCompletedCondBranchInstruction(false);
     }
 
@@ -142,15 +144,24 @@ public class JasminInstrBinaryOpGenerator {
                 code.append("\t").append(typePrefix).append(this.getRelationInstructionCode(operationType)).append("\n");
                 break;
             case ANDB:
-                // TODO check optimization with binary instructions inside if conditions
-                String trueLabel = nextLabel();
-                String falseLabel = nextLabel();
+                if (this.insideCondBranchInstruction() && this.condBranchInstructionFalseLabel != null) {
+                    code.append(this.loadInstructionLeftOperand());
+                    code.append("\tifeq ").append(this.condBranchInstructionFalseLabel).append("\n");
+                    JasminLimits.decrementStack(1);
+                    code.append(this.loadInstructionRightOperand());
+                    code.append("\tifne ").append(this.condBranchInstructionLabel).append("\n");
+                    JasminLimits.decrementStack(1);
+                    this.completedCondBranchInstruction = true;
+                } else {
+                    String trueLabel = nextLabel();
+                    String falseLabel = nextLabel();
 
-                code.append(this.loadInstructionLeftOperand());
-                code.append("\tifeq ").append(falseLabel).append("\n");
-                JasminLimits.decrementStack(1);
-                code.append(this.loadInstructionRightOperand());
-                code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabel, falseLabel));
+                    code.append(this.loadInstructionLeftOperand());
+                    code.append("\tifeq ").append(falseLabel).append("\n");
+                    JasminLimits.decrementStack(1);
+                    code.append(this.loadInstructionRightOperand());
+                    code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabel, falseLabel));
+                }
                 break;
             case ORB:
                 if (this.insideCondBranchInstruction()) {
@@ -162,14 +173,14 @@ public class JasminInstrBinaryOpGenerator {
                     JasminLimits.decrementStack(1);
                     this.completedCondBranchInstruction = true;
                 } else {
-                    String trueLabelOr = nextLabel();
-                    String falseLabelOr = nextLabel();
+                    String trueLabel = nextLabel();
+                    String falseLabel = nextLabel();
 
                     code.append(this.loadInstructionLeftOperand());
-                    code.append("\tifne ").append(trueLabelOr).append("\n");
+                    code.append("\tifne ").append(trueLabel).append("\n");
                     JasminLimits.decrementStack(1);
                     code.append(this.loadInstructionRightOperand());
-                    code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabelOr, falseLabelOr));
+                    code.append(this.getBinaryBooleanJumpsCode("ifne", trueLabel, falseLabel));
                 }
                 break;
             case NOTB:
