@@ -10,6 +10,7 @@ import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.comp.optimization.WhileToDoWhile;
 
 public class JmmOptimizer implements JmmOptimization {
     @Override
@@ -53,62 +54,9 @@ public class JmmOptimizer implements JmmOptimization {
     @Override
     public OllirResult optimize(OllirResult ollirResult) {
         if (!ollirResult.getConfig().containsKey("optimize") || !ollirResult.getConfig().get("optimize").equals("true"))
-        return ollirResult;
-        
-        while(OllirUtils.indexOfRegEx(ollirResult.getOllirCode(),"Loop\\d*:")!=-1)
-        {
-            ollirResult = optimizeGoto(ollirResult);
-        }
+            return ollirResult;
 
+        new WhileToDoWhile(ollirResult).optimize();
         return JmmOptimization.super.optimize(ollirResult);
     }
-
-    private OllirResult optimizeGoto(OllirResult ollirResult) {
-
-        System.out.println("Optimize");
-        String ollirCode = ollirResult.getOllirCode();
-
-        /*Loop Block*/
-        //int loopStartIndex = ollirCode.indexOf("Loop");
-        int loopStartIndex = OllirUtils.indexOfRegEx(ollirCode, "Loop\\d*:");
-        int dotIndex = ollirCode.indexOf(":", loopStartIndex + 4);
-        String loopNumber = ollirCode.substring(loopStartIndex + 4,dotIndex);
-        // int loopEndIndex = ollirCode.indexOf("EndLoop"+loopNumber,ollirCode.indexOf("EndLoop"+loopNumber)+1);
-        int loopEndIndex = OllirUtils.indexOfRegEx(ollirCode, "EndLoop"+loopNumber +":");
-        String loop = ollirCode.substring(loopStartIndex,loopEndIndex);
-        // System.out.println("old loop: " + loop);
-
-        /* Body Block*/
-        int bodyStartIndex = loop.indexOf("Body"+loopNumber,loop.indexOf("Body"+loopNumber)+1);
-        int dotBlockIndex = loop.indexOf(":",bodyStartIndex)+1;
-        int bodyEndIndex = loop.indexOf("goto Loop"+loopNumber);
-        String body = loop.substring(dotBlockIndex,bodyEndIndex);
-        //System.out.println(body);
-
-        /* Condition Block */
-        int conditionStartIndex = loop.indexOf(":")+ 1;
-        int conditionEndIndex = loop.indexOf("goto EndLoop"+loopNumber);
-        String condition = loop.substring(conditionStartIndex,conditionEndIndex);
-        condition = condition.replace("Body", "Optloop");
-        //System.out.println(condition);
-
-        /* Create Optmize Loop Block*/
-        String optLoop = "\tgoto OptEndloop"+loopNumber+";\n";
-        optLoop += "Optloop" + loopNumber + ":";
-        optLoop += body;
-        optLoop += "OptEndloop" + loopNumber + ":";
-        optLoop += condition;
-        //System.out.println("new loop: " + optLoop);
-
-        ollirCode = ollirCode.replace(loop, optLoop);
-        ollirCode = ollirCode.replace("EndLoop"+loopNumber+":", "");
-        System.out.println("opt ollir code: " + ollirCode);
-
-        OllirResult optOllirResult = new OllirResult(ollirCode, ollirResult.getConfig());
-
-
-        return optOllirResult;
-    }
-
-
 }

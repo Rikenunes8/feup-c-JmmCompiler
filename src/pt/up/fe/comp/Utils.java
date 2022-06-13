@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import static pt.up.fe.comp.ast.AstNode.*;
 
 public class Utils {
+
     static public Type buildType(String typeSignature) {
         if (typeSignature.equals("int[]")) {
             return new Type("int", true);
@@ -129,4 +130,15 @@ public class Utils {
     static public boolean isBuiltInType(Type type) {
         return type.getName().matches("int|boolean|String|void");
     }
+
+    static public boolean isInteger(String string) {
+        try {
+            Integer.parseInt(string);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        return true;
+    }
+
 }

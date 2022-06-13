@@ -1,5 +1,6 @@
 package pt.up.fe.comp.ollir;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
@@ -75,23 +76,12 @@ public class OllirUtils {
 
     //returns -1 in case the pattern is not found in the string
     public static int indexOfRegEx(String strSource, String strRegExPattern) {
-
         int idx = -1;
-        
-        //compile pattern from string
         Pattern p =  Pattern.compile(strRegExPattern);
+        Matcher m = p.matcher(strSource);
         
-        //create a matcher object
-        java.util.regex.Matcher m = p.matcher(strSource);
-        
-        //if pattern is found in the source string
-        if(m.find()) {
-            
-            //get the start index using start method of the Matcher class
-            idx = m.start();
-        }
+        if(m.find()) idx = m.start();
         
         return idx;
-        
     }
 }
