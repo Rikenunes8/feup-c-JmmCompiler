@@ -2,52 +2,53 @@ package pt.up.fe.comp.optimization;
 
 import pt.up.fe.comp.Utils;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
-import pt.up.fe.comp.ollir.OllirUtils;
+import pt.up.fe.specs.util.SpecsStrings;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class WhileToDoWhile {
-    private OllirResult ollirResult;
+    private final OllirResult ollirResult;
 
     public WhileToDoWhile(OllirResult ollirResult) {
         this.ollirResult = ollirResult;
     }
 
     public OllirResult optimize() {
-        while (OllirUtils.indexOfRegEx(ollirResult.getOllirCode(),"Loop\\d*:")!=-1) {
-            ollirResult = optimizeGoto();
+        String ollirCode = this.ollirResult.getOllirCode();
+        while (SpecsStrings.matches(ollirCode, Pattern.compile(".*Loop\\d*:.*"))) {
+            ollirCode = this.optimizeSingleWhile(ollirCode);
+
+            // TODO
+            System.out.println("Single while optimized: ");
+            System.out.println(ollirCode);
         }
-        return ollirResult;
+        return new OllirResult(ollirCode, this.ollirResult.getConfig());
     }
 
-    private OllirResult optimizeGoto() {
-
+    private String optimizeSingleWhile(String ollirCode) {
         System.out.println("Optimize");
-        String ollirCode = ollirResult.getOllirCode();
 
         // Loop Block
-        int loopStartIndex = OllirUtils.indexOfRegEx(ollirCode, "Loop\\d*:");
+        int loopStartIndex = Utils.indexOfRegEx(ollirCode, "Loop\\d*:");
         int colonIndex = ollirCode.indexOf(":", loopStartIndex + 4);
         String loopNumber = ollirCode.substring(loopStartIndex + 4, colonIndex);
         String endLoopLabel = "EndLoop" + loopNumber + ":";
         int loopEndIndex = ollirCode.indexOf(endLoopLabel) + endLoopLabel.length() + 1;
-        String loop = ollirCode.substring(loopStartIndex, loopEndIndex);
+        String oldWhile = ollirCode.substring(loopStartIndex, loopEndIndex);
 
         // Body Block
-        int bodyStartIndex = loop.indexOf("Body" + loopNumber + ":");
-        int colonBlockIndex = loop.indexOf(":", bodyStartIndex);
-        int bodyEndIndex = loop.indexOf("goto Loop" + loopNumber);
-        String body = loop.substring(colonBlockIndex + 1, bodyEndIndex);
-        //System.out.println(body);
+        int bodyStartIndex = oldWhile.indexOf("Body" + loopNumber + ":");
+        int colonBlockIndex = oldWhile.indexOf(":", bodyStartIndex);
+        int bodyEndIndex = oldWhile.indexOf("goto Loop" + loopNumber);
+        String body = oldWhile.substring(colonBlockIndex + 1, bodyEndIndex).trim() + "\n";
 
         // Condition Block
-        int conditionStartIndex = loop.indexOf(":") + 1;
-        int conditionEndIndex = loop.indexOf("goto EndLoop" + loopNumber);
-        String condition = loop.substring(conditionStartIndex, conditionEndIndex).trim() + "\n";
+        int conditionStartIndex = oldWhile.indexOf(":") + 1;
+        int conditionEndIndex = oldWhile.indexOf("goto EndLoop" + loopNumber);
+        String condition = oldWhile.substring(conditionStartIndex, conditionEndIndex).trim() + "\n";
         condition = condition.replace("Body", "LoopOpt");
-        //System.out.println(condition);
 
         List<String> lines = List.of(ollirCode.split("\n"));
         int whileLineIdx = 0;
@@ -58,29 +59,25 @@ public class WhileToDoWhile {
             }
         }
 
-        boolean executedOnce = executedAtLeastOnce(condition, lines, whileLineIdx);
+        boolean executedOnce = this.executedAtLeastOnce(condition, lines, whileLineIdx);
 
         // Create Optimize Loop Block
         // if the original while is executed at least the first time
         // -> do not include first goto and associated label [goto EndLoopOpt + EndLoopOpt:]
 
-        String optLoop = "";
-        if (!executedOnce) optLoop += "\tgoto EndLoopOpt"+loopNumber+";\n\t  ";
-        optLoop += "LoopOpt" + loopNumber + ":";
-        optLoop += body;
-        if (!executedOnce) optLoop += "EndLoopOpt" + loopNumber + ":\n\t\t";
-        optLoop += condition;
-        //System.out.println("new loop: " + optLoop);
+        String optWhile = "";
+        if (!executedOnce) optWhile += "\tgoto EndLoopOpt"+loopNumber+";\n\t  ";
+        optWhile += "LoopOpt" + loopNumber + ":\n";
+        optWhile += "\t\t" + body;
+        if (!executedOnce) optWhile += "\t  " + "EndLoopOpt" + loopNumber + ":\n";
+        optWhile += "\t\t" + condition;
 
-        ollirCode = ollirCode.replace(loop, optLoop);
-        // ollirCode = ollirCode.replace("EndLoop"+loopNumber+":", "");
-        System.out.println("opt ollir code: \n" + ollirCode);
+        ollirCode = ollirCode.replace(oldWhile, optWhile);
 
-        return new OllirResult(ollirCode, ollirResult.getConfig());
+        return ollirCode;
     }
 
     private String variableAssignmentInLastBasicBlock(List<String> lines, int whileLineIdx, String variable) {
-
         for (int i = whileLineIdx - 1; i > 0; i--) {
             if (lines.get(i).matches(".*EndLoop\\d*:.*")
                     || lines.get(i).matches(".*EndIf\\d*:.*")
@@ -92,7 +89,6 @@ public class WhileToDoWhile {
     }
 
     private boolean executedAtLeastOnce(String condition, List<String> lines, int whileLineIdx) {
-
         String expression = condition.substring(condition.indexOf("(") + 1, condition.lastIndexOf(")"));
         String[] parts = expression.split(" ");
 
@@ -137,8 +133,7 @@ public class WhileToDoWhile {
             String assignedValue = assignment.split(" ")[2];
             assignedValue = assignedValue.substring(0, assignedValue.indexOf("."));
 
-            return (Utils.isInteger(assignedValue))
-                    ? Integer.parseInt(assignedValue) : null;
+            return Utils.isInteger(assignedValue) ? Integer.parseInt(assignedValue) : null;
         }
     }
 

@@ -73,15 +73,4 @@ public class OllirUtils {
     public static boolean isComplex(String e) {
         return isInvoke(e) || isLength(e) || isNew(e) || isFieldAccess(e) || isArithExpr(e);
     }
-
-    //returns -1 in case the pattern is not found in the string
-    public static int indexOfRegEx(String strSource, String strRegExPattern) {
-        int idx = -1;
-        Pattern p =  Pattern.compile(strRegExPattern);
-        Matcher m = p.matcher(strSource);
-        
-        if(m.find()) idx = m.start();
-        
-        return idx;
-    }
 }
