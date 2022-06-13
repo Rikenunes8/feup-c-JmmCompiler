@@ -2,6 +2,7 @@ package pt.up.fe.comp.ollir;
 
 import java.util.Collections;
 
+import pt.up.fe.comp.Utils;
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.optimization.ConstPropagationTable;
 import pt.up.fe.comp.optimization.ConstantFoldingVisitor;
@@ -18,8 +19,9 @@ import pt.up.fe.comp.optimization.register_allocation.RegisterAllocation;
 public class JmmOptimizer implements JmmOptimization {
     @Override
     public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
-        if (!semanticsResult.getConfig().containsKey("optimize") || !semanticsResult.getConfig().get("optimize").equals("true"))
-            return semanticsResult;
+        Utils.setUtils(semanticsResult.getConfig());
+
+        if (!Utils.optimize) return semanticsResult;
 
         JmmNode root = semanticsResult.getRootNode();
         int counter = 1;
@@ -44,6 +46,8 @@ public class JmmOptimizer implements JmmOptimization {
 
     @Override
     public OllirResult toOllir(JmmSemanticsResult semanticsResult) {
+        Utils.setUtils(semanticsResult.getConfig());
+
         OllirGenerator ollirGenerator = new OllirGenerator((SymbolTableBuilder)semanticsResult.getSymbolTable());
         ollirGenerator.visit(semanticsResult.getRootNode());
 
@@ -54,10 +58,8 @@ public class JmmOptimizer implements JmmOptimization {
 
     @Override
     public OllirResult optimize(OllirResult ollirResult) {
-        if (ollirResult.getConfig().containsKey("optimize")
-                && ollirResult.getConfig().get("optimize").equals("true")) {
-            ollirResult = new WhileToDoWhile(ollirResult).optimize();
-        }
+        Utils.setUtils(ollirResult.getConfig());
+        if (Utils.optimize) ollirResult = new WhileToDoWhile(ollirResult).optimize();
 
         if (ollirResult.getConfig().containsKey("registerAllocation")) {
             int nRegisters = Integer.parseInt(ollirResult.getConfig().get("registerAllocation"));

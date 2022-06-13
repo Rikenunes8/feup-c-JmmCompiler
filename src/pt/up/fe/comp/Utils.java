@@ -25,8 +25,7 @@ public class Utils {
         return idx;
     }
     public static void setUtils(Map<String, String> config) {
-        System.out.println(config);
-        if (!optimize) optimize = config.getOrDefault("optimize", "false").equals("true");
-        if (!debug) debug = config.getOrDefault("debug", "false").equals("true");
+        optimize = config.getOrDefault("optimize", "false").equals("true");
+        debug = config.getOrDefault("debug", "false").equals("true");
     }
 }
