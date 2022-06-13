@@ -121,6 +121,7 @@ public class Liveliness {
         Instruction rhs = instruction.getRhs();
         switch (rhs.getInstType()) {
             case CALL:
+                if (((CallInstruction)rhs).getInvocationType().equals(CallType.arraylength)) break;
                 for (var element : ((CallInstruction)rhs).getListOfOperands())
                     this.addUseToMap(instruction, element);
                 break;

@@ -21,6 +21,13 @@ public class JmmOptimizer implements JmmOptimization {
     public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
         Utils.setUtils(semanticsResult.getConfig());
 
+        // Print the AST TODO remove
+        if (Utils.debug) {
+            System.out.println("\n-------- AST --------");
+            System.out.println((semanticsResult.getRootNode()).sanitize().toTree());
+            System.out.println("---------------------\n");
+        }
+
         if (!Utils.optimize) return semanticsResult;
 
         JmmNode root = semanticsResult.getRootNode();
@@ -41,6 +48,13 @@ public class JmmOptimizer implements JmmOptimization {
         var deadCodeElimination = new DeadCodeEliminationVisitor();
         deadCodeElimination.visit(root);
 
+        // Print the AST
+        if (Utils.debug) { // TODO remove
+            System.out.println("\n-------- AST OPTIMIZED --------");
+            System.out.println((semanticsResult.getRootNode()).sanitize().toTree());
+            System.out.println("---------------------\n");
+        }
+
         return semanticsResult;
     }
 
@@ -53,13 +67,28 @@ public class JmmOptimizer implements JmmOptimization {
 
         String ollirCode = ollirGenerator.getCode();
 
+        // Print the OLLIR code
+        if (Utils.debug) {
+            System.out.println("\n--------- OLLIR ---------");
+            System.out.println(ollirCode);
+            System.out.println("-------------------------\n");
+        }
+
         return new OllirResult(semanticsResult, ollirCode, Collections.emptyList());
     }
 
     @Override
     public OllirResult optimize(OllirResult ollirResult) {
         Utils.setUtils(ollirResult.getConfig());
+
         if (Utils.optimize) ollirResult = new WhileToDoWhile(ollirResult).optimize();
+
+        // Print the OLLIR code
+        if (Utils.debug) {
+            System.out.println("\n--------- OLLIR OPTIMIZE ---------");
+            System.out.println(ollirResult.getOllirCode());
+            System.out.println("-------------------------\n");
+        }
 
         if (ollirResult.getConfig().containsKey("registerAllocation")) {
             int nRegisters = Integer.parseInt(ollirResult.getConfig().get("registerAllocation"));

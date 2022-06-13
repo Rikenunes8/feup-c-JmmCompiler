@@ -4,6 +4,9 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static pt.up.fe.comp.ast.AstNode.*;
 
 public class ConstantPropagationVisitor extends AJmmVisitor<ConstPropagationTable, Boolean> {
@@ -54,6 +57,7 @@ public class ConstantPropagationVisitor extends AJmmVisitor<ConstPropagationTabl
     }
 
     private Boolean visitMethodDeclaration(JmmNode jmmNode, ConstPropagationTable table) {
+        table.clear();
         for (var node : jmmNode.getChildren()) {
             //if (node.getKind().equals(WHILE_STATEMENT.toString())) return false;
             this.visit(node, table);
@@ -103,19 +107,26 @@ public class ConstantPropagationVisitor extends AJmmVisitor<ConstPropagationTabl
 
     private Boolean visitWhileStatement(JmmNode jmmNode, ConstPropagationTable table) {
         table.setPropagating(false);
+        var aux = new ConstPropagationTable(table);
         for (var block : jmmNode.getChildren()) {
-            this.visit(block.getJmmChild(0), table); // Condition, WhileBlock
+            this.visit(block.getJmmChild(0), aux); // Condition, WhileBlock
         }
+        removeKilledConstants(table, aux);
+
         table.setPropagating(true);
-        for (var block : jmmNode.getChildren()) {
-            this.visit(block.getJmmChild(0), table); // Condition, WhileBlock
-        }
+        aux = new ConstPropagationTable(table);
+        this.visit(jmmNode.getJmmChild(0).getJmmChild(0), table); // Condition
+        this.visit(jmmNode.getJmmChild(1).getJmmChild(0), aux); // WhileBlock
+
+        removeKilledConstants(table, aux);
         return true;
     }
 
     private Boolean visitIfStatement(JmmNode jmmNode, ConstPropagationTable table) {
         for (var block : jmmNode.getChildren()) {
-            this.visit(block.getJmmChild(0), table); // Condition, IfBlock & ElseBlock
+            var aux = new ConstPropagationTable(table);
+            this.visit(block.getJmmChild(0), aux); // Condition, IfBlock & ElseBlock
+            removeKilledConstants(table, aux);
         }
         return true;
     }
@@ -173,6 +184,17 @@ public class ConstantPropagationVisitor extends AJmmVisitor<ConstPropagationTabl
             jmmNode.replace(newNode);
         }
         return true;
+    }
+
+    private void removeKilledConstants(ConstPropagationTable t1, ConstPropagationTable t2) {
+        Map<String, String> aux = new HashMap<>(t1.getConstants());
+        for (var c : aux.entrySet()) {
+            if (!t2.getConstants().containsKey(c.getKey())) {
+                t1.remove(c.getKey());
+            } else if (!t2.getConstants().get(c.getKey()).equals(c.getValue())) {
+                t1.remove(c.getKey());
+            }
+        }
     }
 
     public int getCounter() {

@@ -11,7 +11,7 @@
 
 .method public check(I)V
 	.limit stack 3
-	.limit locals 5
+	.limit locals 4
 
 	aload_0
 	getfield myClass/a I
