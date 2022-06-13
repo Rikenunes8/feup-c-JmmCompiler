@@ -80,7 +80,7 @@ public class SymbolTableVisitor extends SemanticAnalyserVisitor {
         if (methodLocalVariables.size() != setMethodLocalVariables.size())
             this.addReport(methodDecl, "Duplicated local variables");
 
-        symbolTable.addMethod(methodName, buildType(methodType), methodParameters, methodLocalVariables);
+        symbolTable.addMethod(methodName, buildType(methodType), methodParameters, methodLocalVariables, methodDecl.get("static").equals("true"));
         return true;
     }
 }

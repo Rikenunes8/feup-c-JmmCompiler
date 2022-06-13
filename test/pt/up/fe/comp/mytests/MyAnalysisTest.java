@@ -145,7 +145,7 @@ public class MyAnalysisTest {
         mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/main_this.jmm"));
     }
 
-    //@Test // TODO is this check necessary
+    @Test // TODO is this check necessary
     public void call_non_static_method_from_class_f() {
         mustFail(SpecsIo.getResource("fixtures/public/analysis/fail/call_non_static_method_from_class.jmm"));
     }

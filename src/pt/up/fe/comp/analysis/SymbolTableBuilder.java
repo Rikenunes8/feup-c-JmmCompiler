@@ -19,6 +19,7 @@ public class SymbolTableBuilder implements SymbolTable {
     Map<String, Type> methodReturnTypes;
     Map<String, List<Symbol>> methodParameters;
     Map<String, List<Symbol>> methodLocalVariables;
+    Map<String, Boolean> methodStatic;
 
     public SymbolTableBuilder() {
       this.imports = new ArrayList<>();
@@ -29,6 +30,7 @@ public class SymbolTableBuilder implements SymbolTable {
       this.methodReturnTypes = new HashMap<>();
       this.methodParameters = new HashMap<>();
       this.methodLocalVariables = new HashMap<>();
+      this.methodStatic = new HashMap<>();
     }
     
     @Override
@@ -71,6 +73,10 @@ public class SymbolTableBuilder implements SymbolTable {
         return this.methodLocalVariables.get(methodSignature);
     }
 
+    public Boolean getStatic(String methodSignature) {
+        return this.methodStatic.get(methodSignature);
+    }
+
     public void addImport(String importSignature) {
       this.imports.add(importSignature);
     }
@@ -87,11 +93,12 @@ public class SymbolTableBuilder implements SymbolTable {
         this.fields.add(field);
     }
 
-    public void addMethod(String methodSignature, Type returnType, List<Symbol> params, List<Symbol> localVariables) {
+    public void addMethod(String methodSignature, Type returnType, List<Symbol> params, List<Symbol> localVariables, Boolean isStatic) {
         this.methods.add(methodSignature);
         this.methodReturnTypes.put(methodSignature, returnType);
         this.methodParameters.put(methodSignature, params);
         this.methodLocalVariables.put(methodSignature, localVariables);
+        this.methodStatic.put(methodSignature, isStatic);
     }
 
     public boolean hasMethod(String methodSignature) {
