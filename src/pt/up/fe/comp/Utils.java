@@ -4,6 +4,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Utils {
+    public static boolean debug = false;
+    public static boolean optimize = false;
+
     static public boolean isInteger(String string) {
         try { Integer.parseInt(string); }
         catch (NumberFormatException e) { return false; }
@@ -19,9 +22,5 @@ public class Utils {
         if(m.find()) idx = m.start();
 
         return idx;
-    }
-
-    public static boolean isDebug(String s) {
-        return s.equals("true");
     }
 }

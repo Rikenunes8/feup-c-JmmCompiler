@@ -24,8 +24,9 @@ public class Liveliness {
     }
 
     public void show() {
+        System.out.println("Basic Blocks:");
         for (var inst : instructions) {
-            System.out.println("BB" + inst.getId() + " ----------------");
+            System.out.println("BB" + inst.getId() + " ------------");
             inst.show();
             var use = useDefMap.get(inst).getUse();
             var def = useDefMap.get(inst).getDef();
@@ -35,13 +36,14 @@ public class Liveliness {
             var out = inOutMap.get(inst).getOut();
             System.out.println("in: " + String.join(" ", in));
             System.out.println("out: " + String.join(" ", out));
-            System.out.println("--------------------------\n");
+            System.out.println("--------------\n");
         }
 
-        System.out.println("---- Liveliness Range ----");
+        System.out.println("Liveliness Range:");
         for (var variable : webs.entrySet()) {
             System.out.println(variable.getKey() + ": " + variable.getValue());
         }
+
     }
 
     private void buildLivelinessRanges() {

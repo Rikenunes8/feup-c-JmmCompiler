@@ -21,8 +21,6 @@ import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
 
-import static pt.up.fe.comp.Utils.isDebug;
-
 public class Launcher {
 
     public static void main(String[] args) throws IOException {
@@ -62,7 +60,10 @@ public class Launcher {
         String debug = String.valueOf(Arrays.asList(args).contains("-d"));
         String inputFileStr = Arrays.stream(args).filter(arg -> arg.startsWith("-i=")).findFirst().get().substring(3);
 
-        if (isDebug(debug)) {
+        Utils.debug = debug.equals("true");
+        Utils.optimize = optimize.equals("true");
+
+        if (Utils.debug) {
             System.out.println("input file     : " + inputFileStr);
             System.out.println("optimize flag  : " + optimize);
             System.out.println("register value : " + registerAllocation);
@@ -91,7 +92,7 @@ public class Launcher {
 
         // ------------
         // Parse stage
-        System.out.println("Executing parsing stage...");
+        System.out.println("Executing parsing stage ...");
         SimpleParser parser = new SimpleParser();
         JmmParserResult parserResult = parser.parse(input, config);
 
@@ -101,15 +102,15 @@ public class Launcher {
         }
 
         // Print the AST
-        if (isDebug(debug)) {
-            System.out.println("\n-------- AST --------\n");
-            System.out.println(parserResult.getRootNode().sanitize().toTree());
-            System.out.println("\n---------------------\n");
+        if (Utils.debug) {
+            System.out.println("\n-------- AST --------");
+            System.out.println((parserResult.getRootNode()).sanitize().toTree());
+            System.out.println("---------------------\n");
         }
 
         // ------------
         // Analysis stage
-        System.out.println("Executing analysis stage...");
+        System.out.println("Executing analysis stage ...");
         JmmAnalyser analyser = new JmmAnalyser();
         JmmSemanticsResult semanticsResult = analyser.semanticAnalysis(parserResult);
 
@@ -119,32 +120,32 @@ public class Launcher {
         }
 
         // Print the SymbolTable
-        if (isDebug(debug)) {
-            System.out.println("\n------- SYMBOL TABLE ------\n");
+        if (Utils.debug) {
+            System.out.println("\n------- SYMBOL TABLE ------");
             System.out.println(semanticsResult.getSymbolTable().print());
-            System.out.println("\n---------------------------\n");
+            System.out.println("---------------------------\n");
         }
 
         // ------------
         // Optimization stage
-        System.out.println("Executing ollir generation...");
+        System.out.println("Executing ollir generation ...");
         JmmOptimizer optimizer = new JmmOptimizer();
         JmmSemanticsResult optSemanticsResult = optimizer.optimize(semanticsResult);
 
         // Print the optimized AST
-        if (isDebug(debug) && isDebug(optimize)) {
-            System.out.println("\n------ AST OPTIMIZED ------\n");
+        if (Utils.debug && Utils.optimize) {
+            System.out.println("\n------ AST OPTIMIZED ------");
             System.out.println((optSemanticsResult.getRootNode()).sanitize().toTree());
-            System.out.println("\n---------------------------\n");
+            System.out.println("---------------------------\n");
         }
 
         OllirResult optimizationResult = optimizer.toOllir(optSemanticsResult);
 
         // Print the OLLIR code
-        if (isDebug(debug)) {
-            System.out.println("\n--------- OLLIR ---------\n");
+        if (Utils.debug) {
+            System.out.println("\n--------- OLLIR ---------");
             System.out.println(optimizationResult.getOllirCode());
-            System.out.println("\n-------------------------\n");
+            System.out.println("-------------------------\n");
         }
 
         OllirResult optOptimizationResult = optimizer.optimize(optimizationResult);
@@ -155,15 +156,15 @@ public class Launcher {
         }
 
         // Print the Optimized OLLIR code
-        if (isDebug(debug) && isDebug(optimize)) {
-            System.out.println("\n------- OLLIR OPTIMIZED -------\n");
+        if (Utils.debug && Utils.optimize) {
+            System.out.println("\n------- OLLIR OPTIMIZED -------");
             System.out.println(optOptimizationResult.getOllirCode());
-            System.out.println("\n--------------------------------\n");
+            System.out.println("--------------------------------\n");
         }
 
         // ------------
         // JasminBackend stage
-        System.out.println("Executing Jasmin Backend stage...");
+        System.out.println("Executing Jasmin Backend stage ...");
         JasminEmitter jasminEmitter = new JasminEmitter();
         JasminResult jasminResult = jasminEmitter.toJasmin(optOptimizationResult);
 
@@ -173,10 +174,10 @@ public class Launcher {
         }
 
         // Print the Jasmin Code
-        if (isDebug(debug)) {
-            System.out.println("\n------------ JASMIN ------------\n");
+        if (Utils.debug) {
+            System.out.println("\n------------ JASMIN ------------");
             System.out.println(jasminResult.getJasminCode());
-            System.out.println("\n--------------------------------\n");
+            System.out.println("--------------------------------\n");
         }
 
         // ---
@@ -184,7 +185,7 @@ public class Launcher {
         System.out.println("Saving compilation in ./libs-jmm/compiled/ ...");
         jasminResult.compile(new File("./libs-jmm/compiled/"));
 
-        System.out.println("\n\nCompilation successfully completed!!");
+        System.out.println("\nCompilation successfully completed!");
     }
 
 

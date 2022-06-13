@@ -24,8 +24,6 @@ public class WhileToDoWhile {
     }
 
     private String optimizeSingleWhile(String ollirCode) {
-        System.out.println("Optimize");
-
         // Loop Block
         int loopStartIndex = Utils.indexOfRegEx(ollirCode, "Loop\\d*:");
         int colonIndex = ollirCode.indexOf(":", loopStartIndex + 4);

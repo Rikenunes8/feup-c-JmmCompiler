@@ -48,8 +48,6 @@ public class JmmOptimizer implements JmmOptimization {
 
         String ollirCode = ollirGenerator.getCode();
 
-        System.out.println("\nOLLIR CODE:\n" + ollirCode);
-
         return new OllirResult(semanticsResult, ollirCode, Collections.emptyList());
     }
 

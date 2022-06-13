@@ -11,7 +11,6 @@ public class MyCompilerTest {
 
     private static void noErrors(String jmmCode, String expected) {
         var result = TestUtils.backend(jmmCode);
-        System.out.println(result.getJasminCode());
         result.compile();
         var output = result.run();
         assertEquals(expected, output.trim());

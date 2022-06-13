@@ -3,7 +3,11 @@ package pt.up.fe.comp.optimization.register_allocation;
 import org.specs.comp.ollir.ClassUnit;
 import org.specs.comp.ollir.Descriptor;
 import org.specs.comp.ollir.Method;
+import pt.up.fe.comp.Utils;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.*;
 
@@ -12,6 +16,7 @@ public class RegisterAllocation {
     private final ClassUnit ollir;
     private final Map<String, Set<String>> interferenceGraph;
     private Method currentMethod;
+    private int minNRegistersForMethod;
 
     public RegisterAllocation(OllirResult ollirResult) {
         this.ollirResult = ollirResult;
@@ -24,30 +29,36 @@ public class RegisterAllocation {
         for (var method : this.ollir.getMethods()) {
             this.currentMethod = method;
             this.interferenceGraph.clear();
-            this.allocateRegisters(method, nRegisters);
+            boolean possible = this.allocateRegisters(method, nRegisters);
+            if (!possible) {
+                ollirResult.getReports().add(new Report(ReportType.ERROR, Stage.OPTIMIZATION, -1, -1,
+                        "Method " + method.getMethodName() + " needs at least " + minNRegistersForMethod + "registers"));
+            }
         }
         return ollirResult;
     }
 
-    private void allocateRegisters(Method method, int nRegisters) {
+    private boolean allocateRegisters(Method method, int nRegisters) {
         var liveliness = new Liveliness(method.getInstructions());
-        liveliness.show();
+        if (Utils.debug) {
+            System.out.println("----- REGISTER ALLOCATION ------");
+            liveliness.show();
+        }
         var webs = liveliness.getWebs();
         this.buildInterferenceGraph(webs);
 
         final Map<String, Integer> coloredGraph = new HashMap<>();
         if (nRegisters == 0) {
-            int minNRegisters = this.getMinNRegistersPossible(coloredGraph);
-            System.out.println("Minimum number of registers: " + minNRegisters);
-            System.out.println("Coloring graph");
+            minNRegistersForMethod = this.getMinNRegistersPossible(coloredGraph);
+            if (Utils.debug)
+                System.out.println("Minimum number of registers for method \""+ this.currentMethod.getMethodName() +"\": " + minNRegistersForMethod);
             coloredGraph.clear();
-            this.colorGraph(coloredGraph, minNRegisters);
+            this.colorGraph(coloredGraph, minNRegistersForMethod);
         }
         else if (!this.colorGraph(coloredGraph, nRegisters)) {
-            int minNRegisters = this.getMinNRegistersPossible(coloredGraph);
-            System.out.println("Minimum number of registers: " + minNRegisters);
-            System.out.println("Using arbitrary number of registers...");
-            return;
+            minNRegistersForMethod = this.getMinNRegistersPossible(coloredGraph);
+            if (Utils.debug) System.out.println("-------------------------------");
+            return false;
         }
 
         // Set virtual registers with colors
@@ -57,7 +68,12 @@ public class RegisterAllocation {
             var color = coloredGraph.get(variable);
             d.setVirtualReg(color);
         }
-
+        if (Utils.debug) {
+            System.out.println("Colored variables");
+            System.out.println(coloredGraph);
+            System.out.println("-------------------------------");
+        }
+        return true;
     }
 
     private void buildInterferenceGraph(Map<String, LivelinessRange> webs) {
