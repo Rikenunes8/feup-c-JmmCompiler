@@ -20,7 +20,6 @@ public class JasminEmitter implements JasminBackend {
         try {
             // check the use of labels in the OLLIR loaded
             ollirClass.checkMethodLabels();
-            // ollirClass.show(); // TO DEVELOPMENT PURPOSES
 
             JasminGenerator translationResult = new JasminGenerator(ollirClass);
             String jasminCode = translationResult.getJasminCode();

@@ -1,4 +1,5 @@
 package pt.up.fe.comp.ollir;
+
 import pt.up.fe.comp.analysis.SymbolTableBuilder;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;

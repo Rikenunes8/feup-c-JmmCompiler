@@ -7,7 +7,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static pt.up.fe.comp.Utils.buildType;
+import static pt.up.fe.comp.analysis.AnalysisUtils.buildType;
 
 public class SymbolTableVisitor extends SemanticAnalyserVisitor {
     public SymbolTableVisitor() {

@@ -4,7 +4,7 @@ import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
-import static pt.up.fe.comp.Utils.*;
+import static pt.up.fe.comp.analysis.AnalysisUtils.*;
 import static pt.up.fe.comp.ast.AstNode.*;
 
 

@@ -19,10 +19,6 @@ public class WhileToDoWhile {
         String ollirCode = this.ollirResult.getOllirCode();
         while (SpecsStrings.matches(ollirCode, Pattern.compile(".*Loop\\d*:.*"))) {
             ollirCode = this.optimizeSingleWhile(ollirCode);
-
-            // TODO
-            System.out.println("Single while optimized: ");
-            System.out.println(ollirCode);
         }
         return new OllirResult(ollirCode, this.ollirResult.getConfig());
     }

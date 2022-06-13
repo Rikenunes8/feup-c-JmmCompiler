@@ -8,7 +8,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pt.up.fe.comp.Utils.*;
+import static pt.up.fe.comp.analysis.AnalysisUtils.*;
 import static pt.up.fe.comp.ast.AstNode.*;
 
 public class FunctionArgsVisitor extends SemanticAnalyserVisitor {

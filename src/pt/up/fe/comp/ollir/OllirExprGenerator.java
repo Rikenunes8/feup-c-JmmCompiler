@@ -5,12 +5,12 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
-import static pt.up.fe.comp.Utils.*;
+import static pt.up.fe.comp.analysis.AnalysisUtils.*;
 import static pt.up.fe.comp.ast.AstNode.*;
 import static pt.up.fe.comp.ollir.OllirGenerator.ident;
 import static pt.up.fe.comp.ollir.OllirUtils.*;
 
-import pt.up.fe.comp.Utils;
+import pt.up.fe.comp.analysis.AnalysisUtils;
 
 import java.util.stream.Collectors;
 
@@ -84,7 +84,7 @@ public class OllirExprGenerator extends AJmmVisitor<Integer, OllirExprCode> {
         String identifierName = identifier.get("val");
         String paramPrefix = getParameterPrefix(identifier);
 
-        Type type = !Utils.isImported(identifierName, symbolTable) && !identifierName.equals(symbolTable.getClassName())
+        Type type = !AnalysisUtils.isImported(identifierName, symbolTable) && !identifierName.equals(symbolTable.getClassName())
                 ? getType(identifier, this.symbolTable)
                 : new Type("void", false);
         String typeCode = getCode(type);

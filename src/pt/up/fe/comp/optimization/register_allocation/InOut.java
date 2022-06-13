@@ -1,7 +1,5 @@
 package pt.up.fe.comp.optimization.register_allocation;
 
-import org.specs.comp.ollir.Instruction;
-
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;

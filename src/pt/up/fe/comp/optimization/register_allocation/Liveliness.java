@@ -12,14 +12,11 @@ public class Liveliness {
     private final Map<Instruction, InOut> inOutMap;
     private final Map<String, LivelinessRange> webs;
 
-    // private final Map<String, List<Web>> webs;
-
     public Liveliness(List<Instruction> instructions) {
         this.instructions = instructions;
         this.useDefMap = new HashMap<>();
         this.inOutMap = new HashMap<>();
         this.webs = new HashMap<>();
-        // this.webs = new HashMap<>();
         this.setInstructionsMap();
         this.buildUseDef();
         this.buildInOut();
@@ -47,7 +44,6 @@ public class Liveliness {
         }
     }
 
-    // TODO how to get the liveliness ranges from in and out sets?
     private void buildLivelinessRanges() {
         for (var instruction : instructions) {
             var inSet = this.inOutMap.get(instruction).getIn();
@@ -102,7 +98,6 @@ public class Liveliness {
             this.instructionMap.apply(inst);
         }
     }
-
 
     private void setInstructionsMap() {
         this.instructionMap = new FunctionClassMap<>();
