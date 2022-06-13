@@ -2,6 +2,9 @@ package pt.up.fe.comp.jasmin;
 
 import org.specs.comp.ollir.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class JasminLimits {
     // limit stack  - max length of the stack that we need to the method
     // limit locals - max number of registers we need to use
@@ -10,9 +13,11 @@ public class JasminLimits {
     static private int stackLimit = 0;
 
     static public int getLocals(Method method) {
-        return (method.getVarTable().containsKey("this") || method.isStaticMethod())
-                ? method.getVarTable().size()
-                : method.getVarTable().size() + 1;
+        Set<Integer> locals = new HashSet<>();
+        for (var local : method.getVarTable().values()) {
+            locals.add(local.getVirtualReg());
+        }
+        return locals.size() + ((method.getVarTable().containsKey("this") || method.isStaticMethod()) ? 0 : 1);
     }
 
     static public int getStack() {

@@ -4,13 +4,11 @@ import org.junit.Test;
 import pt.up.fe.comp.CpUtils;
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.comp.ollir.JmmOptimizer;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsStrings;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
@@ -64,6 +62,16 @@ public class MyOptimizationTest {
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment4)));
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment5)));
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment6)));
+    }
+
+    @Test // TODO do something to this test latter
+    public void register_allocation() {
+        String ollirCode = SpecsIo.getResource("fixtures/public/temp.ollir");
+        JmmOptimizer optimizer = new JmmOptimizer();
+        Map<String, String> config = new HashMap<>();
+        config.put("registerAllocation", String.valueOf(5));
+        OllirResult ollirResult = new OllirResult(ollirCode, config);
+        optimizer.optimize(ollirResult);
     }
 
     @Test
