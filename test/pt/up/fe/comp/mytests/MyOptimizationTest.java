@@ -217,14 +217,64 @@ public class MyOptimizationTest {
     }
 
 
-    @Test // TODO do something to this test latter
-    public void register_allocation() {
+    @Test 
+    public void register_allocation0() {
         String ollirCode = SpecsIo.getResource("fixtures/public/temp.ollir");
         JmmOptimizer optimizer = new JmmOptimizer();
         Map<String, String> config = new HashMap<>();
-        config.put("registerAllocation", String.valueOf(5));
+        config.put("registerAllocation", String.valueOf(0));
         OllirResult ollirResult = new OllirResult(ollirCode, config);
         optimizer.optimize(ollirResult);
+        for (var method : ollirResult.getOllirClass().getMethods()) {
+            for (var reg : method.getVarTable().values()) {
+                assertTrue(reg.getVirtualReg() <= 7);
+            }
+        }
+    }
+
+    @Test
+    public void register_allocation5() {
+        String ollirCode = SpecsIo.getResource("fixtures/public/temp.ollir");
+        JmmOptimizer optimizer = new JmmOptimizer();
+        Map<String, String> config = new HashMap<>();
+        config.put("registerAllocation", String.valueOf(0));
+        OllirResult ollirResult = new OllirResult(ollirCode, config);
+        optimizer.optimize(ollirResult);
+        for (var method : ollirResult.getOllirClass().getMethods()) {
+            for (var reg : method.getVarTable().values()) {
+                assertTrue(reg.getVirtualReg() <= 7);
+            }
+        }
+    }
+
+    @Test
+    public void register_allocation_1() {
+        String ollirCode = SpecsIo.getResource("fixtures/public/temp.ollir");
+        JmmOptimizer optimizer = new JmmOptimizer();
+        Map<String, String> config = new HashMap<>();
+        config.put("registerAllocation", String.valueOf(-1));
+        OllirResult ollirResult = new OllirResult(ollirCode, config);
+        optimizer.optimize(ollirResult);
+        for (var method : ollirResult.getOllirClass().getMethods()) {
+            List<Integer> usedList = new ArrayList<>();
+            Set<Integer> usedSet = new HashSet<>();
+            for (var reg : method.getVarTable().values()) {
+                usedList.add(reg.getVirtualReg());
+                usedSet.add(reg.getVirtualReg());
+            }
+            assertEquals(usedList.size(), usedSet.size());
+        }
+    }
+
+    @Test
+    public void register_allocation2() {
+        String ollirCode = SpecsIo.getResource("fixtures/public/temp.ollir");
+        JmmOptimizer optimizer = new JmmOptimizer();
+        Map<String, String> config = new HashMap<>();
+        config.put("registerAllocation", String.valueOf(2));
+        OllirResult ollirResult = new OllirResult(ollirCode, config);
+        optimizer.optimize(ollirResult);
+        assertFalse(ollirResult.getReports().isEmpty());
     }
 
     public static int countOccurences(String code, String word) {

@@ -144,7 +144,6 @@ public class Liveliness {
         return true;
     }
     private Boolean setDefUse(GetFieldInstruction instruction)  {
-        this.addUseToMap(instruction, instruction.getSecondOperand()); // TODO is this ok?
         return true;
     }
     private Boolean setDefUse(PutFieldInstruction instruction)  {
