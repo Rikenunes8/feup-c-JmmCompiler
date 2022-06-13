@@ -108,13 +108,13 @@ public class WhileToDoWhile {
             }
         } else if (parts.length == 2) {
             String assignment = variableAssignmentInLastBasicBlock(lines, whileLineIdx, parts[1]);
-            return assignment != null && assignment.endsWith(":=.bool 0.bool");
+            return assignment != null && assignment.endsWith(":=.bool 0.bool;");
         } else {
             if (Objects.equals(parts[0], "1.bool")) {
                 return true;
             } else {
                 String assignment = variableAssignmentInLastBasicBlock(lines, whileLineIdx, parts[0]);
-                return assignment != null && assignment.endsWith(":=.bool 1.bool");
+                return assignment != null && assignment.endsWith(":=.bool 1.bool;");
             }
         }
 
