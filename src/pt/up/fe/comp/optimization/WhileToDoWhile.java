@@ -15,10 +15,11 @@ public class WhileToDoWhile {
         this.ollirResult = ollirResult;
     }
 
-    public void optimize() {
-        while (ollirResult.getOllirCode().matches(".*Loop\\d*:.*")) {
+    public OllirResult optimize() {
+        while (OllirUtils.indexOfRegEx(ollirResult.getOllirCode(),"Loop\\d*:")!=-1) {
             ollirResult = optimizeGoto();
         }
+        return ollirResult;
     }
 
     private OllirResult optimizeGoto() {
@@ -31,7 +32,7 @@ public class WhileToDoWhile {
         int colonIndex = ollirCode.indexOf(":", loopStartIndex + 4);
         String loopNumber = ollirCode.substring(loopStartIndex + 4, colonIndex);
         String endLoopLabel = "EndLoop" + loopNumber + ":";
-        int loopEndIndex = ollirCode.indexOf(endLoopLabel) + endLoopLabel.length();
+        int loopEndIndex = ollirCode.indexOf(endLoopLabel) + endLoopLabel.length() + 1;
         String loop = ollirCode.substring(loopStartIndex, loopEndIndex);
 
         // Body Block
@@ -44,17 +45,30 @@ public class WhileToDoWhile {
         // Condition Block
         int conditionStartIndex = loop.indexOf(":") + 1;
         int conditionEndIndex = loop.indexOf("goto EndLoop" + loopNumber);
-        String condition = loop.substring(conditionStartIndex, conditionEndIndex);
+        String condition = loop.substring(conditionStartIndex, conditionEndIndex).trim() + "\n";
         condition = condition.replace("Body", "LoopOpt");
         //System.out.println(condition);
+
+        List<String> lines = List.of(ollirCode.split("\n"));
+        int whileLineIdx = 0;
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).contains("Loop"+loopNumber+":")) {
+                whileLineIdx = i;
+                break;
+            }
+        }
+
+        boolean executedOnce = executedAtLeastOnce(condition, lines, whileLineIdx);
 
         // Create Optimize Loop Block
         // if the original while is executed at least the first time
         // -> do not include first goto and associated label [goto EndLoopOpt + EndLoopOpt:]
-        String optLoop = "\tgoto EndLoopOpt"+loopNumber+";\n";
-        optLoop += "\t\tLoopOpt" + loopNumber + ":";
+
+        String optLoop = "";
+        if (!executedOnce) optLoop += "\tgoto EndLoopOpt"+loopNumber+";\n\t  ";
+        optLoop += "LoopOpt" + loopNumber + ":";
         optLoop += body;
-        optLoop += "EndLoopOpt" + loopNumber + ":\n";
+        if (!executedOnce) optLoop += "EndLoopOpt" + loopNumber + ":\n\t\t";
         optLoop += condition;
         //System.out.println("new loop: " + optLoop);
 
@@ -68,10 +82,9 @@ public class WhileToDoWhile {
     private String variableAssignmentInLastBasicBlock(List<String> lines, int whileLineIdx, String variable) {
 
         for (int i = whileLineIdx - 1; i > 0; i--) {
-            // EndLoopx:
-            // EndIfx:
-            // if (..) goto LoopOptx;
-            if (lines.get(i).matches(".*EndLoop\\d*:.*") || lines.get(i).contains("If")) return null;
+            if (lines.get(i).matches(".*EndLoop\\d*:.*")
+                    || lines.get(i).matches(".*EndIf\\d*:.*")
+                    || lines.get(i).matches(".*LoopOpt\\d*;.*")) return null;
             if (lines.get(i).contains(variable + " :=.")) return lines.get(i);
         }
 
@@ -79,26 +92,23 @@ public class WhileToDoWhile {
     }
 
     private boolean executedAtLeastOnce(String condition, List<String> lines, int whileLineIdx) {
-        // evaluate condition -> see used variables or keep literals
-        // if (i.i32 <.bool 10.i32) goto LoopOpt0
-        // x && y; x < y; true; !x; x; !.bool x.bool
 
         String expression = condition.substring(condition.indexOf("(") + 1, condition.lastIndexOf(")"));
         String[] parts = expression.split(" ");
 
         if (parts.length < 1 || parts.length > 3) return false;
 
-        // find last assignment of that variables
-        // see if the condition would be true
         if (parts.length == 3) {
             if (parts[1].equals("<.bool")) {
                 Integer leftValue = findValue(parts[0], lines, whileLineIdx);
                 Integer rightValue = findValue(parts[2], lines, whileLineIdx);
 
                 return leftValue != null && rightValue != null && leftValue < rightValue;
-            } else {
-                // x && y
+            } else if (parts[1].equals("&&.bool")) {
+                Integer leftValue = findValue(parts[0], lines, whileLineIdx);
+                Integer rightValue = findValue(parts[2], lines, whileLineIdx);
 
+                return leftValue != null && rightValue != null && leftValue == 1 && rightValue == 1;
             }
         } else if (parts.length == 2) {
             String assignment = variableAssignmentInLastBasicBlock(lines, whileLineIdx, parts[1]);
@@ -117,7 +127,7 @@ public class WhileToDoWhile {
 
     private Integer findValue(String variable, List<String> lines, int whileLineIdx) {
         String var = variable.substring(0, variable.indexOf("."));
-        
+
         if (Utils.isInteger(var)) {
             return Integer.parseInt(var);
         } else {

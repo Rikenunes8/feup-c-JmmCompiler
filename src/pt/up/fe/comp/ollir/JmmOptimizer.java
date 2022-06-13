@@ -56,7 +56,6 @@ public class JmmOptimizer implements JmmOptimization {
         if (!ollirResult.getConfig().containsKey("optimize") || !ollirResult.getConfig().get("optimize").equals("true"))
             return ollirResult;
 
-        new WhileToDoWhile(ollirResult).optimize();
-        return JmmOptimization.super.optimize(ollirResult);
+        return new WhileToDoWhile(ollirResult).optimize();
     }
 }

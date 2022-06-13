@@ -130,6 +130,11 @@ public class JasminInstrBinaryOpGenerator {
                     if (JasminUtils.isVariableNotArray(leftOp) && JasminUtils.isLiteralZero(rightOP)) {
                         return code.append(this.getComparisonZeroOptimizedCode(operationType,false)).toString();
                     }
+
+                    this.completedCondBranchInstruction = true;
+                    return code.append(this.loadInstructionOperands())
+                            .append("\t").append(this.getComparisonInstructionCode(operationType))
+                            .append(" ").append(this.condBranchInstructionLabel).append("\n").toString();
                 }
 
                 code.append(this.loadInstructionOperands());
