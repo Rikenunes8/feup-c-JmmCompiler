@@ -1,5 +1,6 @@
 package pt.up.fe.comp;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,5 +23,10 @@ public class Utils {
         if(m.find()) idx = m.start();
 
         return idx;
+    }
+    public static void setUtils(Map<String, String> config) {
+        System.out.println(config);
+        if (!optimize) optimize = config.getOrDefault("optimize", "false").equals("true");
+        if (!debug) debug = config.getOrDefault("debug", "false").equals("true");
     }
 }

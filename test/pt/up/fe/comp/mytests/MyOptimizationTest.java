@@ -1,7 +1,6 @@
 package pt.up.fe.comp.mytests;
 
 import org.junit.Test;
-import pt.up.fe.comp.CpUtils;
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
@@ -13,7 +12,6 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
-import static pt.up.fe.comp.TestUtils.analyse;
 
 public class MyOptimizationTest {
     static OllirResult getOllirResult(String filename) {
@@ -217,9 +215,9 @@ public class MyOptimizationTest {
     }
 
 
-    @Test 
+    @Test
     public void register_allocation0() {
-        String ollirCode = SpecsIo.getResource("fixtures/public/temp.ollir");
+        String ollirCode = SpecsIo.getResource("fixtures/public/optimizations/register_allocation_ex7.ollir");
         JmmOptimizer optimizer = new JmmOptimizer();
         Map<String, String> config = new HashMap<>();
         config.put("registerAllocation", String.valueOf(0));
@@ -231,10 +229,9 @@ public class MyOptimizationTest {
             }
         }
     }
-
     @Test
     public void register_allocation5() {
-        String ollirCode = SpecsIo.getResource("fixtures/public/temp.ollir");
+        String ollirCode = SpecsIo.getResource("fixtures/public/optimizations/register_allocation_ex7.ollir");
         JmmOptimizer optimizer = new JmmOptimizer();
         Map<String, String> config = new HashMap<>();
         config.put("registerAllocation", String.valueOf(0));
@@ -246,10 +243,9 @@ public class MyOptimizationTest {
             }
         }
     }
-
     @Test
     public void register_allocation_1() {
-        String ollirCode = SpecsIo.getResource("fixtures/public/temp.ollir");
+        String ollirCode = SpecsIo.getResource("fixtures/public/optimizations/register_allocation_ex7.ollir");
         JmmOptimizer optimizer = new JmmOptimizer();
         Map<String, String> config = new HashMap<>();
         config.put("registerAllocation", String.valueOf(-1));
@@ -265,10 +261,9 @@ public class MyOptimizationTest {
             assertEquals(usedList.size(), usedSet.size());
         }
     }
-
     @Test
     public void register_allocation2() {
-        String ollirCode = SpecsIo.getResource("fixtures/public/temp.ollir");
+        String ollirCode = SpecsIo.getResource("fixtures/public/optimizations/register_allocation_ex7.ollir");
         JmmOptimizer optimizer = new JmmOptimizer();
         Map<String, String> config = new HashMap<>();
         config.put("registerAllocation", String.valueOf(2));

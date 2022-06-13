@@ -1,7 +1,8 @@
 package pt.up.fe.comp.ollir;
-import java.util.Collections;
-import pt.up.fe.comp.analysis.SymbolTableBuilder;
 
+import java.util.Collections;
+
+import pt.up.fe.comp.analysis.SymbolTableBuilder;
 import pt.up.fe.comp.optimization.ConstPropagationTable;
 import pt.up.fe.comp.optimization.ConstantFoldingVisitor;
 import pt.up.fe.comp.optimization.ConstantPropagationVisitor;

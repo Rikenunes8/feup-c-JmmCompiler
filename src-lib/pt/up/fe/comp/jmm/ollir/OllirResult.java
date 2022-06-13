@@ -1,5 +1,6 @@
 package pt.up.fe.comp.jmm.ollir;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class OllirResult implements ReportsProvider {
         this.ollirCode = ollirCode;
         this.ollirClass = OllirUtils.parse(ollirCode);
         this.symbolTable = null;
-        this.reports = Collections.emptyList();
+        this.reports = new ArrayList<>();
         this.config = config;
     }
 
