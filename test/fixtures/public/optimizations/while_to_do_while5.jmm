@@ -1,0 +1,13 @@
+class A {
+    public static void main(String[] args) {
+        boolean x;
+        boolean y;
+        int a;
+        x = true;
+        y = true;
+        a = 0;
+        while (x && y) {
+            a = a + 1;
+        }
+    }
+}

@@ -1,0 +1,14 @@
+class A {
+    public static void main(String[] args) {
+        boolean x;
+        int a;
+        a = 1;
+        while(a < 10) {
+            x = true;
+            a = a + 2;
+            while (x) {
+                a = a + 1;
+            }
+        }
+    }
+}

@@ -3,25 +3,30 @@ package pt.up.fe.comp.optimization.register_allocation;
 import org.specs.comp.ollir.ClassUnit;
 import org.specs.comp.ollir.Descriptor;
 import org.specs.comp.ollir.Method;
+import pt.up.fe.comp.jmm.ollir.OllirResult;
 
 import java.util.*;
 
 public class RegisterAllocation {
+    private final OllirResult ollirResult;
     private final ClassUnit ollir;
     private final Map<String, Set<String>> interferenceGraph;
     private Method currentMethod;
 
-    public RegisterAllocation(ClassUnit ollir) {
-        this.ollir = ollir;
+    public RegisterAllocation(OllirResult ollirResult) {
+        this.ollirResult = ollirResult;
+        this.ollir = ollirResult.getOllirClass();
         this.interferenceGraph = new HashMap<>();
     }
-    public void optimize(int nRegisters) {
+    public OllirResult optimize(int nRegisters) {
+        if (nRegisters == -1) return ollirResult;
         this.ollir.buildCFGs();
         for (var method : this.ollir.getMethods()) {
             this.currentMethod = method;
             this.interferenceGraph.clear();
             this.allocateRegisters(method, nRegisters);
         }
+        return ollirResult;
     }
 
     private void allocateRegisters(Method method, int nRegisters) {
@@ -44,8 +49,6 @@ public class RegisterAllocation {
             System.out.println("Using arbitrary number of registers...");
             return;
         }
-        System.out.println(coloredGraph);
-
 
         // Set virtual registers with colors
         var table = method.getVarTable();

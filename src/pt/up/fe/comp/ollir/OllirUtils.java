@@ -1,5 +1,8 @@
 package pt.up.fe.comp.ollir;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 
