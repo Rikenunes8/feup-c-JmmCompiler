@@ -134,6 +134,17 @@ public class MyOptimizationTest {
         return (code.length() - code.replace(word, "").length()) / word.length();
     }
 
+    @Test
+    public void while_to_do_while1() {
+        String ollirCode = getSetup("while.jmm", 2).getOllirCode();
+
+        String loopOpt = "LoopOpt";
+        String endLoopOpt = "EndLoopOpt";
+
+        assertTrue(ollirCode.contains(loopOpt));
+        assertFalse(ollirCode.contains(endLoopOpt));
+    }
+
     @Test // TODO do something to this test latter
     public void register_allocation() {
         String ollirCode = SpecsIo.getResource("fixtures/public/temp.ollir");
