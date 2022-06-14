@@ -72,11 +72,27 @@ public class WhileToDoWhile {
     }
 
     private String variableAssignmentInLastBasicBlock(List<String> lines, int whileLineIdx, String variable) {
+        boolean viable = true;
+        int scopeN = -1;
+
         for (int i = whileLineIdx - 1; i > 0; i--) {
-            if (lines.get(i).matches(".*EndLoop\\d*:.*")
+            if (scopeN == -1 && (lines.get(i).matches(".*EndLoop\\d*:.*")
                     || lines.get(i).matches(".*EndIf\\d*:.*")
-                    || lines.get(i).matches(".*LoopOpt\\d*;.*")) return null;
-            if (lines.get(i).contains(variable + " :=.")) return lines.get(i);
+                    || lines.get(i).matches(".*LoopOpt\\d*;.*"))) {
+                viable = false;
+                String[] parts = lines.get(i).split(" ");
+                String numberStr = parts[parts.length - 1].replaceAll("\\D+","");
+                scopeN = Integer.parseInt(numberStr);
+            } else if (lines.get(i).matches(".*Loop" + scopeN + ":.*")
+                    || lines.get(i).matches(".*Then" + scopeN + ";.*")
+                    || lines.get(i).matches(".*LoopOpt" + scopeN + ":.*")) {
+                viable = true;
+                scopeN = -1;
+            }
+
+            if (lines.get(i).contains(variable + " :=.")) {
+                return (viable) ? lines.get(i) : null;
+            }
         }
 
         return null;

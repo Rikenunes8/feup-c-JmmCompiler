@@ -188,7 +188,7 @@ public class MyOptimizationTest {
         assertTrue(ollirCode.contains("LoopOpt0"));
         assertFalse(ollirCode.contains("EndLoopOpt0"));
         assertTrue(ollirCode.contains("LoopOpt1"));
-        assertTrue(ollirCode.contains("EndLoopOpt1"));
+        assertFalse(ollirCode.contains("EndLoopOpt1"));
     }
 
     @Test
@@ -211,6 +211,15 @@ public class MyOptimizationTest {
         assertFalse(ollirCode.contains("EndLoopOpt1"));
     }
 
+    @Test
+    public void while_to_do_while11() {
+        String ollirCode = getSetup("while_to_do_while11.jmm", 2).getOllirCode();
+
+        assertTrue(ollirCode.contains("LoopOpt0"));
+        assertFalse(ollirCode.contains("EndLoopOpt0"));
+        assertTrue(ollirCode.contains("LoopOpt1"));
+        assertTrue(ollirCode.contains("EndLoopOpt1"));
+    }
 
     @Test
     public void register_allocation0() {
