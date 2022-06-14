@@ -2,16 +2,13 @@ package pt.up.fe.comp;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
 import pt.up.fe.comp.jasmin.JasminEmitter;
 import pt.up.fe.comp.analysis.JmmAnalyser;
 import pt.up.fe.comp.ast.SimpleParser;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
@@ -26,6 +23,58 @@ public class Launcher {
     public static void main(String[] args) throws IOException {
         SpecsSystem.programStandardInit();
 
+        Map<String, String> config = new HashMap<>();
+        String input = parseArgs(args, config);
+
+
+        // Parse stage ----------------------------------
+        System.out.println("Executing parsing stage ...");
+        SimpleParser parser = new SimpleParser();
+        JmmParserResult parserResult = parser.parse(input, config);
+        if (verifyReports(parserResult.getReports())) return;
+        printAST(parserResult.getRootNode(), false);
+
+
+        // Analysis stage --------------------------------
+        System.out.println("Executing analysis stage ...");
+        JmmAnalyser analyser = new JmmAnalyser();
+        JmmSemanticsResult semanticsResult = analyser.semanticAnalysis(parserResult);
+        if (verifyReports(semanticsResult.getReports())) return;
+        printSymbolTable(semanticsResult);
+
+
+        // Optimization stage -----------------------------
+        if (Utils.optimize) System.out.println("Executing AST optimization ...");
+        JmmOptimizer optimizer = new JmmOptimizer();
+        JmmSemanticsResult optSemanticsResult = optimizer.optimize(semanticsResult);
+        printAST(optSemanticsResult.getRootNode(), true);
+
+        System.out.println("Executing Ollir generation ...");
+        OllirResult optimizationResult = optimizer.toOllir(optSemanticsResult);
+        printOllir(optimizationResult, false);
+
+        if (Utils.optimize) System.out.println("Executing Ollir optimization ...");
+        OllirResult optOptimizationResult = optimizer.optimize(optimizationResult);
+        if (verifyReports(optOptimizationResult.getReports())) return;
+        printOllir(optOptimizationResult, true);
+
+
+        // JasminBackend stage -------------------------------
+        System.out.println("Executing Jasmin Backend stage ...");
+        JasminEmitter jasminEmitter = new JasminEmitter();
+        JasminResult jasminResult = jasminEmitter.toJasmin(optOptimizationResult);
+        if (verifyReports(jasminResult.getReports())) return;
+        printJasmin(jasminResult);
+
+
+        // Saving generated file stage ------------------------
+        System.out.println("Saving compilation in ./out/ ...");
+        jasminResult.compile(new File("./out/"));
+
+        System.out.println("\nCompilation successfully completed!");
+    }
+
+    private static String parseArgs(String[] args, Map<String, String> config) {
         // comp [-r=<num>] [-o] [-d] -i=<file.jmm>
         SpecsLogs.info("Executing with args: " + Arrays.toString(args) + "\n");
         String correctInput = "Correct input: .\\comp2022-1b [-r=<num>] [-o] [-d] -i=<file.jmm>";
@@ -84,111 +133,60 @@ public class Launcher {
 
 
         // Create config
-        Map<String, String> config = new HashMap<>();
         config.put("inputFile", inputFileStr);
         config.put("optimize", optimize);
         config.put("registerAllocation", registerAllocation);
         config.put("debug", debug);
 
-        // ------------
-        // Parse stage
-        System.out.println("Executing parsing stage ...");
-        SimpleParser parser = new SimpleParser();
-        JmmParserResult parserResult = parser.parse(input, config);
+        return input;
+    }
 
-        if (!parserResult.getReports().isEmpty()) {
-            for (Report report : parserResult.getReports()) System.out.println(report);
-            return;
+    private static boolean verifyReports(List<Report> reports) {
+        if (!reports.isEmpty()) {
+            for (Report report : reports) System.out.println(report);
+            return true;
         }
+        return false;
+    }
 
-        // Print the AST
+    private static void printAST(JmmNode root, boolean optimized) {
         if (Utils.debug) {
-            Utils.printHeader("AST");
-            System.out.println((parserResult.getRootNode()).sanitize().toTree());
-            Utils.printFooter();
+            if (!optimized || (optimized && Utils.optimize)) {
+                if (optimized) Utils.printHeader("AST OPTIMIZED");
+                else Utils.printHeader("AST");
+                System.out.println(root.sanitize().toTree());
+                Utils.printFooter();
+            }
         }
+    }
 
-        // ------------
-        // Analysis stage
-        System.out.println("Executing analysis stage ...");
-        JmmAnalyser analyser = new JmmAnalyser();
-        JmmSemanticsResult semanticsResult = analyser.semanticAnalysis(parserResult);
-
-        if (!semanticsResult.getReports().isEmpty()) {
-            for (Report report : parserResult.getReports()) System.out.println(report);
-            return;
-        }
-
+    private static void printSymbolTable(JmmSemanticsResult semanticsResult) {
         // Print the SymbolTable
         if (Utils.debug) {
             Utils.printHeader("SYMBOL TABLE");
             System.out.println(semanticsResult.getSymbolTable().print());
             Utils.printFooter();
         }
+    }
 
-        // ------------
-        // Optimization stage
-        if (Utils.optimize) System.out.println("Executing AST optimization ...");
-        JmmOptimizer optimizer = new JmmOptimizer();
-        JmmSemanticsResult optSemanticsResult = optimizer.optimize(semanticsResult);
-
-        // Print the optimized AST
-        if (Utils.debug && Utils.optimize) {
-            Utils.printHeader("AST OPTIMIZED");
-            System.out.println((optSemanticsResult.getRootNode()).sanitize().toTree());
-            Utils.printFooter();
-        }
-
-        System.out.println("Executing Ollir generation ...");
-        OllirResult optimizationResult = optimizer.toOllir(optSemanticsResult);
-
-        // Print the OLLIR code
+    private static void printOllir(OllirResult optimizationResult, boolean optimized) {
         if (Utils.debug) {
-            Utils.printHeader("OLLIR");
-            System.out.println(optimizationResult.getOllirCode());
-            Utils.printFooter();
+            if (!optimized || (optimized && Utils.optimize)) {
+                if (optimized) Utils.printHeader("OLLIR OPTIMIZED");
+                else Utils.printHeader("OLLIR");
+                System.out.println(optimizationResult.getOllirCode());
+                Utils.printFooter();
+            }
         }
+    }
 
-        if (Utils.optimize) System.out.println("Executing Ollir optimization ...");
-        OllirResult optOptimizationResult = optimizer.optimize(optimizationResult);
-
-        if (!optOptimizationResult.getReports().isEmpty()) {
-            for (Report report : optOptimizationResult.getReports()) System.out.println(report);
-            return;
-        }
-
-        // Print the Optimized OLLIR code
-        if (Utils.debug && Utils.optimize) {
-            Utils.printHeader("OLLIR OPTIMIZED");
-            System.out.println(optOptimizationResult.getOllirCode());
-            Utils.printFooter();
-        }
-
-        // ------------
-        // JasminBackend stage
-        System.out.println("Executing Jasmin Backend stage ...");
-        JasminEmitter jasminEmitter = new JasminEmitter();
-        JasminResult jasminResult = jasminEmitter.toJasmin(optOptimizationResult);
-
-        if (!jasminResult.getReports().isEmpty()) {
-            for (Report report : jasminResult.getReports()) System.out.println(report);
-            return;
-        }
-
+    private static void printJasmin(JasminResult jasminResult) {
         // Print the Jasmin Code
         if (Utils.debug) {
             Utils.printHeader("JASMIN");
             System.out.println(jasminResult.getJasminCode());
             Utils.printFooter();
         }
-
-        // ---
-        // Saving generated file stage
-        System.out.println("Saving compilation in ./libs-jmm/compiled/ ...");
-        jasminResult.compile(new File("./libs-jmm/compiled/"));
-
-        System.out.println("\nCompilation successfully completed!");
     }
-
 
 }

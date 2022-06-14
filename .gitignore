@@ -4,6 +4,7 @@
 /.settings/
 /generated/
 /run/
+/out/
 
 gradle/
 .idea/

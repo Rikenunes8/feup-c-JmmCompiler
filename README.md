@@ -269,6 +269,15 @@ You can also see a test report by opening `./build/reports/tests/test/index.html
 
 ## Run file jmm compiled
 
-After executing the compiler with the command `./comp2022-1b [-r=<num>] [-o] [-d] -i=<input_file.jmm>`, if no errors occur the `.class` file generated from the file `input_file.jmm` will be saved in `./libs-jmm/compiled/` directory. 
+After executing the compiler with the command `./comp2022-1b [-r=<num>] [-o] [-d] -i=<input_file.jmm>`, if no errors occur the `.class` file generated from the file `input_file.jmm` will be saved in `./out/` directory. 
 
-To run the generated code you can run the command `java -cp ./libs-jmm/compiled/ <class_name>` from the root of the project, where *<class_name>* is the name of the class in the `input_file.jmm` file.
+To run the generated code you can run the following command from the root of the project, where *<class_name>* is the name of the class in the `input_file.jmm` file.
+The *classpath* `./libs-jmm/compiled/` must be set if you import any external lib in the code generated.
+```
+# Linux based system
+java -cp ./out/:./libs-jmm/compiled/ <class_name> 
+```
+```
+:: Windows based system
+java -cp ./out/;./libs-jmm/compiled/ <class_name> 
+````
