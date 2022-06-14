@@ -14,7 +14,6 @@ public class SymbolTableBuilder implements SymbolTable {
     String superClass;
     List<Symbol> fields; // Class's Private Attibutes
 
-    // For each method save their return type, parameters and local variables
     Map<String, SymbolTableMethod> methods;
 
     public SymbolTableBuilder() {

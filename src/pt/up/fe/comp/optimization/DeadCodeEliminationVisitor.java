@@ -7,7 +7,11 @@ import pt.up.fe.comp.jmm.ast.PostorderJmmVisitor;
 import static pt.up.fe.comp.ast.AstNode.*;
 
 public class DeadCodeEliminationVisitor extends PostorderJmmVisitor<String, Boolean> {
+    private int counter;
+
     public DeadCodeEliminationVisitor() {
+        this.counter = 0;
+
         addVisit(IF_STATEMENT, this::visitIfStatement);
         addVisit(WHILE_STATEMENT, this::visitWhileStatement);
     }
@@ -44,6 +48,7 @@ public class DeadCodeEliminationVisitor extends PostorderJmmVisitor<String, Bool
 
             jmmNode.replace(newNode);
         }
+        this.counter++;
         return true;
     }
 
@@ -52,7 +57,12 @@ public class DeadCodeEliminationVisitor extends PostorderJmmVisitor<String, Bool
         if (condition == null || condition) return false;
 
         jmmNode.getJmmParent().removeJmmChild(jmmNode.getIndexOfSelf());
+        this.counter++;
 
         return true;
+    }
+
+    public int getCounter() {
+        return counter;
     }
 }

@@ -21,13 +21,6 @@ public class JmmOptimizer implements JmmOptimization {
     public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
         Utils.setUtils(semanticsResult.getConfig());
 
-        // Print the AST TODO remove
-        if (Utils.debug) {
-            System.out.println("\n-------- AST --------");
-            System.out.println((semanticsResult.getRootNode()).sanitize().toTree());
-            System.out.println("---------------------\n");
-        }
-
         if (!Utils.optimize) return semanticsResult;
 
         JmmNode root = semanticsResult.getRootNode();
@@ -43,16 +36,11 @@ public class JmmOptimizer implements JmmOptimization {
             var constantFolding = new ConstantFoldingVisitor();
             constantFolding.visit(root);
             counter += constantFolding.getCounter();
-        }
 
-        var deadCodeElimination = new DeadCodeEliminationVisitor();
-        deadCodeElimination.visit(root);
-
-        // Print the AST
-        if (Utils.debug) { // TODO remove
-            System.out.println("\n-------- AST OPTIMIZED --------");
-            System.out.println((semanticsResult.getRootNode()).sanitize().toTree());
-            System.out.println("---------------------\n");
+            // Dead code eliminations (if/while conditions)
+            var deadCodeElimination = new DeadCodeEliminationVisitor();
+            deadCodeElimination.visit(root);
+            counter += deadCodeElimination.getCounter();
         }
 
         return semanticsResult;
@@ -67,13 +55,6 @@ public class JmmOptimizer implements JmmOptimization {
 
         String ollirCode = ollirGenerator.getCode();
 
-        // Print the OLLIR code
-        if (Utils.debug) {
-            System.out.println("\n--------- OLLIR ---------");
-            System.out.println(ollirCode);
-            System.out.println("-------------------------\n");
-        }
-
         return new OllirResult(semanticsResult, ollirCode, Collections.emptyList());
     }
 
@@ -82,21 +63,6 @@ public class JmmOptimizer implements JmmOptimization {
         Utils.setUtils(ollirResult.getConfig());
 
         if (Utils.optimize) ollirResult = new WhileToDoWhile(ollirResult).optimize();
-
-        // Print the OLLIR code
-        if (Utils.debug) { // TODO
-            System.out.println("\n--------- OLLIR OPTIMIZE ---------");
-            System.out.println(ollirResult.getOllirCode());
-            System.out.println("-------------------------\n");
-        }
-        // TODO REMOVE
-        System.out.println("Var table:");
-        for (var method : ollirResult.getOllirClass().getMethods()) {
-            for (var t : method.getVarTable().entrySet()) {
-                System.out.println(t.getKey());
-                System.out.println(t.getValue().getVirtualReg() + " - " + t.getValue().getVarType());
-            }
-        }
 
         if (ollirResult.getConfig().containsKey("registerAllocation")) {
             int nRegisters = Integer.parseInt(ollirResult.getConfig().get("registerAllocation"));

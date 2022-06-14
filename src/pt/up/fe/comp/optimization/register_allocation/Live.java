@@ -5,14 +5,14 @@ import pt.up.fe.specs.util.classmap.FunctionClassMap;
 
 import java.util.*;
 
-public class Liveliness {
+public class Live {
     private final List<Instruction> instructions;
     private FunctionClassMap<Instruction, Boolean> instructionMap;
     private final Map<Instruction, UseDef> useDefMap;
     private final Map<Instruction, InOut> inOutMap;
-    private final Map<String, LivelinessRange> webs;
+    private final Map<String, LiveRange> webs;
 
-    public Liveliness(List<Instruction> instructions) {
+    public Live(List<Instruction> instructions) {
         this.instructions = instructions;
         this.useDefMap = new HashMap<>();
         this.inOutMap = new HashMap<>();
@@ -20,7 +20,7 @@ public class Liveliness {
         this.setInstructionsMap();
         this.buildUseDef();
         this.buildInOut();
-        this.buildLivelinessRanges();
+        this.buildLiveRanges();
     }
 
     public void show() {
@@ -45,16 +45,16 @@ public class Liveliness {
         }
     }
 
-    private void buildLivelinessRanges() {
+    private void buildLiveRanges() {
         for (var instruction : instructions) {
             var inSet = this.inOutMap.get(instruction).getIn();
             var outSet = this.inOutMap.get(instruction).getOut();
 
             for (String variable : outSet) {
-                if (!webs.containsKey(variable)) webs.put(variable, new LivelinessRange(instruction.getId()));
+                if (!webs.containsKey(variable)) webs.put(variable, new LiveRange(instruction.getId()));
             }
             for (String variable : inSet) {
-                LivelinessRange range = webs.get(variable);
+                LiveRange range = webs.get(variable);
                 if (instruction.getId() > range.getEnd()) range.setEnd(instruction.getId());
             }
         }
@@ -197,7 +197,7 @@ public class Liveliness {
         useDef.addUse(name);
     }
 
-    public Map<String, LivelinessRange> getWebs() {
+    public Map<String, LiveRange> getWebs() {
         return webs;
     }
 }

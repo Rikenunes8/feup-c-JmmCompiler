@@ -1,9 +1,10 @@
 package pt.up.fe.comp.optimization.register_allocation;
 
-public class LivelinessRange {
+public class LiveRange {
     private int start;
     private int end;
-    public LivelinessRange(int start) {
+
+    public LiveRange(int start) {
         this.start = start;
         this.end = start;
     }

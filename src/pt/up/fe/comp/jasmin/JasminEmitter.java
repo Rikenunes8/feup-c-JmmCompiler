@@ -24,9 +24,6 @@ public class JasminEmitter implements JasminBackend {
             JasminGenerator translationResult = new JasminGenerator(ollirClass);
             String jasminCode = translationResult.getJasminCode();
 
-            System.out.println("---- Jasmin COde ------"); // TODO remove
-            System.out.println(jasminCode);
-
             return new JasminResult(ollirResult, jasminCode, Collections.emptyList());
         } catch (Exception e) {
             return new JasminResult(ollirClass.getClassName(), null,

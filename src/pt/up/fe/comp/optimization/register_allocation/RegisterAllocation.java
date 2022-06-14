@@ -27,11 +27,6 @@ public class RegisterAllocation {
         if (nRegisters == -1) return ollirResult;
         this.ollir.buildCFGs();
         for (var method : this.ollir.getMethods()) {
-            System.out.println("in reg"); // TODO
-            for (var t : method.getVarTable().entrySet()) {
-                System.out.println(t.getKey());
-                System.out.println(t.getValue().getVirtualReg() + " - " + t.getValue().getVarType());
-            }
             this.currentMethod = method;
             this.interferenceGraph.clear();
             boolean possible = this.allocateRegisters(method, nRegisters);
@@ -44,12 +39,12 @@ public class RegisterAllocation {
     }
 
     private boolean allocateRegisters(Method method, int nRegisters) {
-        var liveliness = new Liveliness(method.getInstructions());
+        var live = new Live(method.getInstructions());
         if (Utils.debug) {
             System.out.println("----- REGISTER ALLOCATION ------");
-            liveliness.show();
+            live.show();
         }
-        var webs = liveliness.getWebs();
+        var webs = live.getWebs();
         this.buildInterferenceGraph(webs);
 
         final Map<String, Integer> coloredGraph = new HashMap<>();
@@ -73,6 +68,7 @@ public class RegisterAllocation {
             var color = coloredGraph.get(variable);
             d.setVirtualReg(color);
         }
+
         if (Utils.debug) {
             System.out.println("Colored variables");
             System.out.println(coloredGraph);
@@ -81,15 +77,15 @@ public class RegisterAllocation {
         return true;
     }
 
-    private void buildInterferenceGraph(Map<String, LivelinessRange> webs) {
+    private void buildInterferenceGraph(Map<String, LiveRange> webs) {
         var variablesNames = webs.keySet();
         for (String w1 : variablesNames) {
-            LivelinessRange wr1 = webs.get(w1);
+            LiveRange wr1 = webs.get(w1);
             Set<String> interferences = new HashSet<>();
 
             for (String w2 : variablesNames) {
                 if (w1.equals(w2)) continue;
-                LivelinessRange wr2 = webs.get(w2);
+                LiveRange wr2 = webs.get(w2);
 
                 if (wr1.getStart() <= wr2.getStart() && wr1.getEnd() > wr2.getStart()
                         || wr1.getStart() <= wr2.getEnd() && wr1.getEnd() >= wr2.getEnd()
