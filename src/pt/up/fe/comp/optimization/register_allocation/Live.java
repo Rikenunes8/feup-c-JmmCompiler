@@ -1,6 +1,7 @@
 package pt.up.fe.comp.optimization.register_allocation;
 
 import org.specs.comp.ollir.*;
+import pt.up.fe.comp.Utils;
 import pt.up.fe.specs.util.classmap.FunctionClassMap;
 
 import java.util.*;
@@ -26,7 +27,8 @@ public class Live {
     public void show() {
         System.out.println("Basic Blocks:");
         for (var inst : instructions) {
-            System.out.println("BB" + inst.getId() + " ------------");
+            String bbx = "BB" + inst.getId() + " ";
+            System.out.println( bbx + "-".repeat(Utils.sizeOfDelimiter - bbx.length()));
             inst.show();
             var use = useDefMap.get(inst).getUse();
             var def = useDefMap.get(inst).getDef();
@@ -36,7 +38,7 @@ public class Live {
             var out = inOutMap.get(inst).getOut();
             System.out.println("in: " + String.join(" ", in));
             System.out.println("out: " + String.join(" ", out));
-            System.out.println("--------------\n");
+            System.out.println();
         }
 
         System.out.println("Liveliness Range:");

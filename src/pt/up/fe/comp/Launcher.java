@@ -103,9 +103,9 @@ public class Launcher {
 
         // Print the AST
         if (Utils.debug) {
-            System.out.println("\n-------- AST --------");
+            Utils.printHeader("AST");
             System.out.println((parserResult.getRootNode()).sanitize().toTree());
-            System.out.println("---------------------\n");
+            Utils.printFooter();
         }
 
         // ------------
@@ -121,33 +121,35 @@ public class Launcher {
 
         // Print the SymbolTable
         if (Utils.debug) {
-            System.out.println("\n------- SYMBOL TABLE ------");
+            Utils.printHeader("SYMBOL TABLE");
             System.out.println(semanticsResult.getSymbolTable().print());
-            System.out.println("---------------------------\n");
+            Utils.printFooter();
         }
 
         // ------------
         // Optimization stage
-        System.out.println("Executing ollir generation ...");
+        if (Utils.optimize) System.out.println("Executing AST optimization ...");
         JmmOptimizer optimizer = new JmmOptimizer();
         JmmSemanticsResult optSemanticsResult = optimizer.optimize(semanticsResult);
 
         // Print the optimized AST
         if (Utils.debug && Utils.optimize) {
-            System.out.println("\n------ AST OPTIMIZED ------");
+            Utils.printHeader("AST OPTIMIZED");
             System.out.println((optSemanticsResult.getRootNode()).sanitize().toTree());
-            System.out.println("---------------------------\n");
+            Utils.printFooter();
         }
 
+        System.out.println("Executing Ollir generation ...");
         OllirResult optimizationResult = optimizer.toOllir(optSemanticsResult);
 
         // Print the OLLIR code
         if (Utils.debug) {
-            System.out.println("\n--------- OLLIR ---------");
+            Utils.printHeader("OLLIR");
             System.out.println(optimizationResult.getOllirCode());
-            System.out.println("-------------------------\n");
+            Utils.printFooter();
         }
 
+        if (Utils.optimize) System.out.println("Executing Ollir optimization ...");
         OllirResult optOptimizationResult = optimizer.optimize(optimizationResult);
 
         if (!optOptimizationResult.getReports().isEmpty()) {
@@ -157,9 +159,9 @@ public class Launcher {
 
         // Print the Optimized OLLIR code
         if (Utils.debug && Utils.optimize) {
-            System.out.println("\n------- OLLIR OPTIMIZED -------");
+            Utils.printHeader("OLLIR OPTIMIZED");
             System.out.println(optOptimizationResult.getOllirCode());
-            System.out.println("--------------------------------\n");
+            Utils.printFooter();
         }
 
         // ------------
@@ -175,9 +177,9 @@ public class Launcher {
 
         // Print the Jasmin Code
         if (Utils.debug) {
-            System.out.println("\n------------ JASMIN ------------");
+            Utils.printHeader("JASMIN");
             System.out.println(jasminResult.getJasminCode());
-            System.out.println("--------------------------------\n");
+            Utils.printFooter();
         }
 
         // ---

@@ -26,22 +26,26 @@ public class RegisterAllocation {
     public OllirResult optimize(int nRegisters) {
         if (nRegisters == -1) return ollirResult;
         this.ollir.buildCFGs();
+        if (Utils.debug) Utils.printHeader("REGISTER ALLOCATION");
         for (var method : this.ollir.getMethods()) {
+            if (Utils.debug) System.out.println("\nMethod: " + method.getMethodName() + "\n");
             this.currentMethod = method;
             this.interferenceGraph.clear();
             boolean possible = this.allocateRegisters(method, nRegisters);
             if (!possible) {
+                if (Utils.debug) System.out.println("Method " + method.getMethodName() + " needs at least " + minNRegistersForMethod + "registers");
                 ollirResult.getReports().add(new Report(ReportType.ERROR, Stage.OPTIMIZATION, -1, -1,
                         "Method " + method.getMethodName() + " needs at least " + minNRegistersForMethod + "registers"));
             }
         }
+        if (Utils.debug) Utils.printFooter();
+
         return ollirResult;
     }
 
     private boolean allocateRegisters(Method method, int nRegisters) {
         var live = new Live(method.getInstructions());
         if (Utils.debug) {
-            System.out.println("----- REGISTER ALLOCATION ------");
             live.show();
         }
         var webs = live.getWebs();
@@ -57,7 +61,6 @@ public class RegisterAllocation {
         }
         else if (!this.colorGraph(coloredGraph, nRegisters)) {
             minNRegistersForMethod = this.getMinNRegistersPossible(coloredGraph);
-            if (Utils.debug) System.out.println("-------------------------------");
             return false;
         }
 
@@ -70,9 +73,8 @@ public class RegisterAllocation {
         }
 
         if (Utils.debug) {
-            System.out.println("Colored variables");
+            System.out.println("Colored variables:");
             System.out.println(coloredGraph);
-            System.out.println("-------------------------------");
         }
         return true;
     }

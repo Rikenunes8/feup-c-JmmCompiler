@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Utils {
+    public static int sizeOfDelimiter = 40;
     public static boolean debug = false;
     public static boolean optimize = false;
 
@@ -27,5 +28,16 @@ public class Utils {
     public static void setUtils(Map<String, String> config) {
         optimize = config.getOrDefault("optimize", "false").equals("true");
         debug = config.getOrDefault("debug", "false").equals("true");
+    }
+
+    public static void printHeader(String s) {
+        if (s.length() > sizeOfDelimiter-2) return;
+        boolean oneMore = s.length() % 2 != 0;
+        var n = (sizeOfDelimiter - s.length()-2) / 2;
+        String header = "-".repeat(n) + " " + s + " " + "-".repeat(n) + (oneMore ? "-" : "");
+        System.out.println("\n" + header);
+    }
+    public static void printFooter() {
+        System.out.println("-".repeat(sizeOfDelimiter) + "\n");
     }
 }
