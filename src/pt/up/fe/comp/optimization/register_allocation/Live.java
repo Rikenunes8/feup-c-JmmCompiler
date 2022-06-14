@@ -59,6 +59,12 @@ public class Live {
                 LiveRange range = webs.get(variable);
                 if (instruction.getId() > range.getEnd()) range.setEnd(instruction.getId());
             }
+
+            for (String variable : this.useDefMap.get(instruction).getDef()) {
+                if (!webs.containsKey(variable)) continue;
+                LiveRange range = webs.get(variable);
+                if (instruction.getId() > range.getEnd()) range.setEnd(instruction.getId());
+            }
         }
     }
 
@@ -129,11 +135,17 @@ public class Live {
         Instruction rhs = instruction.getRhs();
         switch (rhs.getInstType()) {
             case CALL:
-                if (((CallInstruction)rhs).getInvocationType().equals(CallType.arraylength)) {
-                    this.addUseToMap(instruction, ((CallInstruction)rhs).getFirstArg());
+                CallInstruction callInstruction = (CallInstruction) rhs;
+                if (callInstruction.getInvocationType().equals(CallType.arraylength)) {
+                    this.addUseToMap(instruction, callInstruction.getFirstArg());
                     break;
                 }
-                for (var element : ((CallInstruction)rhs).getListOfOperands())
+                if (callInstruction.getInvocationType().equals(CallType.invokespecial)
+                        || callInstruction.getInvocationType().equals(CallType.invokevirtual)) {
+                    if (!callInstruction.getFirstArg().getType().getTypeOfElement().equals(ElementType.THIS))
+                        this.addUseToMap(instruction, callInstruction.getFirstArg());
+                }
+                for (var element : callInstruction.getListOfOperands())
                     this.addUseToMap(instruction, element);
                 break;
             case BINARYOPER:
@@ -150,6 +162,11 @@ public class Live {
         return true;
     }
     private Boolean setDefUse(CallInstruction instruction)  {
+        if (instruction.getInvocationType().equals(CallType.invokespecial)
+                || instruction.getInvocationType().equals(CallType.invokevirtual)) {
+            if (!instruction.getFirstArg().getType().getTypeOfElement().equals(ElementType.THIS))
+                this.addUseToMap(instruction, instruction.getFirstArg());
+        }
         for (var element : instruction.getListOfOperands()) {
             this.addUseToMap(instruction, element);
         }
