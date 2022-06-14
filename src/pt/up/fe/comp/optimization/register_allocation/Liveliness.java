@@ -43,7 +43,6 @@ public class Liveliness {
         for (var variable : webs.entrySet()) {
             System.out.println(variable.getKey() + ": " + variable.getValue());
         }
-
     }
 
     private void buildLivelinessRanges() {
@@ -116,11 +115,22 @@ public class Liveliness {
     }
 
     private Boolean setDefUse(AssignInstruction instruction)  {
-        String def = ((Operand)instruction.getDest()).getName();
-        this.useDefMap.get(instruction).addDef(def);
+        if (instruction.getDest() instanceof ArrayOperand) {
+            this.addUseToMap(instruction, instruction.getDest());
+            var op = ((ArrayOperand) instruction.getDest()).getIndexOperands().get(0);
+            this.addUseToMap(instruction, op);
+        }
+        else {
+            String def = ((Operand)instruction.getDest()).getName();
+            this.useDefMap.get(instruction).addDef(def);
+        }
         Instruction rhs = instruction.getRhs();
         switch (rhs.getInstType()) {
             case CALL:
+                if (((CallInstruction)rhs).getInvocationType().equals(CallType.arraylength)) {
+                    this.addUseToMap(instruction, ((CallInstruction)rhs).getFirstArg());
+                    break;
+                }
                 for (var element : ((CallInstruction)rhs).getListOfOperands())
                     this.addUseToMap(instruction, element);
                 break;

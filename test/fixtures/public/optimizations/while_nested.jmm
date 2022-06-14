@@ -14,8 +14,6 @@ class A {
             }
             d = b;
             a = a + d;
-            d = c;
-            a = a + d;
         }
     }
 }

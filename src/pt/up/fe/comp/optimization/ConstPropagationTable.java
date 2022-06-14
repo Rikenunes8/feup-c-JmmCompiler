@@ -4,12 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConstPropagationTable {
-    private Map<String, String> constants;
+    private final Map<String, String> constants;
     private boolean propagating;
 
     public ConstPropagationTable() {
         this.constants = new HashMap<>();
         this.propagating = true;
+    }
+    public ConstPropagationTable(ConstPropagationTable table) {
+        this.propagating = table.propagating;
+        this.constants = new HashMap<>(table.constants);
     }
 
     public Map<String, String> getConstants() {
@@ -32,5 +36,10 @@ public class ConstPropagationTable {
 
     public void setPropagating(boolean propagating) {
         this.propagating = propagating;
+    }
+
+    public void clear() {
+        this.constants.clear();
+        this.propagating = true;
     }
 }

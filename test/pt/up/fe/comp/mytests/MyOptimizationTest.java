@@ -20,6 +20,7 @@ public class MyOptimizationTest {
     static OllirResult getOllirResultOpt(String filename, int type) { // 0 - all; 1 - ast; 2 - ollir
         Map<String, String> config = new HashMap<>();
         config.put("optimize", "true");
+        config.put("debug", "true");
 
         String jmmCode = SpecsIo.getResource("fixtures/public/optimizations/" + filename);
         var semanticsResult = TestUtils.analyse(jmmCode, config);
@@ -62,16 +63,12 @@ public class MyOptimizationTest {
         String assignment2 = ".*c\\.i32 :=\\.i32 5\\.i32.*";
         String assignment3 = ".*d\\.i32 :=\\.i32 4\\.i32.*";
         String assignment4 = ".*a\\.i32 :=\\.i32 a\\.i32 \\+.i32 4.i32.*";
-        String assignment5 = ".*d\\.i32 :=\\.i32 5\\.i32.*";
-        String assignment6 = ".*a\\.i32 :=\\.i32 a\\.i32 \\+.i32 5.i32.*";
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(cond1)));
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(cond2)));
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment1)));
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment2)));
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment3)));
         assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment4)));
-        assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment5)));
-        assertTrue(SpecsStrings.matches(ollirCode, Pattern.compile(assignment6)));
     }
 
     @Test

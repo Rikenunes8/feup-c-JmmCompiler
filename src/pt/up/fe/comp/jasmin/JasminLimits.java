@@ -13,11 +13,11 @@ public class JasminLimits {
     static private int stackLimit = 0;
 
     static public int getLocals(Method method) {
-        Set<Integer> locals = new HashSet<>();
+        int max_regUsed = 0;
         for (var local : method.getVarTable().values()) {
-            locals.add(local.getVirtualReg());
+            max_regUsed = Math.max(max_regUsed, local.getVirtualReg());
         }
-        return locals.size() + ((method.getVarTable().containsKey("this") || method.isStaticMethod()) ? 0 : 1);
+        return max_regUsed + 1;
     }
 
     static public int getStack() {

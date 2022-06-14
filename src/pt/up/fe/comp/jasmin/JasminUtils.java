@@ -94,7 +94,7 @@ public class JasminUtils {
         JasminLimits.incrementStack(1);
 
         int number = Integer.parseInt(literal);
-        if (number >= -1 && number <= 5)
+        if (number >= 0 && number <= 5)
             return "\ticonst_" + literal + "\n";
         else if (number >= -128 && number <= 127)
             return "\tbipush " + literal + "\n";
