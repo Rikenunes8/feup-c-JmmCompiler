@@ -84,10 +84,18 @@ public class JmmOptimizer implements JmmOptimization {
         if (Utils.optimize) ollirResult = new WhileToDoWhile(ollirResult).optimize();
 
         // Print the OLLIR code
-        if (Utils.debug) {
+        if (Utils.debug) { // TODO
             System.out.println("\n--------- OLLIR OPTIMIZE ---------");
             System.out.println(ollirResult.getOllirCode());
             System.out.println("-------------------------\n");
+        }
+        // TODO REMOVE
+        System.out.println("Var table:");
+        for (var method : ollirResult.getOllirClass().getMethods()) {
+            for (var t : method.getVarTable().entrySet()) {
+                System.out.println(t.getKey());
+                System.out.println(t.getValue().getVirtualReg() + " - " + t.getValue().getVarType());
+            }
         }
 
         if (ollirResult.getConfig().containsKey("registerAllocation")) {

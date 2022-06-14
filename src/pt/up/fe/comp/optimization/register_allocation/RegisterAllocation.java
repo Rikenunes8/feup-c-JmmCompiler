@@ -27,6 +27,11 @@ public class RegisterAllocation {
         if (nRegisters == -1) return ollirResult;
         this.ollir.buildCFGs();
         for (var method : this.ollir.getMethods()) {
+            System.out.println("in reg"); // TODO
+            for (var t : method.getVarTable().entrySet()) {
+                System.out.println(t.getKey());
+                System.out.println(t.getValue().getVirtualReg() + " - " + t.getValue().getVarType());
+            }
             this.currentMethod = method;
             this.interferenceGraph.clear();
             boolean possible = this.allocateRegisters(method, nRegisters);
