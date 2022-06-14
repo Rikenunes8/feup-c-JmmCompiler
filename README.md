@@ -258,11 +258,17 @@ For this project, you need to install [Java 11](https://jdk.java.net/), [Gradle 
 
 ## Compile and Running
 
-To compile and install the program, run ``gradle installDist``. This will compile your classes and create a launcher script in the folder ``./build/install/comp2022-1b/bin``. For convenience, there are two script files, one for Windows (``comp2022-1b.bat``) and another for Linux (``comp2022-1b``), in the root folder, that call this launcher script.
+To compile and install the program, run `gradle installDist`. This will compile your classes and create a launcher script in the folder `./build/install/comp2022-1b/bin`. For convenience, there are two script files, one for Windows (`comp2022-1b.bat`) and another for Linux (`comp2022-1b`), in the root folder, that call this launcher script.
 
-After compilation, a series of tests will be automatically executed. The build will stop if any test fails. Whenever you want to ignore the tests and build the program anyway, you can call Gradle with the flag ``-x test``.
+After compilation, a series of tests will be automatically executed. The build will stop if any test fails. Whenever you want to ignore the tests and build the program anyway, you can call Gradle with the flag `-x test`.
 
 ## Test
 
-To test the program, run ``gradle test``. This will execute the build, and run the JUnit tests in the ``test`` folder. If you want to see output printed during the tests, use the flag ``-i`` (i.e., ``gradle test -i``).
-You can also see a test report by opening ``./build/reports/tests/test/index.html``.
+To test the program, run `gradle test`. This will execute the build, and run the JUnit tests in the `test` folder. If you want to see output printed during the tests, use the flag `-i` (i.e., `gradle test -i`).
+You can also see a test report by opening `./build/reports/tests/test/index.html`.
+
+## Run file jmm compiled
+
+After executing the compiler with the command `./comp2022-1b [-r=<num>] [-o] [-d] -i=<input_file.jmm>`, if no errors occur the `.class` file generated from the file `input_file.jmm` will be saved in `./libs-jmm/compiled/` directory. 
+
+To run the generated code you can run the command `java -cp ./libs-jmm/compiled/ <class_name>` from the root of the project, where *<class_name>* is the name of the class in the `input_file.jmm` file.
