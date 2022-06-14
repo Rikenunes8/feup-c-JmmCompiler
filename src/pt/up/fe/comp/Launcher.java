@@ -116,7 +116,8 @@ public class Launcher {
             System.out.println("input file     : " + inputFileStr);
             System.out.println("optimize flag  : " + optimize);
             System.out.println("register value : " + registerAllocation);
-            System.out.println("debug flag     : " + debug + "\n");
+            System.out.println("debug flag     : " + debug);
+            System.out.println();
         }
 
         // Check -r option : <num> is an integer between 0 and 255 [or -1 that is equals to not having]
@@ -161,7 +162,6 @@ public class Launcher {
     }
 
     private static void printSymbolTable(JmmSemanticsResult semanticsResult) {
-        // Print the SymbolTable
         if (Utils.debug) {
             Utils.printHeader("SYMBOL TABLE");
             System.out.println(semanticsResult.getSymbolTable().print());
@@ -181,7 +181,6 @@ public class Launcher {
     }
 
     private static void printJasmin(JasminResult jasminResult) {
-        // Print the Jasmin Code
         if (Utils.debug) {
             Utils.printHeader("JASMIN");
             System.out.println(jasminResult.getJasminCode());
