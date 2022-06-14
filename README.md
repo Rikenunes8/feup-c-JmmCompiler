@@ -27,7 +27,7 @@ The program accepts 4 arguments where 3 of them are optional:
 
 * `-i` option specifies the input file with the extension **.jmm** to be compiled;
 * `-o` option directs the compiler to perform code optimizations (default *false*);
-* `-r` option directs the compiler to use only till a specific number of regiters (default *-1*);
+* `-r` option directs the compiler to use only till a specific number of registers (*-1*: one register for each var (default); *0*: minimum;);
 * `-d` option enables additional output related to the compilation process, to help programmers understand the compiler's operation (default *false*).
 
 # SEMANTIC ANALYSIS:
@@ -37,16 +37,15 @@ This compiler stage is responsible for validating the contents of the AST, verif
 Our tool implements the following semantic rules:
 
 * Fields in static methods:
-    1. Can't use class fields in a static method.
+    1. Class non-static fields can't be used in a static method;
 * Check undefined vars:
-    1. The variables must be defined;
-    2. The local variables must be initialized before being used.
+    1. The local variables must be initialized before being used;
 * Check imports errors:
-    1. Unable to find import;
-    2. Return type not found;
+    1. Method callee not imported;
+    2. Return type of method not imported;
     3. Type of variable not imported;
     4. Superclass was not imported;
-    5. Cannot find the object.
+    5. New object class not imported;
 * Type checking:
     1. Expression in a condition must return a boolean;
     2. The type of the assignee must be compatible with the assigned;
@@ -57,17 +56,22 @@ Our tool implements the following semantic rules:
     7. The operands in a logic expression must be booleans;
     8. The operands in an arithmetic expression must be integers;
     9. Arrays cannot be used in arithmetic operations;
-    10. Variable used is not declared;
-    11. Built-in types have no methods;
-    12. Length is a property of an array.
-* Function arguments:
-    1. Incompatible types;
-    2. The number of arguments does not match the number of parameters;
-    3. The method does not exist in the class;
-    4. Cannot call this object in a static method;
-    5. Cannot call class' non-static method's like static methods.
+    10. Variable used must be declared;
+    11. Built-in types must have no methods;
+    12. Length is exclusively a property of an array;
+* Function calls:
+    1. Types of function arguments and parameters must compatible;
+    2. The number of arguments must match the number of parameters;
+    4. The method must exist in the callee correspondent class;
+    5. Object "this" can't be used in a static method;
+    6. Class' non-static methods can't be called like static methods;
 * Return checking:
-    1. Check if the return expression matches the method return type.
+    1. Return statement expression must match the method return type;
+* Duplicates:
+    1. A method can't have parameters with the same name;
+    2. A method can't have duplicated local variables;
+    3. A class can't have duplicated fields;
+    4. A class can't have methods with the same name (no overloading);
 
 # CODE GENERATION:
 

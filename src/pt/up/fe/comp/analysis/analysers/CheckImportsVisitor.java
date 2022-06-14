@@ -25,7 +25,7 @@ public class CheckImportsVisitor extends SemanticAnalyserVisitor {
                 return true;
             if (isImported(leftNode.get("val"), symbolTableBuilder))
                 return true;
-            addReport(leftNode, "Unable to find "+leftNode.get("val"));
+            addReport(leftNode, "Identifier " + leftNode.get("val") + " not found");
             return false;
         }
         return true;
@@ -67,7 +67,7 @@ public class CheckImportsVisitor extends SemanticAnalyserVisitor {
         String objectName = newObject.get("name");
         if (objectName.equals(symbolTableBuilder.getClassName()) || isImported(objectName, symbolTableBuilder))
             return true;
-        addReport(newObject, "Cannot find object "+objectName);
+        addReport(newObject, "Object "+objectName + " not found");
         return false;
     }
 }

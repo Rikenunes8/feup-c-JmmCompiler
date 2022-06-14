@@ -26,7 +26,7 @@ public class FieldsInStaticMethods extends SemanticAnalyserVisitor{
         var params = symbolTableBuilder.getParameters(method.get("name")).stream().map(Symbol::getName).collect(Collectors.toList());
         var locals = symbolTableBuilder.getLocalVariables(method.get("name")).stream().map(Symbol::getName).collect(Collectors.toList());
         if (!params.contains(name) && !locals.contains(name))
-            addReport(identifier, "can not use class fields " + name + " in a static method");
+            addReport(identifier, "Class non-static field " + name + " can't be used in a static method");
         return true;
     }
 }

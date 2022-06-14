@@ -33,9 +33,9 @@ public class RegisterAllocation {
             this.interferenceGraph.clear();
             boolean possible = this.allocateRegisters(method, nRegisters);
             if (!possible) {
-                if (Utils.debug) System.out.println("Method " + method.getMethodName() + " needs at least " + minNRegistersForMethod + "registers");
+                if (Utils.debug) System.out.println("Method " + method.getMethodName() + " needs at least " + minNRegistersForMethod + " registers");
                 ollirResult.getReports().add(new Report(ReportType.ERROR, Stage.OPTIMIZATION, -1, -1,
-                        "Method " + method.getMethodName() + " needs at least " + minNRegistersForMethod + "registers"));
+                        "Method " + method.getMethodName() + " needs at least " + minNRegistersForMethod + " registers"));
             }
         }
         if (Utils.debug) Utils.printFooter();
