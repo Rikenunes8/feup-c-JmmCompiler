@@ -41,7 +41,7 @@ Our tool implements the following semantic rules:
 * Check undefined vars:
     1. The local variables must be initialized before being used;
 * Check imports errors:
-    1. Method callee not imported;
+    1. Method caller not imported;
     2. Return type of method not imported;
     3. Type of variable not imported;
     4. Superclass was not imported;
@@ -62,7 +62,7 @@ Our tool implements the following semantic rules:
 * Function calls:
     1. Types of function arguments and parameters must compatible;
     2. The number of arguments must match the number of parameters;
-    4. The method must exist in the callee correspondent class;
+    4. The method must exist in the caller correspondent class;
     5. Object "this" can't be used in a static method;
     6. Class' non-static methods can't be called like static methods;
 * Return checking:
