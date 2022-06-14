@@ -2,11 +2,11 @@ package pt.up.fe.comp.optimization;
 
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
-import pt.up.fe.comp.jmm.ast.PostorderJmmVisitor;
+import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 
 import static pt.up.fe.comp.ast.AstNode.*;
 
-public class DeadCodeEliminationVisitor extends PostorderJmmVisitor<String, Boolean> {
+public class DeadCodeEliminationVisitor extends PreorderJmmVisitor<String, Boolean> {
     private int counter;
 
     public DeadCodeEliminationVisitor() {
