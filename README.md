@@ -155,7 +155,18 @@ Here we use a pre-order visitor to visit while and if statements. If the conditi
 ## OLLIR code generation  
 
 After AST validation by the semantic analysis phase, we walk through the AST (*top-down*) using visitors and generate the corresponding **OLLIR code** taking into consideration that this is a *3-address code* and making the necessary adjustments if needed.
-Without optimizations, we use 2 `goto` in if-else statements (**1 single jump per statement**) and 3 `goto` for while statements that are decreased with the while to do-while optimization.    
+
+Without optimizations, we use 2 `goto` in if-else statements (**1 single jump per statement**) and 3 `goto` for while statements that are decreased with the while to do-while optimization.
+
+If Statement:
+```ollir
+  if (condition) goto IfBlock;
+  ...
+  goto EndIf;
+IfBlock:
+  ...
+EndIf:
+```
 
 ## OLLIR code optimization
 
@@ -163,7 +174,7 @@ Without optimizations, we use 2 `goto` in if-else statements (**1 single jump pe
 
 The goal of this optimization is to decrease the number of `goto`s' expressions. So we start by decreasing from 3 to only 2 `goto`s for each while by changing the place the condition of the loop appears in the code.
 
-Before:
+While Statement:
 ```ollir
 Loop:
     if (condition) goto Body;
@@ -174,7 +185,7 @@ Body:
 EndLoop:
 ```
 
-After:
+While Statement Optimized:
 ```ollir
     goto EndLoopOpt;
 LoopOpt:
@@ -185,7 +196,7 @@ EndLoopOpt
 
 We could do even better so, for each while loop, we verify if every variable used in the condition is assigned before the while and not inside an *IfStatement* or other *WhileStatement* (to consider only simple cases of assignments). In case it does, we perform the computation of the expression of the condition. If it evaluates to true, we now have the confirmation that at least the first iteration of the loop is executed, so we can remove the unnecessary `goto` before the label `LoopOpt` in the transformation of the **while** in a **do-while**.
 
-Do While:
+While to Do-While Optimization:
 ```ollir
 LoopOpt:
     ...

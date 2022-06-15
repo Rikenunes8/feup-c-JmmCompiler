@@ -4,9 +4,23 @@ class Compiler {
 	    Compiler comp;
 	    int b;
         boolean c;
+        int i;
         comp = new Compiler();
         b = 1;
         c = comp.getBool(b);
+        i = 0;
+
+        if (b < 0) {
+            while (i < 3) {
+                io.println(b);
+                i = i + 1;
+            }
+        } else {
+            while (i < 5) {
+                io.println(0-b);
+                i = i + 1;
+            }
+        }
 
         while (b < 4) {
             if (b < 3 && true)
