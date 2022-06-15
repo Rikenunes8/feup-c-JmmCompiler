@@ -14,7 +14,6 @@ public class JasminInstrBinaryOpGenerator {
 
     private boolean insideCondBranchInstruction = false;
     private String condBranchInstructionLabel = null;
-    private String condBranchInstructionFalseLabel = null;
     private boolean completedCondBranchInstruction = false;
 
     public JasminInstrBinaryOpGenerator() {
@@ -44,10 +43,9 @@ public class JasminInstrBinaryOpGenerator {
         this.labelCounter = 0;
     }
 
-    public void setCondBranchInstruction(boolean insideCondBranchInst, String condBranchLabel, String falseLabel) {
+    public void setCondBranchInstruction(boolean insideCondBranchInst, String condBranchLabel) {
         this.insideCondBranchInstruction = insideCondBranchInst;
         this.condBranchInstructionLabel = condBranchLabel;
-        this.condBranchInstructionFalseLabel = falseLabel;
     }
 
     public void setCompletedCondBranchInstruction(boolean completedCondBranchInst) {
@@ -55,7 +53,7 @@ public class JasminInstrBinaryOpGenerator {
     }
 
     public void resetCondBranchInstruction() {
-        this.setCondBranchInstruction(false, null, null);
+        this.setCondBranchInstruction(false, null);
         this.setCompletedCondBranchInstruction(false);
     }
 
@@ -149,13 +147,16 @@ public class JasminInstrBinaryOpGenerator {
                 code.append("\t").append(typePrefix).append(this.getRelationInstructionCode(operationType)).append("\n");
                 break;
             case ANDB:
-                if (this.insideCondBranchInstruction() && this.condBranchInstructionFalseLabel != null) {
+                if (this.insideCondBranchInstruction()) {
+                    String falseLabel = nextLabel();
+
                     code.append(this.loadInstructionLeftOperand());
-                    code.append("\tifeq ").append(this.condBranchInstructionFalseLabel).append("\n");
+                    code.append("\tifeq ").append(falseLabel).append("\n");
                     JasminLimits.decrementStack(1);
                     code.append(this.loadInstructionRightOperand());
                     code.append("\tifne ").append(this.condBranchInstructionLabel).append("\n");
                     JasminLimits.decrementStack(1);
+                    code.append("\t").append(falseLabel).append(":\n");
                     this.completedCondBranchInstruction = true;
                 } else {
                     String trueLabel = nextLabel();
