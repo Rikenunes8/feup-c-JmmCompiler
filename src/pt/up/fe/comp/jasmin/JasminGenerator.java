@@ -12,8 +12,6 @@ public class JasminGenerator {
 
     private final ClassUnit classUnit;
     private final JasminInstrBinaryOpGenerator instrBinaryOpGenerator;
-    private Method currentMethod;
-    private int currentInstructionIndex;
 
     private final BiFunctionClassMap<Instruction, HashMap<String, Descriptor>, String> instructionMap;
 
@@ -54,7 +52,6 @@ public class JasminGenerator {
             if (!method.isConstructMethod()) {
                 JasminLimits.resetStack();
                 this.instrBinaryOpGenerator.resetLabelCounter();
-                this.currentMethod = method;
 
                 jasminCode.append(JasminLimits.changeMethodStack(this.getJasminCode(method)));
             }
@@ -106,10 +103,8 @@ public class JasminGenerator {
         code.append(this.getMethodLimitsCode(method));
 
         // Method Instructions
-        ArrayList<Instruction> instructions = method.getInstructions();
-        for (int i = 0; i < instructions.size(); i++) {
-            this.currentInstructionIndex = i;
-            code.append(this.getJasminCode(instructions.get(i), method.getLabels(), method.getVarTable()));
+        for (Instruction instruction : method.getInstructions()) {
+            code.append(this.getJasminCode(instruction, method.getLabels(), method.getVarTable()));
         }
 
         // To guarantee that there is always a return statement before the .end method instruction
@@ -245,15 +240,7 @@ public class JasminGenerator {
     }
 
     public String getJasminCode(CondBranchInstruction instruction, HashMap<String, Descriptor> varTable) {
-        // Know the false label of the branch to use in the Binary Operation type ANDB optimization
-        String falseLabel = null;
-        if (this.currentMethod.getInstructions().size() > this.currentInstructionIndex + 1) {
-            Instruction nextInstr = this.currentMethod.getInstr(this.currentInstructionIndex + 1);
-            if (nextInstr instanceof GotoInstruction) {
-                falseLabel = ((GotoInstruction) nextInstr).getLabel();
-            }
-        }
-        this.instrBinaryOpGenerator.setCondBranchInstruction(true, instruction.getLabel(), falseLabel);
+        this.instrBinaryOpGenerator.setCondBranchInstruction(true, instruction.getLabel());
 
         String code = this.getJasminCode(instruction.getCondition(), new HashMap<>(), varTable);
         if (!this.instrBinaryOpGenerator.completedCondBranchInstruction()) {

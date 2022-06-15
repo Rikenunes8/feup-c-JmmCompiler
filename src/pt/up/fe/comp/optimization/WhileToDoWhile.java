@@ -84,7 +84,7 @@ public class WhileToDoWhile {
                 String numberStr = parts[parts.length - 1].replaceAll("\\D+","");
                 scopeN = Integer.parseInt(numberStr);
             } else if (lines.get(i).matches(".*Loop" + scopeN + ":.*")
-                    || lines.get(i).matches(".*Then" + scopeN + ";.*")
+                    || lines.get(i).matches(".*IfBlock" + scopeN + ";.*")
                     || lines.get(i).matches(".*LoopOpt" + scopeN + ":.*")) {
                 viable = true;
                 scopeN = -1;

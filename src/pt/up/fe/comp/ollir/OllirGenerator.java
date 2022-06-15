@@ -168,17 +168,17 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         visit(condition);
         int thisIfNumber = ifNumber++;
-        code.append(ident(true)).append("Then").append(thisIfNumber).append(": \n");
+        for(JmmNode elseChild : elseBlock.getChildren()){
+            visit(elseChild);
+        }
+
+        code.append(ident()).append("goto EndIf").append(thisIfNumber).append(";\n");
+        code.append(ident(true)).append("IfBlock").append(thisIfNumber).append(": \n");
+
         for(JmmNode ifChild : ifBlock.getChildren()){
             visit(ifChild);
         }
 
-        code.append(ident()).append("goto EndIf").append(thisIfNumber).append(";\n");
-        code.append(ident(true)).append("Else").append(thisIfNumber).append(": \n");
-
-        for(JmmNode elseChild : elseBlock.getChildren()){
-            visit(elseChild);
-        }
 
         code.append(ident(true)).append("EndIf").append(thisIfNumber).append(":\n");
         return 0;
@@ -253,8 +253,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         switch (condition.getJmmParent().getKind()) {
             case "IfStatement":
                 code.append(temps);
-                code.append(ident()).append("if (").append(t1).append(") goto Then").append(ifNumber).append(";\n")
-                    .append(ident()).append("goto Else").append(ifNumber).append(";\n");
+                code.append(ident()).append("if (").append(t1).append(") goto IfBlock").append(ifNumber).append(";\n");
                 break;
             case "WhileStatement":
                 code.append(temps);
