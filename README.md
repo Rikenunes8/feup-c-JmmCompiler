@@ -155,6 +155,7 @@ Here we use a pre-order visitor to visit while and if statements. If the conditi
 ## OLLIR code generation  
 
 After AST validation by the semantic analysis phase, we walk through the AST (*top-down*) using visitors and generate the corresponding **OLLIR code** taking into consideration that this is a *3-address code* and making the necessary adjustments if needed.
+Without optimizations, we use 2 `goto` in if-else statements (**1 single jump per statement**) and 3 `goto` for while statements that are decreased with the while to do-while optimization.    
 
 ## OLLIR code optimization
 
