@@ -80,6 +80,11 @@ public class MyBackendTest {
         generatedJasminCodeEqualsTemplate("ifgoto");
     }
 
+    @Test
+    public void testOllirToJasminIinc() {
+        generatedJasminCodeEqualsTemplate("iinc");
+    }
+
     /*
      * Code example tests that must be successfully parsed
      */

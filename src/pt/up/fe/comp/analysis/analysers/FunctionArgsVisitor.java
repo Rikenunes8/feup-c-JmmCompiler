@@ -8,7 +8,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pt.up.fe.comp.Utils.*;
+import static pt.up.fe.comp.analysis.AnalysisUtils.*;
 import static pt.up.fe.comp.ast.AstNode.*;
 
 public class FunctionArgsVisitor extends SemanticAnalyserVisitor {
@@ -24,17 +24,20 @@ public class FunctionArgsVisitor extends SemanticAnalyserVisitor {
 
         Type leftType = getType(left, symbolTable);
 
-        if (left.getKind().equals(THIS_LITERAL.toString())
+        if (symbolTable.getSuper() == null && left.getKind().equals(IDENTIFIER_LITERAL.toString())
+                && left.get("val").equals(symbolTable.getClassName()) && !symbolTable.getStatic(methodName)) {
+            this.addReport(methodCall, "Class' non-static methods can't be called like static methods");
+        } else if (left.getKind().equals(THIS_LITERAL.toString())
                 || (leftType != null && !leftType.isArray() && leftType.getName().equals(symbolTable.getClassName()))) {
             if (left.getKind().equals(THIS_LITERAL.toString()) && methodCall.getAncestor(METHOD_DECLARATION.toString()).get().get("static").equals("true")) {
-                this.addReport(methodCall, "Cannot call this object in a static method");
+                this.addReport(methodCall, "Object \"this\" can't be used in a static method");
                 return true;
             }
             if (symbolTable.getSuper() != null) {
                 return true;
             }
             if (!symbolTable.hasMethod(methodName)) {
-                this.addReport(methodCall, "Method "+methodName+" does not exist in class "+symbolTable.getClassName());
+                this.addReport(methodCall, "Method "+methodName+" doesn't exist in class "+symbolTable.getClassName());
                 return true;
             }
 
@@ -50,7 +53,7 @@ public class FunctionArgsVisitor extends SemanticAnalyserVisitor {
                 if (argType == null || paramType == null)
                     continue;
                 if (!argType.equals(paramType)) {
-                    this.addReport(methodCall, "Incompatible types: "+argType.print()+" cannot be converted to "+paramType.print());
+                    this.addReport(methodCall, "Incompatible types: "+argType.print()+" can't be converted to "+paramType.print());
                 }
             }
         }

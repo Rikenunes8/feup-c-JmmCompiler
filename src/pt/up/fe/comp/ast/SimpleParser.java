@@ -33,12 +33,9 @@ public class SimpleParser implements JmmParser {
         try {
 
             JmmGrammarParser parser = new JmmGrammarParser(SpecsIo.toInputStream(jmmCode));
-            //parser.Program();
             SpecsSystem.invoke(parser, startingRule);
 
-
             Node root = parser.rootNode();
-            // root.dump("");
 
             if (!(root instanceof JmmNode)) {
                 return JmmParserResult.newError(new Report(ReportType.WARNING, Stage.SYNTATIC, -1,
@@ -46,9 +43,6 @@ public class SimpleParser implements JmmParser {
             }
 
             new LineColAnnotator().visit((JmmNode) root);
-
-            JmmNode jmmRoot = ((JmmNode) root).sanitize();
-            System.out.println(jmmRoot.toTree());
 
             return new JmmParserResult((JmmNode) root, Collections.emptyList(), config);
 

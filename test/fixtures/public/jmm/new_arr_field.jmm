@@ -1,0 +1,14 @@
+class A {
+    int n;
+    public static void main(String[] args) {
+        A a;
+        a = new A();
+        a.foo();
+    }
+    public int foo() {
+        int[] a;
+        n = 2;
+        a = new int[n];
+        return n;
+    }
+}

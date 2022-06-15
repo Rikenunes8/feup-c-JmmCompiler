@@ -1,17 +1,31 @@
-import ioPlus;
-import Parent;
-class HelloWorld extends Parent {
-    int[] a;
-    int e;
-	public static void main(String[] args) {
-        int[] b;
-        int c;
-        a = new int[5];
-        e = 2;
-        a[1] = 5;
-        c = a[1];
-        c = e;
-        b = a;
-	}
-}
+import io;
+class Test {
 
+	public static void main(String[] args) {
+
+        int a;
+        int b;
+        int c;
+        int d;
+        Test t;
+
+        t = new Test();
+        a = 1;
+        b = 2;
+        d = 6;
+
+        c = t.sum(a,b);
+
+        b = t.sum(d, c) + c;
+
+        io.print(c);
+	}
+
+    public int sum(int a, int b) {
+        int e;
+
+        e = 3;
+
+        return e + b;
+    }
+}

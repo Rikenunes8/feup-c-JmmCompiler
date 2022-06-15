@@ -7,7 +7,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static pt.up.fe.comp.Utils.buildType;
+import static pt.up.fe.comp.analysis.AnalysisUtils.buildType;
 
 public class SymbolTableVisitor extends SemanticAnalyserVisitor {
     public SymbolTableVisitor() {
@@ -80,7 +80,7 @@ public class SymbolTableVisitor extends SemanticAnalyserVisitor {
         if (methodLocalVariables.size() != setMethodLocalVariables.size())
             this.addReport(methodDecl, "Duplicated local variables");
 
-        symbolTable.addMethod(methodName, buildType(methodType), methodParameters, methodLocalVariables);
+        symbolTable.addMethod(methodName, buildType(methodType), methodParameters, methodLocalVariables, methodDecl.get("static").equals("true"));
         return true;
     }
 }

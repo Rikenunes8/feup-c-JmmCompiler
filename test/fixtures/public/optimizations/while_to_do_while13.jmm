@@ -1,0 +1,17 @@
+class A {
+    public static void main(String[] args) {
+        boolean x;
+        int a;
+        a = 0;
+        x = true;
+        while(true) {
+            while (x) {
+                x = true;
+            }
+            a = a + 2;
+        }
+        while (x) {
+            a = a + 1;
+        }
+    }
+}

@@ -8,18 +8,12 @@
 .end method
 
 .method public check(I)V
-	.limit stack 99
-	.limit locals 99
+	.limit stack 2
+	.limit locals 2
 
 	iload_1
 	iconst_1
-	if_icmpge label0
-	iconst_0
-	goto label1
-	label0:
-	iconst_1
-	label1:
-	ifne else
+	if_icmpge else
 	else:
 	return
 .end method

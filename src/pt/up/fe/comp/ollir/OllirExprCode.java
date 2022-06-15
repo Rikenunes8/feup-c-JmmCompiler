@@ -1,6 +1,5 @@
 package pt.up.fe.comp.ollir;
 
-
 public class OllirExprCode {
   private final String temps;
   private final String fullExp;

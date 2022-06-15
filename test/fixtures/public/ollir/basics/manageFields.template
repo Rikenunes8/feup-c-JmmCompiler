@@ -1,7 +1,7 @@
 .class public myClass
 .super java/lang/Object
 
-.field private a I
+.field private 'a' I
 
 .method public <init>()V
 	aload_0
@@ -10,8 +10,8 @@
 .end method
 
 .method public check(I)V
-	.limit stack 99
-	.limit locals 99
+	.limit stack 3
+	.limit locals 4
 
 	aload_0
 	getfield myClass/a I

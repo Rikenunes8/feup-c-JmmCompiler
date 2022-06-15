@@ -1,0 +1,19 @@
+class A {
+    public static void main(String[] args) {
+        int a;
+        int b;
+        int c;
+        int d;
+        a = 0;
+        b = 4;
+        c = 1;
+        while (a < b) {
+            while (c < b) {
+                a = a + 1;
+                c = b + 1;
+            }
+            d = b;
+            a = a + d;
+        }
+    }
+}

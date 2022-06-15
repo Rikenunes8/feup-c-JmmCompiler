@@ -3,6 +3,7 @@ package pt.up.fe.comp.mytests;
 import org.junit.Test;
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.specs.util.SpecsIo;
+import pt.up.fe.specs.util.SpecsStrings;
 
 import static org.junit.Assert.assertEquals;
 
@@ -10,7 +11,6 @@ public class MyCompilerTest {
 
     private static void noErrors(String jmmCode, String expected) {
         var result = TestUtils.backend(jmmCode);
-        System.out.println(result.getJasminCode());
         result.compile();
         var output = result.run();
         assertEquals(expected, output.trim());
@@ -74,10 +74,18 @@ public class MyCompilerTest {
     public void testArrays1() {
         noErrors(SpecsIo.getResource("fixtures/public/run/Arrays1.jmm"), "15");
     }
+
     @Test
     public void testArrays2() {
         noErrors(SpecsIo.getResource("fixtures/public/run/Arrays2.jmm"), "6");
     }
+
+    @Test
+    public void testArraysAndBooleans() {
+        var nl = SpecsIo.getNewline();
+        noErrors(SpecsIo.getResource("fixtures/public/run/ArraysAndBooleans.jmm"), "1"+nl+"0"+nl+"15"+nl+"0"+nl+"1"+nl+"15");
+    }
+
     @Test
     public void testLocalVar() {
         noErrors(SpecsIo.getResource("fixtures/public/run/LocalVar.jmm"), "5");
@@ -93,6 +101,29 @@ public class MyCompilerTest {
         noErrors(SpecsIo.getResource("fixtures/public/run/WhileStmt2.jmm"), "10");
     }
 
+    // ----------
 
+    public void assertNoErrorsGeneral(String filename) {
+        noErrors(SpecsIo.getResource("fixtures/public/general/" + filename + ".jmm"),
+                SpecsIo.getResource("fixtures/public/general/" + filename + ".txt"));
+    }
 
+    @Test
+    public void testTicTacToe() {
+        String filename = "TicTacToe";
+        String jmmCode = SpecsIo.getResource("fixtures/public/general/" + filename + ".jmm");
+        String expected = SpecsIo.getResource("fixtures/public/general/" + filename + ".txt");
+        String input = SpecsIo.getResource("fixtures/public/general/" + filename + ".input");
+
+        var result = TestUtils.backend(jmmCode);
+        System.out.println(result.getJasminCode());
+        result.compile();
+        var output = result.run(input).replaceAll(" ", "");
+        assertEquals(expected.replaceAll(" ", ""), output.trim());
+    }
+
+    @Test
+    public void testWhileAndIf() {
+        assertNoErrorsGeneral("WhileAndIf");
+    }
 }

@@ -1,12 +1,12 @@
 .class public MyFields
 .super abc
 
-.field private a I
-.field public b I
-.field protected c I
-.field static d I
-.field final e I
-.field static final f I
+.field private 'a' I
+.field public 'b' I
+.field protected 'c' I
+.field static 'd' I
+.field final 'e' I
+.field static final 'f' I
 
 .method public <init>()V
 	aload_0

@@ -1,0 +1,60 @@
+import io;
+class Test {
+    int[] a;
+
+	public static void main(String[] args) {
+	    Test t;
+	    t = new Test();
+
+        if (t.test()) { io.println(1); }
+        else { io.println(0); }
+
+        if (!t.test()) { io.println(1); }
+        else { io.println(0); }
+
+        io.println(t.getFields());
+        io.println(t.getValue(1));
+        io.println(t.getValue(4));
+
+        io.println(t.sumValues(t.getValues()));
+	}
+
+	public int getFields() {
+	    a = new int[5];
+        return this.sumValues(a);
+	}
+
+	public boolean test() {
+	    return true;
+	}
+
+	public int getValue(int index) {
+	    int r;
+
+	    if (a[index] < 3) {
+	        r = 0;
+	    } else {
+	        r = 1;
+	    }
+
+	    return r;
+	}
+
+	public int[] getValues() {
+        return a;
+    }
+
+    public int sumValues(int[] values) {
+        int c;
+
+        values[0] = 1;
+        values[1] = 2;
+        values[2] = 3;
+        values[3] = 4;
+        values[4] = 5;
+
+        c = values[0] + values[1] + values[2] + values[3] + values[4];
+
+        return c;
+    }
+}

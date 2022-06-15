@@ -1,0 +1,8 @@
+import B;
+
+class A {
+    public int foo(B a) {
+        a.bar(1);
+        return 0;
+    }
+}
