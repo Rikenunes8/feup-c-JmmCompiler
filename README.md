@@ -1,13 +1,13 @@
 # GROUP: comp2022-1b
 
-| NAME | NR | GRADE | CONTRIBUTION |
-| --- | --- | --- | --- |
-| Henrique Ribeiro Nunes | 201906852 | 20 | 25% |
-| José António Dantas Macedo | 201705226 | 20 | 25% |
-| Margarida Assis Ferreira | 201905046 | 20 | 25% |
-| Patrícia do Carmo Nunes Oliveira | 201905427 | 20 | 25% |
+| NAME                             | NR        | GRADE | CONTRIBUTION |
+| -------------------------------- | --------- | :---: | :----------: |
+| Henrique Ribeiro Nunes           | 201906852 | 20    | 25%          |
+| José António Dantas Macedo       | 201705226 | 20    | 25%          |
+| Margarida Assis Ferreira         | 201905046 | 20    | 25%          |
+| Patrícia do Carmo Nunes Oliveira | 201905427 | 20    | 25%          |
 
-GLOBAL Grade of the project: 20
+**Global Project Grade:** 20.0
 
 # SUMMARY:
 
